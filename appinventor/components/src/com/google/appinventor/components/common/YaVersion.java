@@ -215,8 +215,10 @@ public class YaVersion {
   // - NOTIFIER_COMPONENT_VERSION was incremented to 2.
   // For YOUNG_ANDROID_VERSION 72:
   // - WEBVIEWER_COMPONENT_VERSION was incremented to 3
+  // For YOUNG_ANDROID_VERSION 73:
+  // - Network component was added.
 
-  public static final int YOUNG_ANDROID_VERSION = 72;
+  public static final int YOUNG_ANDROID_VERSION = 73;
 
   // ............................... Blocks Language Version Number ...............................
 
@@ -477,6 +479,8 @@ public class YaVersion {
   // For LOCATIONSENSOR_COMPONENT_VERSION 2:
   // - The TimeInterval and DistanceInterval properties were added.
   public static final int LOCATIONSENSOR_COMPONENT_VERSION = 2;
+
+  public static final int NETWORK_COMPONENT_VERSION = 1;
 
   // For NOTIFIER_COMPONENT_VERSION 2:
   // - To ShowChooseDialog and ShowTextDialog, new arg was added to indicate if dialog is cancelable

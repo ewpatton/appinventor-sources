@@ -374,4 +374,10 @@ public interface Images extends Resources {
    */
   @Source("com/google/appinventor/images/web.png")
   ImageResource web();
+
+  /**
+   * Designer palette item: Network component
+   */
+  @Source("com/google/appinventor/images/network.png")
+  ImageResource network();
 }
