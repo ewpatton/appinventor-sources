@@ -15,6 +15,9 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import kawa.standard.Scheme;
 
+import org.robolectric.RobolectricTestRunner;
+import org.junit.runner.RunWith;
+
 /**
  * Tests the evaluation of various YAIL code.
  *
@@ -23,6 +26,7 @@ import kawa.standard.Scheme;
  * @author markf@google.com (Mark Friedman)
  */
 
+@RunWith(RobolectricTestRunner.class)
 public class YailEvalTest extends TestCase {
   Scheme scheme;
 

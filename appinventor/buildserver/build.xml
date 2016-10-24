@@ -277,6 +277,11 @@
     <pathelement location="${lib.dir}/commons-io/commons-io-2.0.1.jar" />
     <pathelement location="${lib.dir}/json/json.jar" />
     <pathelement location="${lib.dir}/junit/junit-4.8.2.jar" />
+    <pathelement location="${lib.dir}/robolectric/robolectric-3.1.2.jar" />
+    <pathelement location="${lib.dir}/robolectric/robolectric-annotations-3.1.2.jar" />
+    <pathelement location="${lib.dir}/robolectric/robolectric-utils-3.1.2.jar" />
+    <pathelement location="${lib.dir}/robolectric/robolectric-resources-3.1.2.jar" />
+    <pathelement location="${lib.dir}/android/5.1.1/android.jar" />
   </path>
 
   <path id="BuildServerTests.path">
