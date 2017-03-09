@@ -13,7 +13,7 @@
 
      Contains definitions common to multiple App Inventor build.xml files.
      ====================================================================== -->
-<project name="CommonDefinitions">
+<project name="CommonDefinitions" xmlns:jacoco="antlib:org.jacoco.ant">
   <!-- Always build with debug set... (jis) -->
   <property name="debug" value="true"/>
   <description>
@@ -81,6 +81,10 @@
     <classpath>
       <pathelement location="${appinventor.dir}/lib/ant-contrib/ant-contrib-1.0b3.jar"/>
     </classpath>
+  </taskdef>
+
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="${appinventor.dir}/lib/jacoco/jacocoant.jar"/>
   </taskdef>
 
   <!-- =====================================================================
@@ -204,6 +208,7 @@
       <jar basedir="${classdir}"
            destfile="${local.build.dir}/@{aij-testingtarget}.jar" />
 
+      <jacoco:coverage destfile="${local.build.dir}/jacoco.exec" inclnolocationclasses="true">
       <junit printsummary="yes"
              fork="true"
              dir="${basedir}"
@@ -224,6 +229,7 @@
           </fileset>
         </batchtest>
       </junit>
+      </jacoco:coverage>
       <junitreport todir="${reports.dir}">
         <fileset dir="${reports.dir}/raw/">
           <include name="TEST-*.xml"/>

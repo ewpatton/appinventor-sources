@@ -7,7 +7,7 @@
      App Inventor common libraries
      ====================================================================== -->
 
-<project name="AllProjects" default="all">
+<project name="AllProjects" default="all" xmlns:sonar="antlib:org.sonar.ant">
   <description>
     App Inventor
   </description>
@@ -167,4 +167,46 @@
     <delete dir="build"/>
     <delete dir="reports"/>
   </target>
+
+  <!-- =====================================================================
+       Define properties for Sonarqube analysis.
+       ===================================================================== -->
+  <property name="sonar.host.url" value="http://localhost:9000" />
+  <property name="sonar.modules" value="common,components,blocklyeditor,buildserver,appengine"/>
+  <property name="sonar.projectKey" value="edu.mit.appinventor:appinventor-parent"/>
+  <property name="sonar.projectName" value="MIT App Inventor"/>
+  <property name="sonar.projectVersion" value="2.40-SNAPSHOT"/>
+  <property name="sonar.links.ci" value="https://jenkins.appinventor.mit.edu/job/MIT_App_Inventor/"/>
+  <property name="sonar.links.issue" value="https://github.com/mit-cml/appinventor-sources/issues"/>
+  <property name="sonar.links.scm" value="https://github.com/mit-cml/appinventor-sources.git"/>
+  <property name="sonar.links.scm_dev" value="ssh://gerrit.appinventor.mit.edu:29418/app-inventor-private.git"/>
+  <property name="sonar.sourceEncoding" value="UTF-8"/>
+  <property name="sonar.sources" value="src"/>
+  <property name="sonar.java.source" value="1.5"/>
+  <property name="sonar.java.binaries" value="build"/>
+  <property name="sonar.java.libraries" value=""/>
+  <property name="sonar.java.test.binaries" value="build"/>
+  <property name="sonar.java.test.libraries" value="../lib/junit/*.jar"/>
+  <property name="sonar.junit.reportsPath" value="reports"/>
+  <property name="sonar.jacoco.reportPaths" value="build/jacoco.exec"/>
+  <property name="sonar.javascript.lcov.reportPaths" value="build/lcov.info"/>
+  <property name="common.sonar.projectName" value="MIT App Inventor Common"/>
+  <property name="components.sonar.projectName" value="MIT App Inventor Components"/>
+  <property name="blocklyeditor.sonar.projectName" value="MIT App Inventor Blockly"/>
+  <property name="buildserver.sonar.projectName" value="MIT App Inventor Buildserver"/>
+  <property name="appengine.sonar.projectName" value="MIT App Inventor App Engine"/>
+  <property name="components.sonar.java.binaries" value="build/classes/AndroidRuntime,build/classes/CommonConstants,build/classes/HtmlEntities"/>
+  <property name="components.sonar.java.test.binaries" value="build/classes/AndroidRuntimeTests,build/classes/CommonTests"/>
+
+  <target name="sonar"
+          depends="tests">
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+      <classpath>
+        <pathelement location="lib/sonarqube/sonarqube-ant-task-2.5.jar"/>
+      </classpath>
+    </taskdef>
+
+    <sonar:sonar />
+  </target>
+
 </project>

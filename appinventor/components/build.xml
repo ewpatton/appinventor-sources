@@ -7,7 +7,7 @@
      App Inventor component libraries
      ====================================================================== -->
 
-<project name="components" default="all">
+<project name="components" default="all" basedir="." xmlns:sonar="antlib:org.sonar.ant">
   <description>
     App Inventor component libraries
   </description>
@@ -42,6 +42,22 @@
   <property name="Extensions.dir" location="${local.build.dir}/extensions" />
   <!-- Can be used by extension authors to use the old-style AIX package layout -->
   <property name="extensions.packagefqcn" value="false" />
+
+  <!-- =====================================================================
+       Define properties for Sonarqube analysis.
+       ===================================================================== -->
+  <property name="sonar.host.url" value="http://localhost:9000" />
+  <property name="sonar.projectKey" value="edu.mit.appinventor:components"/>
+  <property name="sonar.projectName" value="MIT App Inventor Components"/>
+  <property name="sonar.projectVersion" value="2.40-SNAPSHOT"/>
+  <property name="sonar.sources" value="src"/>
+  <property name="sonar.java.source" value="1.5"/>
+  <property name="sonar.java.binaries" value=""/>
+  <property name="sonar.java.libraries" value=""/>
+
+  <target name="sonar">
+    <sonar:sonar />
+  </target>
 
   <!-- =====================================================================
        CommonConstants: library of constants used across App Inventor
