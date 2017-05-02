@@ -102,5 +102,21 @@ The automated tests depend on [Phantomjs](http://phantomjs.org/). Make sure you 
 
     $ ant tests
 
+### Generating Documentation for extensions
+
+For extension maintainers, there is a script that will generate
+Markdown files and Scalable Vector Graphics (SVG) images of an
+extension's blocks. It is `docgen.js` in the blocklyeditor directory,
+and it is run in the following way:
+
+```shell
+./docgen.js "Extension Name" /path/to/extension.aix
+```
+
+After running, there will be one or more Markdown files (one for each
+extension defined in the aix) and a directory called blocks that
+contains a SVG file per block. These can be served using a service
+such as Jekyll or Github Pages.
+
 ##Need help?
 Contact us through our [Google Group](https://groups.google.com/forum/#!forum/app-inventor-open-source-dev) or [G+ community](https://plus.google.com/u/0/b/116831753302186936352/116831753302186936352/posts).
