@@ -1225,7 +1225,7 @@ Blockly.ReplMgr.ehardreset = function(formName) {
 // script and then creates new AVD files for the emulator based
 // on the configurations the user selects in the dialog.
 
-Blockly.ReplMgr.configureemulator = function(formName) {
+Blockly.ReplMgr.configureemulator = function() {
     var context = this;
     var emulatoroptionsdialog = new Blockly.Util.Dialog(Blockly.Msg.REPL_CONFIGURE_EMULATOR, null, Blockly.Msg.REPL_OK, Blockly.Msg.REPL_CANCEL, 0, function(response, width, height, dpi, sdcard) {
         emulatoroptionsdialog.hide();

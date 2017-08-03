@@ -290,7 +290,7 @@ public class BlocklyPanel extends HTMLPanel {
   }
 
   public void configureEmulator() {
-    doConfigureEmulator(formName);
+    doConfigureEmulator();
   }
 
   public void verifyAllBlocks() {
@@ -383,8 +383,8 @@ public class BlocklyPanel extends HTMLPanel {
       final CheckBox mkSdCard = new CheckBox("Create an SD Card");
       sdCardButtonHolder.add(mkSdCard);
       Button ok = new Button(buttonName);
-      ok.addClickListener(new ClickListener() {
-        public void onClick(Widget sender) {
+      ok.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent sender) {
           int emulatorHeight = 800;
           int emulatorWidth = 480;
           int emulatorDpi = 160;
@@ -405,8 +405,8 @@ public class BlocklyPanel extends HTMLPanel {
       });
       holder.add(ok);
       Button cancel = new Button(cancelButtonName);
-      cancel.addClickListener(new ClickListener() {
-        public void onClick(Widget sender) {
+      cancel.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent sender) {
           doEmulatorOptionsCallBack(callback, cancelButtonName, 0, 0, 0, 0);
         }
       });
@@ -421,8 +421,8 @@ public class BlocklyPanel extends HTMLPanel {
       message.setStyleName("DialogBox-message");
       if (buttonName != null) {           // If buttonName and cancelButtonName are null
         Button ok = new Button(buttonName); // We won't have any buttons and other
-        ok.addClickListener(new ClickListener() { // code is needed to dismiss us
-          public void onClick(Widget sender) {
+        ok.addClickHandler(new ClickHandler() { // code is needed to dismiss us
+          public void onClick(ClickEvent sender) {
             doCallBack(callback, buttonName);
           }
         });
@@ -430,8 +430,8 @@ public class BlocklyPanel extends HTMLPanel {
       }
       if (cancelButtonName != null) {
         Button cancel = new Button(cancelButtonName);
-        cancel.addClickListener(new ClickListener() {
-          public void onClick(Widget sender) {
+        cancel.addClickHandler(new ClickHandler() {
+          public void onClick(ClickEvent sender) {
             doCallBack(callback, cancelButtonName);
           }
         });
@@ -832,12 +832,8 @@ public class BlocklyPanel extends HTMLPanel {
     );
   }-*/;
 
-  public static native void doConfigureEmulator(String formName) /*-{
-      $wnd.Blocklies[formName].ReplMgr.configureemulator(formName);
-  }-*/;
-
-  public static native void doRenderBlockly(String formName) /*-{
-    $wnd.Blocklies[formName].BlocklyEditor.render();
+  public static native void doConfigureEmulator() /*-{
+    Blockly.ReplMgr.configureemulator();
   }-*/;
 
   public native void doCheckWarnings() /*-{
