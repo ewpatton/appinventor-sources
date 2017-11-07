@@ -1,5 +1,5 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright 2013-2014 MIT, All rights reserved
+// Copyright 2013-2017 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 /**
@@ -33,7 +33,8 @@ Blockly.Blocks.Utilities.YailTypeToBlocklyTypeMap = {
   'list':{input:"Array",output:["Array","String"]},
   'component':{input:"COMPONENT",output:"COMPONENT"},
   'InstantInTime':{input:Blockly.Blocks.Utilities.InstantInTime,output:Blockly.Blocks.Utilities.InstantInTime},
-  'any':{input:null,output:null}
+  'any':{input:null,output:null},
+  'enumeration':{'input':'Enumeration','output':['Number','Enumeration','String']}
   //add  more types here
 };
 

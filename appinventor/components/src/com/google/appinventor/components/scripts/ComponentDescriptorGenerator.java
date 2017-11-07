@@ -11,8 +11,10 @@ import com.google.appinventor.components.annotations.DesignerProperty;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -156,6 +158,27 @@ public final class ComponentDescriptorGenerator extends ComponentProcessor {
     // If we want to save space in simple-components.json,
     // we could include this field only when it is "true"
     sb.append("\", \"deprecated\": \"" + prop.isDeprecated() + "\"");
+    if (prop.getEnumeratedValues() != null) {
+      Iterator<Entry<String, String>> it = prop.getEnumeratedValues().entrySet().iterator();
+      if (it.hasNext()) {
+        sb.append(", \"enumeratedValues\": {");
+        Entry<String, String> entry = it.next();
+        sb.append("\"");
+        sb.append(entry.getKey().replaceAll("\"", "\\\""));
+        sb.append("\": \"");
+        sb.append(entry.getValue().replaceAll("\"", "\\\""));
+        sb.append("\"");
+        while (it.hasNext()) {
+          entry = it.next();
+          sb.append(", \"");
+          sb.append(entry.getKey().replaceAll("\"", "\\\""));
+          sb.append("\": \"");
+          sb.append(entry.getValue().replaceAll("\"", "\\\""));
+          sb.append("\"");
+        }
+        sb.append("}");
+      }
+    }
     sb.append("}");
   }
 

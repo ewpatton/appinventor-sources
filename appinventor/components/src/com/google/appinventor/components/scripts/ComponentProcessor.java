@@ -8,45 +8,37 @@ package com.google.appinventor.components.scripts;
 
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
+import com.google.appinventor.components.annotations.EnumeratedBy;
 import com.google.appinventor.components.annotations.PropertyCategory;
+import com.google.appinventor.components.annotations.SimpleBroadcastReceiver;
 import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleFunction;
 import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
-import com.google.appinventor.components.annotations.SimpleBroadcastReceiver;
+import com.google.appinventor.components.annotations.UsesActivities;
 import com.google.appinventor.components.annotations.UsesAssets;
+import com.google.appinventor.components.annotations.UsesBroadcastReceivers;
 import com.google.appinventor.components.annotations.UsesLibraries;
 import com.google.appinventor.components.annotations.UsesNativeLibraries;
 import com.google.appinventor.components.annotations.UsesPermissions;
-import com.google.appinventor.components.annotations.UsesActivities;
-import com.google.appinventor.components.annotations.UsesBroadcastReceivers;
+import com.google.appinventor.components.annotations.androidmanifest.ActionElement;
 import com.google.appinventor.components.annotations.androidmanifest.ActivityElement;
-import com.google.appinventor.components.annotations.androidmanifest.ReceiverElement;
+import com.google.appinventor.components.annotations.androidmanifest.CategoryElement;
+import com.google.appinventor.components.annotations.androidmanifest.DataElement;
 import com.google.appinventor.components.annotations.androidmanifest.IntentFilterElement;
 import com.google.appinventor.components.annotations.androidmanifest.MetaDataElement;
-import com.google.appinventor.components.annotations.androidmanifest.ActionElement;
-import com.google.appinventor.components.annotations.androidmanifest.DataElement;
-import com.google.appinventor.components.annotations.androidmanifest.CategoryElement;
+import com.google.appinventor.components.annotations.androidmanifest.ReceiverElement;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import java.io.IOException;
-import java.io.Writer;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -57,18 +49,24 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.AbstractTypeVisitor7;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleTypeVisitor7;
 import javax.lang.model.util.Types;
-
-import java.lang.annotation.Annotation;
-
-import java.lang.reflect.InvocationTargetException;
-
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Processor for generating output files based on the annotations and
@@ -109,6 +107,7 @@ public abstract class ComponentProcessor extends AbstractProcessor {
   private static final Set<String> SUPPORTED_ANNOTATION_TYPES = ImmutableSet.of(
       "com.google.appinventor.components.annotations.DesignerComponent",
       "com.google.appinventor.components.annotations.DesignerProperty",
+      "com.google.appinventor.components.annotations.EnumeratedBy",
       "com.google.appinventor.components.annotations.SimpleEvent",
       "com.google.appinventor.components.annotations.SimpleFunction",
       "com.google.appinventor.components.annotations.SimpleObject",
@@ -351,9 +350,10 @@ public abstract class ComponentProcessor extends AbstractProcessor {
     private boolean readable;
     private boolean writable;
     private String componentInfoName;
+    private Map<String, String> enumeratedValues;
 
-    protected Property(String name, String description,
-                       PropertyCategory category, boolean userVisible, boolean deprecated) {
+    protected Property(String name, String description, PropertyCategory category,
+        boolean userVisible, boolean deprecated, Map<String, String> enumeratedValues) {
       this.name = name;
       this.description = description;
       this.propertyCategory = category;
@@ -361,11 +361,13 @@ public abstract class ComponentProcessor extends AbstractProcessor {
       this.deprecated = deprecated;
       // type defaults to null
       // readable and writable default to false
+      this.enumeratedValues = enumeratedValues;
     }
 
     @Override
     public Property clone() {
-      Property that = new Property(name, description, propertyCategory, userVisible, deprecated);
+      Property that = new Property(name, description, propertyCategory, userVisible, deprecated,
+          enumeratedValues);
       that.type = type;
       that.readable = readable;
       that.writable = writable;
@@ -425,6 +427,15 @@ public abstract class ComponentProcessor extends AbstractProcessor {
      */
     protected String getType() {
       return type;
+    }
+
+    /**
+     * Returns this property's enumerated value, if any.
+     *
+     * @return the feature's enumerated values
+     */
+    protected Map<String, String> getEnumeratedValues() {
+      return enumeratedValues;
     }
 
     /**
@@ -1030,7 +1041,8 @@ public abstract class ComponentProcessor extends AbstractProcessor {
                                      simpleProperty.description(),
                                      simpleProperty.category(),
                                      simpleProperty.userVisible(),
-                                     elementUtils.isDeprecated(element));
+                                     elementUtils.isDeprecated(element),
+                                     getEnumerationValuesIfPresent(element));
 
     // Get parameters to tell if this is a getter or setter.
     ExecutableType executableType = (ExecutableType) element.asType();
@@ -1303,6 +1315,9 @@ public abstract class ComponentProcessor extends AbstractProcessor {
           priorProperty.writable = priorProperty.writable || newProperty.writable;
           priorProperty.userVisible = priorProperty.userVisible && newProperty.userVisible;
           priorProperty.deprecated = priorProperty.deprecated && newProperty.deprecated;
+          if (priorProperty.enumeratedValues == null) {
+            priorProperty.enumeratedValues = newProperty.enumeratedValues;
+          }
           priorProperty.componentInfoName = componentInfo.name;
         } else {
           // Add the new property to the properties map.
@@ -1549,5 +1564,54 @@ public abstract class ComponentProcessor extends AbstractProcessor {
         }
       }, visitedTypes);
     }
+  }
+
+  private Map<String, String> getEnumerationValuesIfPresent(Element element) {
+    Map<String, String> result = null;
+    for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
+      if (mirror.getAnnotationType().asElement().getSimpleName().contentEquals(EnumeratedBy.class.getSimpleName())) {
+        for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
+          if (entry.getKey().getSimpleName().contentEquals("value")) {
+            result = new TreeMap<>();
+            DeclaredType enumType = (DeclaredType) entry.getValue().getValue();
+            if (((DeclaredType)typeUtils.directSupertypes(enumType).get(0)).asElement().getSimpleName().contentEquals("Enum")) {
+              int i = 0;
+              for (Element field : enumType.asElement().getEnclosedElements()) {
+                if (looksLikeEnumConstant(enumType, field)) {
+                  if (!field.getSimpleName().toString().startsWith("_IGNORE")) {
+                    result.put(Integer.toString(i), field.getSimpleName().toString());
+                  }
+                  i++;
+                } else {
+                  break;
+                }
+              }
+            }
+            if (result.size() > 0) {
+              result.put("$Class", enumType.toString());
+            }
+            return result;
+          }
+        }
+      }
+    }
+    if (element.getKind().equals(ElementKind.METHOD)) {
+      for (VariableElement parameter : ((ExecutableElement) element).getParameters()) {
+        result = getEnumerationValuesIfPresent(parameter);
+        if (result != null) {
+          return result;
+        }
+      }
+    }
+    return result;
+  }
+
+  private boolean looksLikeEnumConstant(DeclaredType enumType, Element field) {
+    return field instanceof VariableElement &&
+        field.getModifiers().contains(Modifier.PUBLIC) &&
+        field.getModifiers().contains(Modifier.STATIC) &&
+        field.getModifiers().contains(Modifier.FINAL) &&
+        typeUtils.isSameType(field.asType(), enumType) &&
+        field.getSimpleName().toString().matches("[A-Z_][A-Z_0-9]+");
   }
 }

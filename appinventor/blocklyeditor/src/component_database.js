@@ -1,7 +1,7 @@
 /* -*- mode: javascript; js-indent-level 2; -*- */
 /**
  * @license
- * Copyright © 2016 Massachusetts Institute of Technology. All rights reserved.
+ * Copyright © 2016-2017 Massachusetts Institute of Technology. All rights reserved.
  */
 
 /**
@@ -97,6 +97,8 @@ Blockly.ComponentDatabase = function() {
   this.instances_ = {};
   /** @type {Object.<string, ComponentTypeDescriptor>} */
   this.types_ = {};
+  /** @type {Object.<string, Object<string, string>>} */
+  this.enumerations_ = {};
   // For migration of old projects that are name based rather than uid based.
   /** @type {Object.<string, string>} */
   this.instanceNameUid_ = {};
@@ -107,6 +109,7 @@ Blockly.ComponentDatabase = function() {
   this.i18nMethodNames_ = {};
   this.i18nParamNames_ = {};
   this.i18nPropertyNames_ = {};
+  this.i18nEnumCases_ = {};
 };
 
 /**
@@ -301,7 +304,8 @@ Blockly.ComponentDatabase.prototype.populateTypes = function(componentInfos) {
       methodDictionary: {},
       properties: {},
       setPropertyList: [],
-      getPropertyList: []
+      getPropertyList: [],
+      enumeration: null
     };
     // parse type description and fill in all of the fields
     for (j = 0; event = componentInfo.events[j]; ++j) {
@@ -329,6 +333,9 @@ Blockly.ComponentDatabase.prototype.populateTypes = function(componentInfos) {
       if (typeof property['deprecated'] === 'string') {
         property['deprecated'] = JSON.parse(property['deprecated']);
         if (property['deprecated']) continue;
+      }
+      if (property['enumeratedValues']) {
+        this.enumerations_[property['enumeratedValues']['$Class']] = property['enumeratedValues'];
       }
       if (property['rw'] == 'read-write') {
         property.mutability = Blockly.PROPERTY_READWRITEABLE;
@@ -363,6 +370,8 @@ Blockly.ComponentDatabase.prototype.populateTranslations = function(translations
         this.i18nMethodNames_[parts[1]] = translations[key];
       } else if (parts[0] == 'PARAM') {
         this.i18nParamNames_[parts[1]] = translations[key];
+      } else if (parts[0] == 'ENUM') {
+        this.i18nEnumCases_[parts[1]] = translations[key];
       }
     }
   }
@@ -475,6 +484,32 @@ Blockly.ComponentDatabase.prototype.getGetterNamesForType = function(typeName) {
 };
 
 /**
+ *
+ * @param className
+ * @returns {!Array.<!Array>}
+ */
+Blockly.ComponentDatabase.prototype.getEnumeration = function(className) {
+  var options = [];
+  goog.object.forEach(this.enumerations_[className], function(v, k) {
+    if (k !== '$Class') {
+      options.push([this.getInternationalizedEnumerationCase(v), k]);
+    }
+  }, this);
+  if (options.length === 0) {
+    options.push(['Unknown', null]);
+  }
+  return options;
+};
+
+/**
+ * Returns the list of known enumerations.
+ * @returns {!Array.<string>}
+ */
+Blockly.ComponentDatabase.prototype.getEnumerationClasses = function() {
+  return goog.object.getKeys(this.enumerations_);
+};
+
+/**
  * Get the internationalized string for the given component type.
  * @param {!string} name String naming a component type
  * @returns {string} The localized string if available, otherwise the unlocalized name.
@@ -517,4 +552,13 @@ Blockly.ComponentDatabase.prototype.getInternationalizedParameterName = function
  */
 Blockly.ComponentDatabase.prototype.getInternationalizedPropertyName = function(name) {
   return this.i18nPropertyNames_[name] || name;
+};
+
+/**
+ * Gets the internationalized string for the given enumeration case.
+ * @param {!string} name String naming an enumeration case
+ * @returns {string} The localized string if available, otherwise the unlocalized name.
+ */
+Blockly.ComponentDatabase.prototype.getInternationalizedEnumerationCase = function(name) {
+  return this.i18nEnumCases_[name] || name;
 };

@@ -1,5 +1,5 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright © 2013-2016 MIT, All rights reserved
+// Copyright © 2013-2017 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 /**
@@ -22,6 +22,7 @@ goog.provide('AI.Blockly.Drawer');
 goog.require('Blockly.Flyout');
 goog.require('Blockly.Options');
 goog.require('goog.object');
+goog.require('goog.array');
 
 // Some block drawers need to be initialized after all the javascript source is loaded because they
 // use utility functions that may not yet be defined at the time their source is read in. They
@@ -253,6 +254,13 @@ Blockly.Drawer.prototype.blockTypeToXMLArray = function(blockType,mutatorAttribu
     // [lyn, 10/23/13] Handle procedure calls in drawers specially
     if (blockType == 'procedures_callnoreturn' || blockType == 'procedures_callreturn') {
       xmlString = this.procedureCallersXMLString(blockType == 'procedures_callreturn');
+    } else if (blockType === 'constants_enumeration') {
+      xmlString = '<xml>' +
+        goog.array.map(this.workspace_.getComponentDatabase().getEnumerationClasses(),
+        function(e) {
+          return '<block type="constants_enumeration"><mutation><class name="' + e +
+            '"/></mutation></block>';
+        }).join('') + '</xml>';
     } else {
       xmlString = '<xml><block type="' + blockType + '">';
       if(mutatorAttributes) {
@@ -260,6 +268,13 @@ Blockly.Drawer.prototype.blockTypeToXMLArray = function(blockType,mutatorAttribu
           mutatorAttributes['is_generic'] = !mutatorAttributes['instance_name']
         }
         xmlString += Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes);
+        var propInfo = this.workspace_.getComponentDatabase()
+          .getPropertyForType(mutatorAttributes['component_type'],
+            mutatorAttributes['property_name']);
+        if (blockType === 'component_set_get' && mutatorAttributes['set_or_get'] === 'set' &&
+            propInfo.enumeratedValues) {
+          xmlString += '<value name="VALUE"><block type="constants_enumeration"><mutation><class name="' + propInfo.enumeratedValues['$Class'] + '"/></mutation></block></value>';
+        }
       }
       xmlString += '</block></xml>';
     }

@@ -895,6 +895,10 @@ public interface OdeMessages extends Messages {
   @Description("Label on built-in-Colors-blocks branch of block selector tree")
   String builtinColorsLabel();
 
+  @DefaultMessage("Constants")
+  @Description("Label on built-in-Constants-blocks branch of block selector tree")
+  String builtinConstantsLabel();
+
   @DefaultMessage("Variables")
   @Description("Label on built-in-Variables-blocks branch of block selector tree")
   String builtinVariablesLabel();
@@ -1082,6 +1086,16 @@ public interface OdeMessages extends Messages {
   String responsiveSizing();
 
   // Used in editor/youngandroid/properties/YoungAndroidAlignmentChoicePropertyEditor.java
+  @DefaultMessage("Left")
+  String leftEnumCase();
+  @DefaultMessage("Center")
+  String centerEnumCase();
+  @DefaultMessage("Right")
+  String rightEnumCase();
+  @DefaultMessage("Top")
+  String topEnumCase();
+  @DefaultMessage("Bottom")
+  String bottomEnumCase();
 
   @DefaultMessage("left")
   @Description("Text for text alignment choice 'left'")

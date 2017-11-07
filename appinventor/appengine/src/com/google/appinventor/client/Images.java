@@ -498,6 +498,12 @@ public interface Images extends Resources {
   ImageResource colors();
 
   /**
+   * Built in drawer item: constants
+   */
+  @Source("com/google/appinventor/images/constants.png")
+  ImageResource constants();
+
+  /**
    * Built in drawer item: variables
    */
   @Source("com/google/appinventor/images/variables.png")

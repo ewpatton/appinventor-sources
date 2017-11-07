@@ -1304,7 +1304,7 @@ public class Form extends AppCompatActivity
   * @param alignment
   */
  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_HORIZONTAL_ALIGNMENT,
-     defaultValue = ComponentConstants.HORIZONTAL_ALIGNMENT_DEFAULT + "")
+     defaultValue = "1")
  @SimpleProperty
  public void AlignHorizontal(int alignment) {
    try {
@@ -1338,7 +1338,7 @@ public class Form extends AppCompatActivity
   * @param alignment
   */
  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_VERTICAL_ALIGNMENT,
-     defaultValue = ComponentConstants.VERTICAL_ALIGNMENT_DEFAULT + "")
+     defaultValue = "1")
  @SimpleProperty
  public void AlignVertical(int alignment) {
    try {

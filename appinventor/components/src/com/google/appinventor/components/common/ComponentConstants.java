@@ -6,6 +6,9 @@
 
 package com.google.appinventor.components.common;
 
+import static com.google.appinventor.components.common.HorizontalAlignment.LEFT;
+import static com.google.appinventor.components.common.VerticalAlignment.TOP;
+
 /**
  * Contains constants related to the persistent format of Simple components.
  *
@@ -60,8 +63,8 @@ public class ComponentConstants {
   public static final int GRAVITY_CENTER_VERTICAL = 2;
   public static final int GRAVITY_BOTTOM = 3;
 
-  public static final int HORIZONTAL_ALIGNMENT_DEFAULT = GRAVITY_LEFT;
-  public static final int VERTICAL_ALIGNMENT_DEFAULT = GRAVITY_TOP;
+  public static final HorizontalAlignment HORIZONTAL_ALIGNMENT_DEFAULT = LEFT;
+  public static final VerticalAlignment VERTICAL_ALIGNMENT_DEFAULT = TOP;
 
   public static final int TEXT_RECEIVING_OFF = 1;
   public static final int TEXT_RECEIVING_FOREGROUND = 2;

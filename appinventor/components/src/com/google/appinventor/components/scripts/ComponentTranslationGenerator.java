@@ -7,6 +7,7 @@ package com.google.appinventor.components.scripts;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -72,6 +73,21 @@ public final class ComponentTranslationGenerator extends ComponentProcessor {
       sb.append("    map.put(\"PARAM-" + parameter.name + "\", MESSAGES." +
           Character.toLowerCase(parameter.name.charAt(0)) + parameter.name.substring(1) +
           "Params());\n");
+    }
+    sb.append("\n\n/* Enumerations */\n\n");
+    Set<String> enumCases = new TreeSet<>();
+    for (Property property : component.properties.values()) {
+      Map<String, String> enumeratedValues = property.getEnumeratedValues();
+      if (enumeratedValues != null) {
+        for (Entry<String, String> entry : enumeratedValues.entrySet()) {
+          if (entry.getKey().equals("$Class")) continue;
+          enumCases.add(entry.getValue());
+        }
+      }
+    }
+    for (String ec : enumCases) {
+      sb.append("    map.put(\"ENUM-").append(ec).append("\", MESSAGES.").append(ec.toLowerCase())
+          .append("EnumCase());\n");
     }
   }
 

@@ -1,44 +1,35 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2012 MIT, All rights reserved
+// Copyright 2011-2017 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
 package com.google.appinventor.components.runtime;
 
 import android.app.Activity;
-
 import android.graphics.drawable.Drawable;
-
 import android.os.Handler;
-
 import android.util.Log;
-
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
-
 import com.google.appinventor.components.annotations.DesignerProperty;
+import com.google.appinventor.components.annotations.EnumeratedBy;
 import com.google.appinventor.components.annotations.PropertyCategory;
 import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
-
 import com.google.appinventor.components.common.ComponentConstants;
+import com.google.appinventor.components.common.HorizontalAlignment;
 import com.google.appinventor.components.common.PropertyTypeConstants;
-
+import com.google.appinventor.components.common.VerticalAlignment;
 import com.google.appinventor.components.runtime.util.AlignmentUtil;
 import com.google.appinventor.components.runtime.util.ErrorMessages;
 import com.google.appinventor.components.runtime.util.MediaUtil;
 import com.google.appinventor.components.runtime.util.ViewUtil;
 
 import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * A container for components that arranges them linearly, either
@@ -61,8 +52,8 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
   private AlignmentUtil alignmentSetter;
 
   // the alignment for this component's LinearLayout
-  private int horizontalAlignment;
-  private int verticalAlignment;
+  private HorizontalAlignment horizontalAlignment;
+  private VerticalAlignment verticalAlignment;
   // Backing for background color
   private int backgroundColor;
   // This is the Drawable corresponding to the Image property.
@@ -99,8 +90,8 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
     alignmentSetter = new AlignmentUtil(viewLayout);
     horizontalAlignment = ComponentConstants.HORIZONTAL_ALIGNMENT_DEFAULT;
     verticalAlignment = ComponentConstants.VERTICAL_ALIGNMENT_DEFAULT;
-    alignmentSetter.setHorizontalAlignment(horizontalAlignment);
-    alignmentSetter.setVerticalAlignment(verticalAlignment);
+    alignmentSetter.setHorizontalAlignment(horizontalAlignment.ordinal());
+    alignmentSetter.setVerticalAlignment(verticalAlignment.ordinal());
 
     if (scrollable) {
       switch (orientation) {
@@ -227,7 +218,7 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
           " 3 = horizontally centered.  Alignment has no effect if the arrangement's width is " +
           "automatic.")
   public int AlignHorizontal() {
-    return horizontalAlignment;
+    return horizontalAlignment.ordinal();
   }
 
   /**
@@ -236,14 +227,14 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
    * @param alignment
    */
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_HORIZONTAL_ALIGNMENT,
-      defaultValue = ComponentConstants.HORIZONTAL_ALIGNMENT_DEFAULT + "")
+      defaultValue = "1")
   @SimpleProperty
-  public void AlignHorizontal(int alignment) {
+  public void AlignHorizontal(@EnumeratedBy(HorizontalAlignment.class) int alignment) {
     try {
       // notice that the throw will prevent the alignment from being changed
       // if the argument is illegal
       alignmentSetter.setHorizontalAlignment(alignment);
-      horizontalAlignment = alignment;
+      horizontalAlignment = HorizontalAlignment.valueOf(alignment);
     } catch (IllegalArgumentException e) {
       container.$form().dispatchErrorOccurredEvent(this, "HorizontalAlignment",
           ErrorMessages.ERROR_BAD_VALUE_FOR_HORIZONTAL_ALIGNMENT, alignment);
@@ -262,7 +253,7 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
           "3 = aligned at the bottom.  Alignment has no effect if the arrangement's height " +
           "is automatic.")
   public int AlignVertical() {
-    return verticalAlignment;
+    return verticalAlignment.ordinal();
   }
 
   /**
@@ -271,14 +262,14 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
    * @param alignment
    */
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_VERTICAL_ALIGNMENT,
-      defaultValue = ComponentConstants.VERTICAL_ALIGNMENT_DEFAULT + "")
+      defaultValue = "1")
   @SimpleProperty
-  public void AlignVertical(int alignment) {
+  public void AlignVertical(@EnumeratedBy(VerticalAlignment.class) int alignment) {
     try {
       // notice that the throw will prevent the alignment from being changed
       // if the argument is illegal
       alignmentSetter.setVerticalAlignment(alignment);
-      verticalAlignment = alignment;
+      verticalAlignment = VerticalAlignment.values()[alignment];
     } catch (IllegalArgumentException e) {
       container.$form().dispatchErrorOccurredEvent(this, "VerticalAlignment",
           ErrorMessages.ERROR_BAD_VALUE_FOR_VERTICAL_ALIGNMENT, alignment);
