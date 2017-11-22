@@ -17,6 +17,7 @@ import android.os.Looper;
 
 import android.util.Log;
 
+import com.google.appinventor.components.runtime.BlocksThread;
 import com.google.appinventor.components.runtime.PhoneStatus;
 import com.google.appinventor.components.runtime.ReplForm;
 
@@ -48,7 +49,6 @@ import org.json.JSONObject;
 public class AppInvHTTPD extends NanoHTTPD {
 
   private File rootDir;
-  private Language scheme;
   private ReplForm form;
   private boolean secure;       // Should we only accept from 127.0.0.1?
 
@@ -64,10 +64,8 @@ public class AppInvHTTPD extends NanoHTTPD {
   {
     super(port, wwwroot);
     this.rootDir = wwwroot;
-    this.scheme = Scheme.getInstance("scheme");
     this.form = form;
     this.secure = secure;
-    gnu.expr.ModuleExp.mustNeverCompile();
   }
 
   /**
@@ -194,7 +192,7 @@ public class AppInvHTTPD extends NanoHTTPD {
         if (input_code.equals("#f")) {
           Log.e(LOG_TAG, "Skipping evaluation of #f");
         } else {
-          scheme.eval(code);
+          BlocksThread.eval(code);
         }
         res = new Response(HTTP_OK, MIME_JSON, RetValManager.fetch(false));
       } catch (Throwable ex) {

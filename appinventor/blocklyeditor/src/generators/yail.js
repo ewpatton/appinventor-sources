@@ -100,6 +100,7 @@ AI.Yail.YAIL_SORT_KEY_NONDEST = "(sortkey_nondest ";
 AI.Yail.YAIL_TRUE = "#t";
 AI.Yail.YAIL_UNREGISTER =
   "com.google.appinventor.components.runtime.EventDispatcher:unregisterEventForDelegation";
+AI.Yail.YAIL_WAIT = '(yail-wait ';
 AI.Yail.YAIL_WHILE = "(while ";
 AI.Yail.YAIL_LIST_CONSTRUCTOR = "*list-for-runtime*";
 

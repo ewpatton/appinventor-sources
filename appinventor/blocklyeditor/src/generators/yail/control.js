@@ -202,6 +202,12 @@ AI.Yail['controls_eval_but_ignore'] = function() {
   return code;
 };
 
+AI.Yail['controls_wait'] = function() {
+  var millis = AI.Yail.valueToCode(this, 'VALUE', AI.Yail.ORDER_NONE) || 0;
+  var code = AI.Yail.YAIL_WAIT + millis + AI.Yail.YAIL_CLOSE_BLOCK;
+  return code;
+};
+
 // [lyn, 01/15/2013] Added
 AI.Yail['controls_nothing'] = function() {
   return ['*the-null-value*', AI.Yail.ORDER_NONE];
