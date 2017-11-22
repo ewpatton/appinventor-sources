@@ -301,6 +301,9 @@ public class Form extends AppCompatActivity
     viewLayout = new LinearLayout(this, ComponentConstants.LAYOUT_ORIENTATION_VERTICAL);
     alignmentSetter = new AlignmentUtil(viewLayout);
 
+    // Initialize blocks thread
+    BlocksThread.get();
+
     progress = null;
     if (!_initialized && formName.equals("Screen1")) {
       Log.d(LOG_TAG, "MULTI: _initialized = " + _initialized + " formName = " + formName);

@@ -103,6 +103,7 @@
          (SimplePropertyUtil:copyComponentProperties existing-component component-to-add))))))
 
 (define-alias SimpleForm <com.google.appinventor.components.runtime.Form>)
+(define-alias BlocksThread <com.google.appinventor.components.runtime.BlocksThread>)
 
 (define (call-Initialize-of-components . component-names)
   ;; Do any inherent/implied initializations
@@ -421,23 +422,9 @@
                  (if (is-bound-in-form-environment registeredObject)
                      (if (eq? (lookup-in-form-environment registeredObject) componentObject)
                         (let ((handler (lookup-handler registeredComponentName eventName)))
-                                ;; Note: This try-catch was originally part of the
-                                ;; generated handler from define-event.  It was moved
-                                ;; here because Kawa seems be unable to eval a
-                                ;; try-catch without compiling it and we can't support
-                                ;; compilation in anything (e.g. define-event) that
-                                ;; might get sent to the REPL!
-                                (try-catch
-                                 (begin
-                                   (apply handler (gnu.lists.LList:makeList args 0))
-                                   #t)
-                                 (exception java.lang.Throwable
-                                  (begin
-                                    (android-log-form (exception:getMessage))
-;;; Comment out the line below to inhibit a stack trace on a RunTimeError
-                                    (exception:printStackTrace)
-                                    (process-exception exception)
-                                    #f))))
+                          (com.google.appinventor.components.runtime.BlocksThread:runOnBlocksThreadAsync
+                           (lambda ()
+                            (apply handler (gnu.lists.LList:makeList args 0)))))
                         #f)
                      ;; else unregister event for registeredComponentName
                      (begin
@@ -877,10 +864,12 @@
   (let ((coerced-args (coerce-args method-name arglist typelist)))
     (let ((result
            (if (all-coercible? coerced-args)
-               (apply invoke
+               (BlocksThread:runOnUiThreadSync
+                (lambda ()
+                   (apply invoke
                       `(,(lookup-in-current-form-environment component-name)
                         ,method-name
-                        ,@coerced-args))
+                        ,@coerced-args))))
                (generate-runtime-type-error method-name arglist))))
       ;; TODO(markf): this should probably be generalized but for now this is OK, I think
       (sanitize-component-data result))))
@@ -905,10 +894,12 @@
                                      (list (get-display-representation possible-component)))
         (let ((result
                (if (all-coercible? coerced-args)
-                   (apply invoke
+                   (BlocksThread:runOnUiThreadSync
+                    (lambda ()
+                      (apply invoke
                           `(,component-value
                             ,method-name
-                            ,@coerced-args))
+                            ,@coerced-args))))
                    (generate-runtime-type-error method-name arglist))))
           ;; TODO(markf): this should probably be generalized but for now this is OK, I think
           (sanitize-component-data result)))))
@@ -1079,7 +1070,7 @@
   (let ((coerced-arg (coerce-arg property-value property-type)))
     (android-log (format #f "coerced property value was: ~A " coerced-arg))
     (if (all-coercible? (list coerced-arg))
-        (invoke comp prop-name coerced-arg)
+        (BlocksThread:runOnUiThreadSync (lambda () (invoke comp prop-name coerced-arg)))
         (generate-runtime-type-error prop-name (list property-value)))))
 
 
@@ -2173,6 +2164,10 @@ list, use the make-yail-list constructor with no arguments.
         (cons a (loop (+ a 1) b))))
   (kawa-list->yail-list (loop (inexact->exact (ceiling low))
                               (inexact->exact (floor high)))))
+
+
+(define (yail-wait millis)
+  (java.lang.Thread:sleep millis))
 
 
 ;;; For now, we'll represent tables as lists of pairs.

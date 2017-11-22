@@ -507,6 +507,19 @@ Blockly.Blocks['controls_eval_but_ignore'] = {
   typeblock: [{translatedName: Blockly.Msg.LANG_CONTROLS_EVAL_BUT_IGNORE_TITLE}]
 };
 
+Blockly.Blocks['controls_wait'] = {
+  category: 'Control',
+  helpUrl: '',
+  init: function() {
+    this.setColour(Blockly.CONTROL_CATEGORY_HUE);
+    this.appendValueInput('VALUE')
+      .setCheck(Blockly.Blocks.Utilities.YailTypeToBlocklyType('number', 'input'))
+      .appendField('wait for milliseconds');
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+  }
+};
+
 Blockly.Blocks['controls_openAnotherScreen'] = {
   // Open another screen
   category: 'Control',

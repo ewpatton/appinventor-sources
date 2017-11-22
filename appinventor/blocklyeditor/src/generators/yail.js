@@ -82,6 +82,7 @@ Blockly.Yail.YAIL_SET_VARIABLE = "(set-var! ";
 Blockly.Yail.YAIL_SET_THIS_FORM = "(set-this-form)\n ";
 Blockly.Yail.YAIL_SPACER = " ";
 Blockly.Yail.YAIL_TRUE = "#t";
+Blockly.Yail.YAIL_WAIT = '(yail-wait ';
 Blockly.Yail.YAIL_WHILE = "(while ";
 Blockly.Yail.YAIL_LIST_CONSTRUCTOR = "*list-for-runtime*";
 

@@ -137,6 +137,12 @@ Blockly.Yail['controls_eval_but_ignore'] = function() {
   return code;
 };
 
+Blockly.Yail['controls_wait'] = function() {
+  var millis = Blockly.Yail.valueToCode(this, 'VALUE', Blockly.Yail.ORDER_NONE) || 0;
+  var code = Blockly.Yail.YAIL_WAIT + millis + Blockly.Yail.YAIL_CLOSE_BLOCK;
+  return code;
+};
+
 // [lyn, 01/15/2013] Added
 Blockly.Yail['controls_nothing'] = function() {
   return ['*the-null-value*', Blockly.Yail.ORDER_NONE];
