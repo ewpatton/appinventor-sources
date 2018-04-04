@@ -5513,7 +5513,7 @@ public interface OdeMessages extends Messages {
   @DefaultMessage("UriEncode")
   @Description("")
   String UriEncodeMethods();
-  
+
   @DefaultMessage("UriDecode")
   @Description("")
   String UriDecodeMethods();
@@ -7011,4 +7011,12 @@ public interface OdeMessages extends Messages {
   @DefaultMessage("SetCenter")
   @Description("")
   String SetCenterMethods();
+
+  @DefaultMessage("Are Permissions Granted")
+  @Description("")
+  String ArePermissionsGrantedMethods();
+
+  @DefaultMessage("Open App Settings")
+  @Description("")
+  String OpenAppSettingsMethods();
 }

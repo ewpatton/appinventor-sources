@@ -71,6 +71,7 @@ import com.google.appinventor.components.runtime.util.PaintUtil;
 import com.google.appinventor.components.runtime.util.SdkLevel;
 import com.google.appinventor.components.runtime.util.ScreenDensityUtil;
 import com.google.appinventor.components.runtime.util.ViewUtil;
+import com.google.appinventor.components.runtime.util.PermissionUtil;
 import org.json.JSONException;
 
 /**
@@ -344,6 +345,7 @@ public class Form extends AppInventorCompatActivity
     // is called after the constructor completes and therefore the Initialize event would run
     // before initialization finishes. Instead the compiler suppresses the invocation of the
     // event and leaves it up to the library implementation.
+    PermissionUtil.checkRuntimePermission(this);
     Initialize();
   }
 
@@ -2246,7 +2248,7 @@ public class Form extends AppInventorCompatActivity
       view = frameLayout;
     }
     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-    imm.hideSoftInputFromWindow(view.getWindowToken(), 0); 
+    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
   }
 
   protected void updateTitle() {
@@ -2274,5 +2276,16 @@ public class Form extends AppInventorCompatActivity
 
   public boolean isDarkTheme() {
     return usesDarkTheme;
+  }
+
+  @SimpleFunction(description = "Returns true if ALL needed app permissions were granted, else false.")
+  public boolean ArePermissionsGranted() {
+    return PermissionUtil.arePermissionsGranted(this);
+  }
+
+  @SimpleFunction(description = "Opens the settings screen of the app. "+
+    "Useful if 'Are Permissions Granted' has returned false.")
+  public void OpenAppSettings() {
+    PermissionUtil.appSettings(this);
   }
 }
