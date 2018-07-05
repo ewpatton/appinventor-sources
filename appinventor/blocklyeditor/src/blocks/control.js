@@ -36,6 +36,7 @@
 goog.provide('Blockly.Blocks.control');
 
 goog.require('Blockly.Blocks.Utilities');
+goog.require('Blockly.FieldNumber');
 
 Blockly.Blocks['controls_if'] = {
   // If/elseif/else condition.
@@ -435,6 +436,20 @@ Blockly.Blocks['controls_while'] = {
     this.setTooltip(Blockly.Msg.LANG_CONTROLS_WHILE_TOOLTIP);
   },
   typeblock: [{translatedName: Blockly.Msg.LANG_CONTROLS_WHILE_TITLE}]
+};
+
+Blockly.Blocks['controls_wait'] = {
+  category: 'Control',
+  helpUrl: '',
+  init: function() {
+    this.setColour(Blockly.CONTROL_CATEGORY_HUE);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.appendValueInput('TIME')
+      .setCheck(Blockly.Blocks.Utilities.YailTypeToBlocklyType("number", Blockly.Blocks.Utilities.INPUT))
+      .appendField('wait milliseconds');
+  },
+  typeblock: [{translatedName: 'wait'}]
 };
 
 // [lyn, 01/15/2013] Remove DO C-sockets because now handled more modularly by DO-THEN-RETURN block.

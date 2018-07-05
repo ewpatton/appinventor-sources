@@ -134,6 +134,13 @@ Blockly.Yail['controls_while'] = function() {
   return code;
 };
 
+Blockly.Yail['controls_wait'] = function(block) {
+  var time = Blockly.Yail.valueToCode(block, 'TIME', Blockly.Yail.ORDER_NONE) || 0;
+  var body = block.nextConnection.targetBlock() ? Blockly.Yail.blockToCode(block.nextConnection.targetBlock()) : '#!null';
+  var code = '(wait-for ' + time + ' ' + body + ')';
+  return code;
+};
+
 // [lyn, 01/15/2013] Added
 Blockly.Yail['controls_do_then_return'] = function() {
   var stm = Blockly.Yail.statementToCode(this, 'STM', Blockly.Yail.ORDER_NONE) || Blockly.Yail.YAIL_FALSE;
