@@ -99,6 +99,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
@@ -952,6 +953,7 @@ public class Ode implements EntryPoint {
     tutorialPanel = new TutorialPanel();
     tutorialPanel.setWidth("100%");
     tutorialPanel.setHeight("100%");
+    DOM.setStyleAttribute(tutorialPanel.getElement(), "min-width", "300px");
     // Initially we do not display it. If the project we load has
     // a tutorial URL, then we will set this visible when we load
     // the project
@@ -2407,7 +2409,7 @@ public class Ode implements EntryPoint {
     tutorialVisible = visible;
     if (visible) {
       tutorialPanel.setVisible(true);
-      tutorialPanel.setWidth("300px");
+      tutorialPanel.setWidth("100%");
     } else {
       tutorialPanel.setVisible(false);
       overDeckPanel.setCellWidth(tutorialPanel, "0%");
