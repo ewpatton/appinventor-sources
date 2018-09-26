@@ -8,6 +8,9 @@ package com.google.appinventor.client.editor.youngandroid;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Event.NativePreviewEvent;
+import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -22,7 +25,23 @@ import com.google.gwt.user.client.ui.Widget;
 public class TutorialPanel extends Frame {
   static {
     exportMethodsToJavascript();
+    // For some reason I have not been able to discern, setting
+    // autoclose on the dialogs below does not allow them to be closed
+    // with the Escape key. Instead, we bind a native event preview
+    // here to handle the escape key when it comes from the GWT
+    // document.
+    Event.addNativePreviewHandler(new NativePreviewHandler() {
+      @Override
+      public void onPreviewNativeEvent(NativePreviewEvent event) {
+        if (event.getTypeInt() == Event.ONKEYUP &&
+            event.getNativeEvent().getKeyCode() == 27) {
+          hideDialog();
+        }
+      }
+    });
   }
+
+  private static DialogBox currentDialog = null;
 
   /**
    * Creates video on page!
@@ -52,6 +71,7 @@ public class TutorialPanel extends Frame {
     dialogBox.setWidget(DialogBoxContents);
     dialogBox.center();
     dialogBox.show();
+    currentDialog = dialogBox;
   }
 
   /**
@@ -88,6 +108,7 @@ public class TutorialPanel extends Frame {
     dialogBox.setWidget(DialogBoxContents);
     dialogBox.center();
     dialogBox.show();
+    currentDialog = dialogBox;
   }
 
   public static void getTutorialDialog(String tutorialId) {
@@ -98,11 +119,20 @@ public class TutorialPanel extends Frame {
     createImageDialog(img);
   }
 
+  public static void hideDialog() {
+    if (currentDialog != null) {
+      currentDialog.hide();
+      currentDialog = null;
+    }
+  }
+
   private static native void exportMethodsToJavascript() /*-{
     $wnd.TutorialPanel_createTutorialDialog =
     $entry(@com.google.appinventor.client.editor.youngandroid.TutorialPanel::getTutorialDialog(Ljava/lang/String;));
     $wnd.TutorialPanel_createImageDialog =
     $entry(@com.google.appinventor.client.editor.youngandroid.TutorialPanel::getImageDialog(Ljava/lang/String;));
+    $wnd.TutorialPanel_hideDialog =
+      $entry(@com.google.appinventor.client.editor.youngandroid.TutorialPanel::hideDialog());
     $wnd.recieveMessage=function(event){
       if (event.data.type == "video") {
         $wnd.TutorialPanel_createTutorialDialog(event.data.youtubeId);
@@ -115,5 +145,10 @@ public class TutorialPanel extends Frame {
       }
     };
     $wnd.addEventListener("message", $wnd.recieveMessage, false);
+    $wnd.addEventListener("message", function(e) {
+      if (e.data.type == 'close') {
+        $wnd.TutorialPanel_hideDialog();
+      }
+    }, false);
   }-*/;
 }
