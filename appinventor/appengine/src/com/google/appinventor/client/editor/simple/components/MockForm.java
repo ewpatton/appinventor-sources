@@ -698,6 +698,8 @@ public final class MockForm extends MockContainer {
     }
   }
 
+  private Timer refreshTimer = null;
+
   /**
    * Forces a re-layout of the child components of the container.
    *
@@ -727,20 +729,40 @@ public final class MockForm extends MockContainer {
    * one project that was this big and reasonable!).  -Jeff Schiller
    * (jis@mit.edu).
    *
+   * @param force true if the refresh should happen as part of this
+   *              JavaScript event, false if the refresh can be
+   *              scheduled for after the currently executing
+   *              JavaScript event finishes
    */
-
-  private Timer refreshTimer = null;
-  public final void refresh() {
+  public final void refresh(boolean force) {
     Ode.CLog("MockForm: refresh() called.");
-    if (refreshTimer != null) return;
-    refreshTimer = new Timer() {
-      @Override
-      public void run() {
-        doRefresh();
+    if (force) {
+      // We cancel any pending refresh since we are effectively doing it now.
+      if (refreshTimer != null) {
+        refreshTimer.cancel();
         refreshTimer = null;
       }
-    };
-    refreshTimer.schedule(0);
+      doRefresh();
+    } else {
+      if (refreshTimer != null) return;
+      refreshTimer = new Timer() {
+        @Override
+        public void run() {
+          doRefresh();
+          refreshTimer = null;
+        }
+      };
+      refreshTimer.schedule(0);
+    }
+  }
+
+  /**
+   * Refresh the form. This is equivalent to {@code refresh(false)},
+   * which were the semantics of {@link #refresh(boolean)} before the
+   * {@code force} parameter was introduced.
+   */
+  public final void refresh() {
+    refresh(false);
   }
 
   /*
@@ -751,7 +773,7 @@ public final class MockForm extends MockContainer {
    *
    */
 
-  public final void doRefresh() {
+  private void doRefresh() {
     Ode.CLog("MockForm: doRefresh() called");
     Map<MockComponent, LayoutInfo> layoutInfoMap = new HashMap<MockComponent, LayoutInfo>();
 

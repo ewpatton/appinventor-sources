@@ -1033,11 +1033,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
   final void refreshForm(boolean force) {
     if (isAttached()) {
       if (getContainer() != null || isForm()) {
-        if (force) {
-          getForm().doRefresh();
-        } else {
-          getForm().refresh();
-        }
+        getForm().refresh(force);
       }
     }
   }
