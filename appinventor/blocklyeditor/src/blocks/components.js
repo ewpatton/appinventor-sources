@@ -39,6 +39,82 @@ Blockly.ComponentBlock.COLOUR_COMPONENT = '#439970';  // [67, 153, 112]
 
 Blockly.ComponentBlock.COMPONENT_SELECTOR = "COMPONENT_SELECTOR";
 
+/**
+ * Add a menu option to the context menu for {@code block} to swap between
+ * the generic and specific versions of the block.
+ *
+ * @param {Blockly.BlockSvg} block the block to manipulate
+ * @param {Array.<{enabled,text,callback}>} options the menu options
+ */
+Blockly.ComponentBlock.addGenericOption = function(block, options) {
+  var item = { enabled: false };
+  if (block.isGeneric) {
+    var compBlock = block.getInputTargetBlock('COMPONENT');
+    item.enabled = compBlock && compBlock.type == 'component_component_block';
+    item.text = Blockly.Msg.UNGENERICIZE_BLOCK;
+    item.callback = function() {
+      try {
+        Blockly.Events.setGroup(true);
+        var instanceName = compBlock.instanceName;
+        compBlock.dispose();
+        var mutation = block.mutationToDom();
+        var oldMutation = Blockly.Xml.domToText(mutation);
+        mutation.setAttribute('instance_name', instanceName);
+        mutation.setAttribute('is_generic', 'false');
+        var newMutation = Blockly.Xml.domToText(mutation);
+        block.domToMutation(mutation);
+        block.initSvg();  // block shape may have changed
+        block.render();
+        Blockly.Events.fire(new Blockly.Events.Change(
+          block, 'mutation', null, oldMutation, newMutation));
+        var group = Blockly.Events.getGroup();
+        setTimeout(function() {
+          Blockly.Events.setGroup(group);
+          block.bumpNeighbours_();
+          Blockly.Events.setGroup(false);
+        }, Blockly.BUMP_DELAY);
+      } finally {
+        Blockly.Events.setGroup(false);
+      }
+    };
+  } else {
+    item.enabled = true;
+    item.text = Blockly.Msg.GENERICIZE_BLOCK;
+    item.callback = function() {
+      try {
+        Blockly.Events.setGroup(true);
+        var instanceName = block.instanceName;
+        var mutation = block.mutationToDom();
+        var oldMutation = Blockly.Xml.domToText(mutation);
+        mutation.setAttribute('is_generic', true);
+        mutation.removeAttribute('instance_name');
+        var newMutation = Blockly.Xml.domToText(mutation);
+        block.domToMutation(mutation);
+        block.initSvg();  // block shape may have changed
+        block.render();
+        Blockly.Events.fire(new Blockly.Events.Change(
+          block, 'mutation', null, oldMutation, newMutation));
+        var compBlockXml = '<xml><block type="component_component_block">' +
+            '<mutation component_type="' + block.typeName + '" instance_name="' + instanceName + '"></mutation>' +
+            '<field name="COMPONENT_SELECTOR">' + instanceName + '</field>' +
+            '</block></xml>';
+        var compBlock = Blockly.Xml.domToBlock(Blockly.Xml.textToDom(compBlockXml).firstElementChild, block.workspace);
+        compBlock.initSvg();
+        block.getInput('COMPONENT').connection.connect(compBlock.outputConnection);
+        var group = Blockly.Events.getGroup();
+        setTimeout(function() {
+          Blockly.Events.setGroup(group);
+          block.bumpNeighbours_();
+          Blockly.Events.setGroup(false);
+        }, Blockly.BUMP_DELAY);
+      } finally {
+        Blockly.Events.setGroup(false);
+      }
+    };
+  }
+  options.splice(options.length - 1, 0, item);
+};
+
 //TODO(): add I18N
 
 /**
@@ -381,6 +457,22 @@ Blockly.Blocks.component_method = {
   },
 
   domToMutation : function(xmlElement) {
+    var oldRendered = this.rendered;
+    this.rendered = false;
+    var oldInputValues = [];
+    for (var i = 0, input; input = this.inputList[i]; i++) {
+      if (input.connection) {
+        var block = input.connection.targetBlock();
+        if (block) {
+          block.unplug();
+        }
+        oldInputValues.push(block);
+      } else {
+        oldInputValues.push(null);
+      }
+      input.dispose();
+    }
+    this.inputList.length = 0;
 
     this.typeName = xmlElement.getAttribute('component_type');
     this.methodName = xmlElement.getAttribute('method_name');
@@ -467,11 +559,19 @@ Blockly.Blocks.component_method = {
     if (methodTypeObject) {
       params = methodTypeObject.parameters;
     }
+    oldInputValues.splice(0, oldInputValues.length - params.length);
     for (var i = 0, param; param = params[i]; i++) {
       var newInput = this.appendValueInput("ARG" + i).appendField(componentDb.getInternationalizedParameterName(param.name));
       newInput.setAlign(Blockly.ALIGN_RIGHT);
       var blockyType = Blockly.Blocks.Utilities.YailTypeToBlocklyType(param.type,Blockly.Blocks.Utilities.INPUT);
       newInput.connection.setCheck(blockyType);
+      if (oldInputValues[i] && newInput.connection) {
+        Blockly.Mutator.reconnect(oldInputValues[i].outputConnection, this, 'ARG' + i);
+      }
+    }
+
+    for (var i = 0, input; input = this.inputList[i]; i++) {
+      input.init();
     }
 
     if (!methodTypeObject) {
@@ -497,6 +597,8 @@ Blockly.Blocks.component_method = {
     }
 
     this.verify(); // verify the block and mark it accordingly
+
+    this.rendered = oldRendered;
   },
   // Rename the block's instanceName, type, and reset its title
   rename : function(oldname, newname) {
@@ -654,6 +756,11 @@ Blockly.Blocks.component_method = {
     } else {
       this.badBlock();
     }
+  },
+
+  customContextMenu: function(options) {
+    Blockly.ComponentBlock.addGenericOption(this, options);
+    Blockly.Block.prototype.customContextMenu.call(this, options);
   }
 
 };
@@ -674,6 +781,10 @@ Blockly.Blocks.component_set_get = {
     return Blockly.ComponentBlock.PROPERTIES_HELPURLS[mode];
   },
 
+  init: function() {
+    this.componentDropDown = Blockly.ComponentBlock.createComponentDropDown(this);
+  },
+
   mutationToDom : function() {
 
     var container = document.createElement('mutation');
@@ -692,6 +803,23 @@ Blockly.Blocks.component_set_get = {
   },
 
   domToMutation : function(xmlElement) {
+    var oldRendered = this.rendered;
+    this.rendered = false;
+    var oldInput = this.setOrGet == "set" && this.getInputTargetBlock('VALUE');
+    for (var i = 0, input; input = this.inputList[i]; i++) {
+      if (input.connection) {
+        var block = input.connection.targetBlock();
+        if (block) {
+          if (block.isShadow()) {
+            block.dispose();
+          } else {
+            block.unplug();
+          }
+        }
+      }
+      input.dispose();
+    }
+    this.inputList.length = 0;
     var componentDb = this.getTopWorkspace().getComponentDatabase();
     this.typeName = xmlElement.getAttribute('component_type');
     this.setOrGet = xmlElement.getAttribute('set_or_get');
@@ -731,8 +859,6 @@ Blockly.Blocks.component_set_get = {
         }
       }
     );
-
-    this.componentDropDown = Blockly.ComponentBlock.createComponentDropDown(this);
 
     if(this.setOrGet == "get") {
       //add output plug for get blocks
@@ -784,6 +910,11 @@ Blockly.Blocks.component_set_get = {
       }
     }
 
+    if (oldInput) {
+      this.getInput('VALUE').init();
+      Blockly.Mutator.reconnect(oldInput.outputConnection, this, 'VALUE');
+    }
+
     //for non-generic blocks, set the value of the component drop down
     if(!this.isGeneric) {
       this.componentDropDown.setValue(this.instanceName);
@@ -806,6 +937,11 @@ Blockly.Blocks.component_set_get = {
 
     this.verify();
 
+    for (var i = 0, input; input = this.inputList[i]; i++) {
+      input.init();
+    }
+
+    this.rendered = oldRendered;
   },
 
   setTypeCheck : function() {
@@ -958,7 +1094,13 @@ Blockly.Blocks.component_set_get = {
       this.badBlock(true);
     }
 
+  },
+
+  customContextMenu: function(options) {
+    Blockly.ComponentBlock.addGenericOption(this, options);
+    Blockly.Block.prototype.customContextMenu.call(this, options);
   }
+
 };
 
 /**
