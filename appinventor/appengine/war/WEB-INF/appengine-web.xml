@@ -14,6 +14,7 @@
     <include path="/about/*" expiration="1d" />
     <include path="/static/**" expiration="1d" />
     <include path="/images/*" expiration="365d" />
+    <include path="/js/*" />
     <include path="/Ya_tos_form.html" expiration="1d" />
     <include path="/favicon.ico" expiration="365d" />
     <include path="/gwt.css" expiration="1d" />
