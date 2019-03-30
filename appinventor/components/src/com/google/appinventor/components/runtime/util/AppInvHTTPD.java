@@ -348,10 +348,6 @@ public class AppInvHTTPD extends NanoHTTPD {
     seq = 1;              // Initialize this now
   }
 
-  private void doPackageUpdate(final String inurl) {
-    PackageInstaller.doPackageInstall(form, inurl);
-  }
-
   public void resetSeq() {
     seq = 1;
   }
