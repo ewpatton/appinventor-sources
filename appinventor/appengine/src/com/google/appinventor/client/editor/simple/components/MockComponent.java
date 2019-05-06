@@ -361,12 +361,12 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
 
       @Override
       public boolean canDelete() {
-        return !isForm();
+        return !isForm() && !isMenu();
       }
 
       @Override
       public void delete() {
-        if (!isForm()) {
+        if (canDelete()) {
           new DeleteDialog().center();
         }
       }
@@ -381,7 +381,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
     properties.addPropertyChangeListener(this);
 
     // Allow dragging this component in a drag-and-drop action if this is not the root form
-    if (!isForm()) {
+    if (!isForm() && !isMenu()) {
       dragSourceSupport = new DragSourceSupport(this);
       addMouseListener(dragSourceSupport);
       addTouchStartHandler(dragSourceSupport);
@@ -638,6 +638,10 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
   }
 
   public boolean isForm() {
+    return false;
+  }
+
+  public boolean isMenu() {
     return false;
   }
 
@@ -1018,6 +1022,10 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
    * Returns true if this component should be shown in the designer.
    */
   private boolean showComponentInDesigner() {
+    // Visibility of mock menu is handled separately
+    if (isMenu()) {
+      return ((MockMenu) this).isOpen();
+    }
     if (hasProperty(MockVisibleComponent.PROPERTY_NAME_VISIBLE)) {
       boolean visible = Boolean.parseBoolean(getPropertyValue(
           MockVisibleComponent.PROPERTY_NAME_VISIBLE));
