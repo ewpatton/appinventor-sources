@@ -7,8 +7,7 @@
 package com.google.appinventor.client.explorer.project;
 
 import com.google.appinventor.client.Ode;
-import static com.google.appinventor.client.Ode.MESSAGES;
-import com.google.appinventor.client.OdeAsyncCallback;
+import com.google.appinventor.client.utils.Promise;
 import com.google.appinventor.shared.rpc.project.ProjectNode;
 import com.google.appinventor.shared.rpc.project.UserProject;
 
@@ -16,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.appinventor.client.Ode.MESSAGES;
 
 /**
  * This class manages projects.
@@ -38,19 +39,20 @@ public final class ProjectManager {
    * Creates a new projects manager.
    */
   public ProjectManager() {
-    projectsMap = new HashMap<Long, Project>();
-    projectManagerEventListeners = new ArrayList<ProjectManagerEventListener>();
-    Ode.getInstance().getProjectService().getProjectInfos(
-        new OdeAsyncCallback<List<UserProject>>(
-        MESSAGES.projectInformationRetrievalError()) {
-      @Override
-      public void onSuccess(List<UserProject> projectInfos) {
-        for (UserProject projectInfo : projectInfos) {
-          addProject(projectInfo);
-        }
-        fireProjectsLoaded();
-      }
-    });
+    projectsMap = new HashMap<>();
+    projectManagerEventListeners = new ArrayList<>();
+  }
+
+  public Promise<List<UserProject>> loadProjects() {
+    return Promise.call(MESSAGES.projectInformationRetrievalError(),
+        Ode.getInstance().getProjectService()::getProjectInfos)
+        .then(projectInfos -> {
+          for (UserProject projectInfo : projectInfos) {
+            addProject(projectInfo);
+          }
+          fireProjectsLoaded();
+          return projectInfos;
+        });
   }
 
   /**
@@ -59,13 +61,7 @@ public final class ProjectManager {
    * @return  a list of projects
    */
   public List<Project> getProjects() {
-    List<Project> projects = new ArrayList<Project>();
-
-    for (Project project : projectsMap.values()) {
-      projects.add(project);
-    }
-
-    return projects;
+    return new ArrayList<>(projectsMap.values());
   }
 
   /**
@@ -75,7 +71,7 @@ public final class ProjectManager {
    * @return  a list of projects
    */
   public List<Project> getProjects(String prefix) {
-    List<Project> projects = new ArrayList<Project>();
+    List<Project> projects = new ArrayList<>();
 
     for (Project project : projectsMap.values()) {
       if (project.getProjectName().startsWith(prefix)) {
@@ -164,7 +160,6 @@ public final class ProjectManager {
    * Handles situation when a project has been published
    *
    * @param projectId project ID
-   * @param galleryId gallery ID
    */
   public void UnpublishProject (long projectId) {
     Project project = getProject(projectId);
@@ -200,7 +195,7 @@ public final class ProjectManager {
   }
 
   private List<ProjectManagerEventListener> copyProjectManagerEventListeners() {
-    return new ArrayList<ProjectManagerEventListener>(projectManagerEventListeners);
+    return new ArrayList<>(projectManagerEventListeners);
   }
 
   /*

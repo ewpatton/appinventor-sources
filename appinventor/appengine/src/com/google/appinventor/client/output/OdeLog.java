@@ -20,6 +20,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Output panel for displaying ODE internal logging messages.
@@ -34,6 +36,8 @@ public final class OdeLog extends Composite {
   private static class SingletonHolder {
     private static final OdeLog INSTANCE = new OdeLog();
   }
+
+  private static Logger log = Logger.getLogger("App Inventor");
 
   // UI elements
   private final HTML text;
@@ -85,6 +89,10 @@ public final class OdeLog extends Composite {
   public static final boolean isLogAvailable() {
     return AppInventorFeatures.hasDebuggingView() &&
       (Ode.getInstance().getUser() == null || Ode.getInstance().getUser().getIsAdmin());
+  }
+
+  public static void clog(String message) {
+    log.log(Level.INFO, message);
   }
 
   /**

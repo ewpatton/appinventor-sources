@@ -47,6 +47,8 @@ import com.google.appinventor.client.settings.Settings;
 import com.google.appinventor.client.settings.user.UserSettings;
 import com.google.appinventor.client.tracking.Tracking;
 import com.google.appinventor.client.utils.PZAwarePositionCallback;
+import com.google.appinventor.client.utils.Promise;
+import com.google.appinventor.client.utils.Urls;
 import com.google.appinventor.client.widgets.boxes.Box;
 import com.google.appinventor.client.widgets.boxes.ColumnLayout;
 import com.google.appinventor.client.widgets.boxes.ColumnLayout.Column;
@@ -184,10 +186,10 @@ public class Ode implements EntryPoint {
 
 
   // Collection of projects
-  private ProjectManager projectManager;
+  private ProjectManager projectManager = new ProjectManager();
 
   // Collection of editors
-  private EditorManager editorManager;
+  private EditorManager editorManager = new EditorManager();;
 
   // Currently active file editor, could be a YaFormEditor or a YaBlocksEditor or null.
   private FileEditor currentFileEditor;
@@ -377,34 +379,10 @@ public class Ode implements EntryPoint {
    * loads the gallery settings from server
    *
    */
-  public void  loadGallerySettings() {
-     // Callback for when the server returns us the apps
-    final Ode ode = Ode.getInstance();
-    final OdeAsyncCallback<GallerySettings> callback = new OdeAsyncCallback<GallerySettings>(
-    // failure message
-    MESSAGES.gallerySettingsError()) {
-      @Override
-      public void onSuccess(GallerySettings settings) {
-        gallerySettings = settings;
-        if(gallerySettings.galleryEnabled() == true){
-          ProjectListBox.getProjectListBox().getProjectList().setPublishedHeaderVisible(true);
-          projectToolbar.setPublishOrUpdateButtonVisible(true);
-          GalleryClient.getInstance().setSystemEnvironment(settings.getEnvironment());
-          topPanel.showGalleryLink(true);
-          if(user.isModerator()){
-            topPanel.showModerationLink(true);
-          }
-          topPanel.updateAccountMessageButton();
-        }else{
-          topPanel.showModerationLink(false);
-          topPanel.showGalleryLink(false);
-          projectToolbar.setPublishOrUpdateButtonVisible(false);
-          ProjectListBox.getProjectListBox().getProjectList().setPublishedHeaderVisible(false);
-        }
-      }
-    };
-    //this is below the call back, but of course it is done first
-    ode.getGalleryService().loadGallerySettings(callback);
+  private Promise<GallerySettings> loadGallerySettings() {
+    return Promise.call(MESSAGES.gallerySettingsError(),
+        galleryService::loadGallerySettings)
+        .then(settings -> gallerySettings = settings);
   }
 
   /**
@@ -743,166 +721,6 @@ public class Ode implements EntryPoint {
     // We call this below to initialize the ConnectProgressBar
     ConnectProgressBar.getInstance();
 
-    // Get user information.
-    OdeAsyncCallback<Config> callback = new OdeAsyncCallback<Config>(
-        // failure message
-        MESSAGES.serverUnavailable()) {
-
-      @Override
-      public void onSuccess(Config result) {
-        config = result;
-        user = result.getUser();
-        isReadOnly = user.isReadOnly();
-
-        // load the user's backpack if we are not using a shared
-        // backpack
-
-        String backPackId = user.getBackpackId();
-        if (backPackId == null || backPackId.isEmpty()) {
-          loadBackpack();
-          OdeLog.log("backpack: No shared backpack");
-        } else {
-          BlocklyPanel.setSharedBackpackId(backPackId);
-          OdeLog.log("Have a shared backpack backPackId = " + backPackId);
-        }
-
-        // Setup noop timer (if enabled)
-        int noop = config.getNoop();
-        if (noop > 0) {
-          // If we have a noop time, setup a timer to do the noop
-          Timer t = new Timer() {
-              @Override
-              public void run() {
-                userInfoService.noop(new AsyncCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void e) {
-                    }
-                    @Override
-                    public void onFailure(Throwable e) {
-                    }
-                  });
-              }
-            };
-            t.scheduleRepeating(1000*60*noop);
-        }
-
-        // If user hasn't accepted terms of service, ask them to.
-        if (!user.getUserTosAccepted() && !isReadOnly) {
-          // We expect that the redirect to the TOS page should be handled
-          // by the onFailure method below. The server should return a
-          // "forbidden" error if the TOS wasn't accepted.
-          ErrorReporter.reportError(MESSAGES.serverUnavailable());
-          return;
-        }
-
-        splashConfig = result.getSplashConfig();
-        secondBuildserver = result.getSecondBuildserver();
-        // The code below is invoked if we do not have a second buildserver
-        // configured. It sets the warnedBuild1 flag to true which inhibits
-        // the display of the dialog box used when building. This means that
-        // if no second buildserver is configured, there is no dialog box
-        // displayed when the build menu items are invoked.
-        if (!secondBuildserver) {
-          warnedBuild1 = true;
-        }
-
-        if (result.getRendezvousServer() != null) {
-          setRendezvousServer(result.getRendezvousServer(), true);
-        } else {
-          setRendezvousServer(YaVersion.RENDEZVOUS_SERVER, false);
-        }
-
-        userSettings = new UserSettings(user);
-        userSettings.loadSettings(new Command() {
-          @Override
-          public void execute() {
-
-            // Gallery settings
-            gallerySettings = new GallerySettings();
-            //gallerySettings.loadGallerySettings();
-            loadGallerySettings();
-
-            // Initialize project and editor managers
-            // The project manager loads the user's projects asynchronously
-            projectManager = new ProjectManager();
-            projectManager.addProjectManagerEventListener(new ProjectManagerEventAdapter() {
-              @Override
-              public void onProjectsLoaded() {
-                projectManager.removeProjectManagerEventListener(this);
-                openPreviousProject();
-
-                // This handles any built-in templates stored in /war
-                // Retrieve template data stored in war/templates folder and
-                // and save it for later use in TemplateUploadWizard
-                OdeAsyncCallback<String> templateCallback =
-                    new OdeAsyncCallback<String>(
-                        // failure message
-                        MESSAGES.createProjectError()) {
-                      @Override
-                      public void onSuccess(String json) {
-                        // Save the templateData
-                        TemplateUploadWizard.initializeBuiltInTemplates(json);
-                      }
-                    };
-                Ode.getInstance().getProjectService().retrieveTemplateData(TemplateUploadWizard.TEMPLATES_ROOT_DIRECTORY, templateCallback);
-              }
-            });
-            editorManager = new EditorManager();
-
-            // Initialize UI
-            initializeUi();
-
-            topPanel.showUserEmail(user.getUserEmail());
-          }
-        });
-      }
-
-      private boolean isSet(String str) {
-        return str != null && !str.equals("");
-      }
-
-      private String makeUri(String base) {
-        String[] params = new String[] { "locale", "repo", "galleryId" };
-        String separator = "?";
-        StringBuilder sb = new StringBuilder(base);
-        for (String param : params) {
-          String value = Window.Location.getParameter(param);
-          if (isSet(value)) {
-            sb.append(separator);
-            sb.append(param);
-            sb.append("=");
-            sb.append(value);
-            separator = "&";
-          }
-        }
-        return sb.toString();
-      }
-
-      @Override
-      public void onFailure(Throwable caught) {
-        if (caught instanceof StatusCodeException) {
-          StatusCodeException e = (StatusCodeException) caught;
-          int statusCode = e.getStatusCode();
-          switch (statusCode) {
-            case Response.SC_UNAUTHORIZED:
-              // unauthorized => not on whitelist
-              // getEncodedResponse() gives us the message that we wrote in
-              // OdeAuthFilter.writeWhitelistErrorMessage().
-              Window.alert(e.getEncodedResponse());
-              return;
-            case Response.SC_FORBIDDEN:
-              // forbidden => need tos accept
-              Window.open(makeUri("/" + ServerLayout.YA_TOS_FORM), "_self", null);
-              return;
-            case Response.SC_PRECONDITION_FAILED:
-              Window.Location.replace(makeUri("/login/"));
-              return;           // likely not reached
-          }
-        }
-        super.onFailure(caught);
-      }
-    };
-
     // The call below begins an asynchronous read of the user's settings
     // When the settings are finished reading, various settings parsers
     // will be called on the returned JSON object. They will call various
@@ -917,8 +735,68 @@ public class Ode implements EntryPoint {
     // This call also stores our sessionId in the backend. This will be checked
     // when we go to save a file and if different file saving will be disabled
     // Newer sessions invalidate older sessions.
+    Promise.<Config>call(MESSAGES.serverUnavailable(),
+        c -> userInfoService.getSystemConfig(sessionId, c))
+        .<UserSettings>then(result -> {
+          config = result;
+          user = result.getUser();
+          isReadOnly = user.isReadOnly();
 
-    userInfoService.getSystemConfig(sessionId, callback);
+          // If user hasn't accepted terms of service, ask them to.
+          if (!user.getUserTosAccepted() && !isReadOnly) {
+            // We expect that the redirect to the TOS page should be handled
+            // by the onFailure method below. The server should return a
+            // "forbidden" error if the TOS wasn't accepted.
+            ErrorReporter.reportError(MESSAGES.serverUnavailable());
+            return Promise.rejectWithReason(MESSAGES.serverUnavailable());
+          }
+
+          // This is called before processSettings so the work can be interleaved.
+          userSettings = new UserSettings(user);
+          Promise<UserSettings> promise = userSettings.loadSettings();
+
+          processSettings();
+
+          return promise;
+        })
+        .<List<Project>>then(userSettings -> loadGallerySettings())
+        .<GallerySettings>then(gallerySettings -> {
+          initializeUi();
+          return projectManager.loadProjects();
+        })
+        .<String>then(projectInfos -> {
+          openPreviousProject();
+          return Promise.<String>call(MESSAGES.createProjectError(), c -> {
+            projectService.retrieveTemplateData(TemplateUploadWizard.TEMPLATES_ROOT_DIRECTORY, c);
+          });
+        })
+        .<Void>then(json -> {
+          TemplateUploadWizard.initializeBuiltInTemplates(json);
+          return null;
+        })
+        .error(caught -> {
+          Throwable original = caught.getOriginal();
+          if (original instanceof StatusCodeException) {
+            StatusCodeException e = (StatusCodeException) original;
+            int statusCode = e.getStatusCode();
+            switch (statusCode) {
+              case Response.SC_UNAUTHORIZED:
+                // unauthorized => not on whitelist
+                // getEncodedResponse() gives us the message that we wrote in
+                // OdeAuthFilter.writeWhitelistErrorMessage().
+                Window.alert(e.getEncodedResponse());
+                break;
+              case Response.SC_FORBIDDEN:
+                // forbidden => need tos accept
+                Window.open(Urls.makeUri("/" + ServerLayout.YA_TOS_FORM), "_self", null);
+                break;
+              case Response.SC_PRECONDITION_FAILED:
+                Window.Location.replace(Urls.makeUri("/login/"));
+                break;           // likely not reached
+            }
+          }
+          return null;
+        });
 
     History.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
@@ -934,6 +812,57 @@ public class Ode implements EntryPoint {
     // The following line causes problems with GWT debugging, and commenting
     // it out doesn't seem to break things.
     //History.fireCurrentHistoryState();
+  }
+
+  private void processSettings() {
+    // load the user's backpack if we are not using a shared
+    // backpack
+
+    String backPackId = user.getBackpackId();
+    if (backPackId == null || backPackId.isEmpty()) {
+      loadBackpack();
+      OdeLog.clog("backpack: No shared backpack");
+    } else {
+      BlocklyPanel.setSharedBackpackId(backPackId);
+      OdeLog.clog("Have a shared backpack backPackId = " + backPackId);
+    }
+
+    // Setup noop timer (if enabled)
+    int noop = config.getNoop();
+    if (noop > 0) {
+      // If we have a noop time, setup a timer to do the noop
+      Timer t = new Timer() {
+        @Override
+        public void run() {
+          userInfoService.noop(new AsyncCallback<Void>() {
+            @Override
+            public void onSuccess(Void e) {
+            }
+            @Override
+            public void onFailure(Throwable e) {
+            }
+          });
+        }
+      };
+      t.scheduleRepeating(1000*60*noop);
+    }
+
+    splashConfig = config.getSplashConfig();
+    secondBuildserver = config.getSecondBuildserver();
+    // The code below is invoked if we do not have a second buildserver
+    // configured. It sets the warnedBuild1 flag to true which inhibits
+    // the display of the dialog box used when building. This means that
+    // if no second buildserver is configured, there is no dialog box
+    // displayed when the build menu items are invoked.
+    if (!secondBuildserver) {
+      warnedBuild1 = true;
+    }
+
+    if (config.getRendezvousServer() != null) {
+      setRendezvousServer(config.getRendezvousServer(), true);
+    } else {
+      setRendezvousServer(YaVersion.RENDEZVOUS_SERVER, false);
+    }
   }
 
   /*
@@ -952,6 +881,7 @@ public class Ode implements EntryPoint {
     Window.enableScrolling(true);
 
     topPanel = new TopPanel();
+    topPanel.showUserEmail(user.getUserEmail());
     statusPanel = new StatusPanel();
 
     DockPanel mainPanel = new DockPanel();
@@ -1198,6 +1128,22 @@ public class Ode implements EntryPoint {
     mainPanel.add(statusPanel, DockPanel.SOUTH);
     mainPanel.setSize("100%", "100%");
     RootPanel.get().add(mainPanel);
+
+    if (gallerySettings.galleryEnabled()) {
+      ProjectListBox.getProjectListBox().getProjectList().setPublishedHeaderVisible(true);
+      projectToolbar.setPublishOrUpdateButtonVisible(true);
+      GalleryClient.getInstance().setSystemEnvironment(gallerySettings.getEnvironment());
+      topPanel.showGalleryLink(true);
+      if (user.isModerator()) {
+        topPanel.showModerationLink(true);
+      }
+      topPanel.updateAccountMessageButton();
+    } else {
+      topPanel.showModerationLink(false);
+      topPanel.showGalleryLink(false);
+      projectToolbar.setPublishOrUpdateButtonVisible(false);
+      ProjectListBox.getProjectListBox().getProjectList().setPublishedHeaderVisible(false);
+    }
 
     // Add a handler to the RootPanel to keep track of Google Chrome Pinch Zooming and
     // handle relevant bugs. Chrome maps a Pinch Zoom to a MouseWheelEvent with the

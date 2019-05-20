@@ -12,6 +12,7 @@ import com.google.appinventor.client.OdeAsyncCallback;
 import com.google.appinventor.client.output.OdeLog;
 import com.google.appinventor.client.settings.CommonSettings;
 import com.google.appinventor.client.settings.SettingsAccessProvider;
+import com.google.appinventor.client.utils.Promise;
 import com.google.appinventor.shared.rpc.user.UserInfoProvider;
 import com.google.appinventor.shared.settings.SettingsConstants;
 import com.google.gwt.user.client.Command;
@@ -21,7 +22,7 @@ import com.google.gwt.user.client.DeferredCommand;
  * Collection of user settings.
  *
  */
-public final class UserSettings extends CommonSettings implements SettingsAccessProvider {
+public final class UserSettings extends CommonSettings implements SettingsAccessProvider<UserSettings> {
   private boolean loading;
   private boolean loaded;
 
@@ -38,34 +39,24 @@ public final class UserSettings extends CommonSettings implements SettingsAccess
   // SettingsAccessProvider implementation
 
   @Override
-  public void loadSettings() {
-    loadSettings(null);
-  }
+  public Promise<UserSettings> loadSettings() {
+    return Promise.call(MESSAGES.settingsLoadError(),
+        Ode.getInstance().getUserInfoService()::loadUserSettings)
+        .then(result -> {
+          OdeLog.clog("Loaded global settings: " + result);
+          decodeSettings(result);
 
-  public void loadSettings(final Command next) {
-    loading = true;
-    Ode.getInstance().getUserInfoService().loadUserSettings(
-        new OdeAsyncCallback<String>(MESSAGES.settingsLoadError()) {
-          @Override
-          public void onSuccess(String result) {
-            OdeLog.log("Loaded global settings: " + result);
-            decodeSettings(result);
+          changed = false;
+          loaded = true;
+          loading = false;
 
-            changed = false;
-            loaded = true;
-            loading = false;
-
-            if (Ode.handleUserLocale() && next != null) {
-              next.execute();
-            }
+          if (Ode.handleUserLocale()) {
+            return this;
+          } else {
+            return Promise.rejectWithReason("Reloading to apply user locale");
           }
-
-          @Override
-          public void onFailure(Throwable caught) {
-            super.onFailure(caught);
-            loading = false;
-          }
-        });
+        })
+        .done(result -> loading = false);
   }
 
   @Override
