@@ -107,6 +107,7 @@
         <include name="font-awesome/**/*"/>
       </fileset>
     </copy>
+    <copy todir="${build.war.dir}/images/" file="src/${appinventor.pkg}/images/help.png" />
   </target>
 
   <!-- =====================================================================

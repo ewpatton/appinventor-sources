@@ -40,6 +40,30 @@ Blockly.configForTypeBlock = {
 Blockly.BlocklyEditor.render = function() {
 };
 
+top.addEventListener('mousedown', function(e) {
+  if (e.target instanceof HTMLImageElement &&
+    e.target.parentElement instanceof HTMLAnchorElement &&
+    e.target.parentElement.className === 'menu-help-item') {
+    e.stopPropagation();
+  }
+}, true);
+
+Blockly.BlocklyEditor.makeMenuItemWithHelp = function(text, helpUrl) {
+  var span = document.createElement("span");
+  var a = document.createElement("a");
+  var img = document.createElement('img');
+  img.src = '/images/help.png';
+  a.href = helpUrl;
+  a.target = '_blank';
+  a.className = 'menu-help-item';
+  a.style.position = 'absolute';
+  a.style.right = '5em';
+  a.appendChild(img);
+  span.appendChild(document.createTextNode(text));
+  span.appendChild(a);
+  return span;
+};
+
 function unboundVariableHandler(myBlock, yailText) {
   var unbound_vars = Blockly.LexicalVariable.freeVariables(myBlock);
   unbound_vars = unbound_vars.toList();
@@ -66,9 +90,13 @@ function unboundVariableHandler(myBlock, yailText) {
 }
 
 Blockly.BlocklyEditor.addPngExportOption = function(myBlock, options) {
-  var downloadBlockOption = {enabled: true, text: Blockly.Msg.DOWNLOAD_BLOCKS_AS_PNG};
-  downloadBlockOption.callback = function() {
-    Blockly.exportBlockAsPng(myBlock);
+  var downloadBlockOption = {
+    enabled: true,
+    text: Blockly.BlocklyEditor.makeMenuItemWithHelp(Blockly.Msg.DOWNLOAD_BLOCKS_AS_PNG,
+      '/reference/other/download-pngs.html'),
+    callback: function() {
+      Blockly.exportBlockAsPng(myBlock);
+    }
   };
   options.splice(options.length - 1, 0, downloadBlockOption);
 };
