@@ -67,11 +67,44 @@
   <property name="build.extra.dir" location="${local.build.dir}/extra" />
 
   <!-- =====================================================================
+       Check whether or not the documentation needs to be (re-)compiled
+       ===================================================================== -->
+  <target name="CheckDocs">
+    <uptodate property="Docs.uptodate">
+      <srcfiles dir="${appinventor.dir}/docs">
+        <exclude name="_layouts/*" />
+        <exclude name="Gemfile*" />
+        <exclude name="_config.yml" />
+        <exclude name=".sass-cache/**/*" />
+      </srcfiles>
+      <firstmatchmapper>
+        <globmapper from="*.md" to="${local.build.dir}/docs/*.html" />
+        <globmapper from="*" to="${local.build.dir}/docs/*" />
+      </firstmatchmapper>
+    </uptodate>
+  </target>
+
+  <!-- =====================================================================
+       Builds the documentation from the corresponding Markdown files.
+       ===================================================================== -->
+  <target name="BuildDocs" depends="CheckDocs" unless="Docs.uptodate">
+    <exec executable="jekyll" failonerror="true">
+      <arg value="build" />
+      <arg value="-s" />
+      <arg value="${docs.dir}" />
+      <arg value="--layouts" />
+      <arg value="${docs.dir}/_layouts" />
+      <arg value="-d" />
+      <arg value="${local.build.dir}/docs" />
+    </exec>
+  </target>
+
+  <!-- =====================================================================
        Copy static files to <build>/war, from war and elsewhere
        ===================================================================== -->
   <target name="CopyToBuildWar"
           description="Create and populate build/war directory structure"
-          depends="init,blocklyeditor_BlocklyCompile">
+          depends="init,blocklyeditor_BlocklyCompile,BuildDocs">
     <mkdir dir="${build.war.dir}" />
     <copy todir="${build.war.dir}/">
       <fileset dir="war">
@@ -81,9 +114,8 @@
         <!-- canvas is a special case (see MockCanvas.java) -->
         <include name="images/canvas.png" />
       </fileset>
-      <fileset dir="${docs.dir}"/>
+      <fileset dir="${local.build.dir}/docs" />
     </copy>
-    <mkdir dir="${build.war.dir}/assets/" />
     <copy todir="${build.war.dir}/assets/" flatten="true">
       <fileset dir="${lib.dir}/blockly">
         <include name="media/*"/>

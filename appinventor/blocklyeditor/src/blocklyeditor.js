@@ -40,11 +40,45 @@ Blockly.configForTypeBlock = {
 Blockly.BlocklyEditor.render = function() {
 };
 
+Blockly.BlocklyEditor.HELP_IFRAME = null;
+
 top.addEventListener('mousedown', function(e) {
-  if (e.target instanceof HTMLImageElement &&
-    e.target.parentElement instanceof HTMLAnchorElement &&
+  if (e.target.tagName === 'IMG' &&
+    e.target.parentElement.tagName === 'A' &&
     e.target.parentElement.className === 'menu-help-item') {
     e.stopPropagation();
+    if (Blockly.BlocklyEditor.HELP_IFRAME != null) {
+      Blockly.BlocklyEditor.HELP_IFRAME.parentNode.removeChild(Blockly.BlocklyEditor.HELP_IFRAME);
+      Blockly.BlocklyEditor.HELP_IFRAME = null;
+    }
+    if (e.shiftKey || e.metaKey) {
+      return;
+    }
+    e.preventDefault();
+    var div = document.createElement('div');
+    div.style.width = '400px';
+    div.style.height = '300px';
+    div.style.resize = 'both';
+    div.style.zIndex = '99999';
+    div.style.border = '1px solid gray';
+    div.style.boxSizing = 'border-box';
+    div.style.position = 'absolute';
+    div.style.top = e.clientY + 'px';
+    div.style.left = e.clientX + 'px';
+    div.style.backgroundColor = 'white';
+    div.style.overflow = 'hidden';
+    Blockly.BlocklyEditor.HELP_IFRAME = div;
+    var iframe = document.createElement('iframe');
+    iframe.src = e.target.parentElement.href;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    div.appendChild(iframe);
+    top.document.body.appendChild(div);
+    Blockly.WidgetDiv.dispose_ = function() {
+      Blockly.BlocklyEditor.HELP_IFRAME.parentNode.removeChild(Blockly.BlocklyEditor.HELP_IFRAME);
+      Blockly.BlocklyEditor.HELP_IFRAME = null;
+    };
   }
 }, true);
 
@@ -58,6 +92,7 @@ Blockly.BlocklyEditor.makeMenuItemWithHelp = function(text, helpUrl) {
   a.className = 'menu-help-item';
   a.style.position = 'absolute';
   a.style.right = '5em';
+  a.addEventListener('click', function(e) { if (!e.shiftKey && !e.metaKey) e.preventDefault() });
   a.appendChild(img);
   span.appendChild(document.createTextNode(text));
   span.appendChild(a);
