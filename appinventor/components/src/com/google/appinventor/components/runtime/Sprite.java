@@ -16,6 +16,7 @@ import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.runtime.errors.AssertionFailure;
 import com.google.appinventor.components.runtime.errors.IllegalArgumentError;
 import com.google.appinventor.components.runtime.util.BoundingBox;
+import com.google.appinventor.components.runtime.util.ProcedureProxy;
 import com.google.appinventor.components.runtime.util.TimerInternal;
 
 import android.os.Handler;
@@ -904,6 +905,18 @@ public abstract class Sprite extends VisibleComponent
   public boolean containsPoint(double qx, double qy) {
     return qx >= xLeft && qx < xLeft + Width() &&
         qy >= yTop && qy < yTop + Height();
+  }
+
+  @SimpleFunction
+  public void GlideTo(final int x, final int y, final GlideContinuation andThen) {
+
+  }
+
+  public static class GlideContinuation extends ProcedureProxy {
+    @SimpleFunction
+    public void onComplete() throws Throwable {
+      apply();
+    }
   }
 
   // Convenience methods for dealing with hitting the screen edge and collisions

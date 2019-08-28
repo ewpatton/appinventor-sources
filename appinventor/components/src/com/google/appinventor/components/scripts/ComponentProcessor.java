@@ -64,7 +64,9 @@ import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.SimpleTypeVisitor6;
 import javax.lang.model.util.SimpleTypeVisitor7;
+import javax.lang.model.util.TypeKindVisitor6;
 import javax.lang.model.util.Types;
 
 import java.lang.annotation.Annotation;
@@ -183,6 +185,41 @@ public abstract class ComponentProcessor extends AbstractProcessor {
    */
   private final Set<String> visitedTypes = new HashSet<>();
 
+  protected abstract class ParameterType {}
+
+  protected final class SimpleParameterType extends ParameterType {
+    protected final String type;
+
+    protected SimpleParameterType(String type) {
+      this.type = type;
+    }
+
+    public String toString() {
+      return this.type;
+    }
+  }
+
+  protected final class ProcedureParameterType extends ParameterType {
+    protected final String proxyClass;
+    protected List<Parameter> parameters = new ArrayList<>();
+
+    protected ProcedureParameterType(String proxyClass) {
+      this.proxyClass = proxyClass;
+    }
+
+    protected void addParameter(String name, String type) {
+      parameters.add(new Parameter(name, new SimpleParameterType(type)));
+    }
+
+    protected void addParameter(String name, ParameterType type) {
+      parameters.add(new Parameter(name, type));
+    }
+
+    public String toString() {
+      return "ProcedureProxy:" + this.proxyClass;
+    }
+  }
+
   /**
    * Represents a parameter consisting of a name and a type.  The type is a
    * String representation of the java type, such as "int", "double", or
@@ -197,7 +234,7 @@ public abstract class ComponentProcessor extends AbstractProcessor {
     /**
      * The parameter's Java type, such as "int" or "java.lang.String".
      */
-    protected final String type;
+    protected final ParameterType type;
 
     /**
      * Constructs a Parameter.
@@ -206,6 +243,11 @@ public abstract class ComponentProcessor extends AbstractProcessor {
      * @param type the parameter's Java type (such as "int" or "java.lang.String")
      */
     protected Parameter(String name, String type) {
+      this.name = name;
+      this.type = new SimpleParameterType(type);
+    }
+
+    protected Parameter(String name, ParameterType type) {
       this.name = name;
       this.type = type;
     }
@@ -221,8 +263,8 @@ public abstract class ComponentProcessor extends AbstractProcessor {
      * @throws RuntimeException if {@code parameter} does not have a
      *         corresponding Yail type
      */
-    protected String parameterToYailType(Parameter parameter) {
-      return javaTypeToYailType(type);
+    protected String parameterToYailType() {
+      return javaTypeToYailType(type.toString());
     }
   }
 
@@ -264,6 +306,10 @@ public abstract class ComponentProcessor extends AbstractProcessor {
     }
 
     protected void addParameter(String name, String type) {
+      parameters.add(new Parameter(name, new SimpleParameterType(type)));
+    }
+
+    protected void addParameter(String name, ParameterType type) {
       parameters.add(new Parameter(name, type));
     }
 
@@ -279,7 +325,7 @@ public abstract class ComponentProcessor extends AbstractProcessor {
       StringBuilder sb = new StringBuilder();
       int count = 0;
       for (Parameter param : parameters) {
-        sb.append(param.parameterToYailType(param));
+        sb.append(param.parameterToYailType());
         sb.append(" ");
         sb.append(param.name);
         if (++count != parameters.size()) {
@@ -1456,6 +1502,47 @@ public abstract class ComponentProcessor extends AbstractProcessor {
     }
   }
 
+  private boolean isProcedureType(TypeElement te) {
+    if (te.getQualifiedName().contentEquals("com.google.appinventor.components.runtime.util.ProcedureProxy")) {
+      return true;
+    } else if (te.getQualifiedName().contentEquals("java.lang.Object")) {
+      return false;
+    } else if (te.getSuperclass().getKind() == TypeKind.NONE) {
+      return false;
+    } else {
+      return isProcedureType((TypeElement) ((DeclaredType) te.getSuperclass()).asElement());
+    }
+  }
+
+  private ProcedureParameterType extractProcedureParameter(TypeElement te) {
+    String qualifiedName = te.getQualifiedName().toString();
+
+    // Handle nested class
+    // TODO(ewpatton): For completeness this should be recursive to handle deeply nested classes
+    Element parent = te.getEnclosingElement();
+    if (parent.getKind() != ElementKind.PACKAGE) {
+      int afterDot = qualifiedName.lastIndexOf('.') + 1;
+      qualifiedName = ((TypeElement) parent).getQualifiedName().toString();
+      qualifiedName += "$";
+      qualifiedName += te.getQualifiedName().toString().substring(afterDot);
+    }
+
+    ProcedureParameterType type = new ProcedureParameterType(qualifiedName);
+    for (Element e : te.getEnclosedElements()) {
+      if (e instanceof ExecutableElement) {
+        SimpleFunction func = e.getAnnotation(SimpleFunction.class);
+        if (func != null) {
+          ExecutableElement ee = (ExecutableElement) e;
+          for (VariableElement ve : ee.getParameters()) {
+            type.addParameter(ve.getSimpleName().toString(), ve.asType().toString());
+          }
+          break;
+        }
+      }
+    }
+    return type;
+  }
+
   private void processMethods(ComponentInfo componentInfo,
                                 Element componentElement) {
     for (Element element : componentElement.getEnclosedElements()) {
@@ -1502,9 +1589,14 @@ public abstract class ComponentProcessor extends AbstractProcessor {
 
         // Extract the parameters.
         for (VariableElement ve : e.getParameters()) {
-          method.addParameter(ve.getSimpleName().toString(),
-                              ve.asType().toString());
-          updateComponentTypes(ve.asType());
+          if (ve.asType() instanceof DeclaredType && isProcedureType((TypeElement) ((DeclaredType) ve.asType()).asElement())) {
+            method.addParameter(ve.getSimpleName().toString(),
+                extractProcedureParameter((TypeElement) ((DeclaredType) ve.asType()).asElement()));
+          } else {
+            method.addParameter(ve.getSimpleName().toString(),
+                ve.asType().toString());
+            updateComponentTypes(ve.asType());
+          }
         }
 
         // Extract the return type.
@@ -1598,6 +1690,10 @@ public abstract class ComponentProcessor extends AbstractProcessor {
 
     if (type.equals("java.lang.Object")) {
       return "any";
+    }
+
+    if (type.startsWith("ProcedureProxy:")) {
+      return type;
     }
 
     if (type.equals("com.google.appinventor.components.runtime.Component")) {

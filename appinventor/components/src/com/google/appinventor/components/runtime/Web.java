@@ -28,6 +28,7 @@ import com.google.appinventor.components.runtime.util.FileUtil;
 import com.google.appinventor.components.runtime.util.GingerbreadUtil;
 import com.google.appinventor.components.runtime.util.JsonUtil;
 import com.google.appinventor.components.runtime.util.MediaUtil;
+import com.google.appinventor.components.runtime.util.ProcedureProxy;
 import com.google.appinventor.components.runtime.util.SdkLevel;
 import com.google.appinventor.components.runtime.util.YailList;
 
@@ -35,6 +36,7 @@ import android.app.Activity;
 import android.text.TextUtils;
 import android.util.Log;
 
+import gnu.mapping.Procedure;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
@@ -346,11 +348,14 @@ public class Web extends AndroidNonvisibleComponent implements Component {
    */
   @SimpleFunction
   public void Get() {
+    GetWithCompletion(null);
+  }
+
+  @SimpleFunction
+  public void GetWithCompletion(final GetCallback andWithResponse) {
     final String METHOD = "Get";
-    // Capture property values in local variables before running asynchronously.
     final CapturedProperties webProps = capturePropertyValues(METHOD);
     if (webProps == null) {
-      // capturePropertyValues has already called form.dispatchErrorOccurredEvent
       return;
     }
 
@@ -358,7 +363,7 @@ public class Web extends AndroidNonvisibleComponent implements Component {
       @Override
       public void run() {
         try {
-          performRequest(webProps, null, null, "GET");
+          performRequest(webProps, null, null, "GET", andWithResponse);
         } catch (PermissionException e) {
           form.dispatchPermissionDeniedEvent(Web.this, METHOD, e);
         } catch (FileUtil.FileException e) {
@@ -371,6 +376,13 @@ public class Web extends AndroidNonvisibleComponent implements Component {
         }
       }
     });
+  }
+
+  public static class GetCallback extends ProcedureProxy {
+    @SimpleFunction
+    public void onComplete(String url, int responseCode, String responseType, String responseContent) throws Throwable {
+      apply(url, responseCode, responseType, responseContent);
+    }
   }
 
   /**
@@ -432,7 +444,7 @@ public class Web extends AndroidNonvisibleComponent implements Component {
       @Override
       public void run() {
         try {
-          performRequest(webProps, null, path, "POST");
+          performRequest(webProps, null, path, "POST", null);
         } catch (PermissionException e) {
           form.dispatchPermissionDeniedEvent(Web.this, METHOD, e);
         } catch (FileUtil.FileException e) {
@@ -505,7 +517,7 @@ public class Web extends AndroidNonvisibleComponent implements Component {
       @Override
       public void run() {
         try {
-          performRequest(webProps, null, path, "PUT");
+          performRequest(webProps, null, path, "PUT", null);
         } catch (PermissionException e) {
           form.dispatchPermissionDeniedEvent(Web.this, METHOD, e);
         } catch (FileUtil.FileException e) {
@@ -542,7 +554,7 @@ public class Web extends AndroidNonvisibleComponent implements Component {
       @Override
       public void run() {
         try {
-          performRequest(webProps, null, null, "DELETE");
+          performRequest(webProps, null, null, "DELETE", null);
         } catch (PermissionException e) {
           form.dispatchPermissionDeniedEvent(Web.this, METHOD, e);
         } catch (FileUtil.FileException e) {
@@ -599,7 +611,7 @@ public class Web extends AndroidNonvisibleComponent implements Component {
         }
 
         try {
-          performRequest(webProps, requestData, null, httpVerb);
+          performRequest(webProps, requestData, null, httpVerb, null);
         } catch (PermissionException e) {
           form.dispatchPermissionDeniedEvent(Web.this, functionName, e);
         } catch (FileUtil.FileException e) {
@@ -796,7 +808,7 @@ public class Web extends AndroidNonvisibleComponent implements Component {
    * whose first item is the string "content", and whose second item is the list (many, apples).
    * This method signals an error and returns the empty list if the result is not well-formed XML.
    *
-   * @param jsonText the JSON text to decode
+   * @param XmlText the XML text to decode
    * @return the decoded text
    */
    // This method works by by first converting the XML to JSON and then decoding the JSON.
@@ -813,7 +825,7 @@ public class Web extends AndroidNonvisibleComponent implements Component {
       // We could be more precise and signal different errors for the conversion to JSON
       // versus the decoding of that JSON, but showing the actual error message should
       // be good enough.
-      Log.e("Exception in XMLTextDecode", e.getMessage());
+      Log.e(LOG_TAG, "Exception in XMLTextDecode", e);
       form.dispatchErrorOccurredEvent(this, "XMLTextDecode",
           ErrorMessages.ERROR_WEB_JSON_TEXT_DECODE_FAILED, e.getMessage());
       // This XMLTextDecode should always return a list, even in the case of an error
@@ -869,7 +881,7 @@ public class Web extends AndroidNonvisibleComponent implements Component {
    *
    * @throws IOException
    */
-  private void performRequest(final CapturedProperties webProps, byte[] postData, String postFile, String httpVerb)
+  private void performRequest(final CapturedProperties webProps, byte[] postData, String postFile, String httpVerb, GetCallback callback)
       throws IOException {
 
     // Open the connection.
@@ -891,6 +903,14 @@ public class Web extends AndroidNonvisibleComponent implements Component {
           final String path = saveResponseContent(connection, webProps.responseFileName,
               responseType);
 
+          if (callback != null) {
+            try {
+              callback.onComplete(webProps.urlString, responseCode, responseType, path);
+            } catch(Throwable tr) {
+              throw new RuntimeException(tr);
+            }
+          }
+
           // Dispatch the event.
           activity.runOnUiThread(new Runnable() {
             @Override
@@ -900,6 +920,14 @@ public class Web extends AndroidNonvisibleComponent implements Component {
           });
         } else {
           final String responseContent = getResponseContent(connection);
+
+          if (callback != null) {
+            try {
+              callback.onComplete(webProps.urlString, responseCode, responseType, responseContent);
+            } catch(Throwable tr) {
+              throw new RuntimeException(tr);
+            }
+          }
 
           // Dispatch the event.
           activity.runOnUiThread(new Runnable() {

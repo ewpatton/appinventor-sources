@@ -41,7 +41,9 @@ ComponentInfo = function() {};
  * @typedef ParameterDescriptor
  * @type {object}
  * @property {!string} name
- * @property {!type} type
+ * @property {!string} type
+ * @property {?string} proxyClass
+ * @property {?Array.<ParameterDecorator>} params
  */
 ParameterDescriptor = function() {};
 

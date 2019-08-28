@@ -350,7 +350,16 @@ public final class ComponentDescriptorGenerator extends ComponentProcessor {
       sb.append("{ \"name\": \"");
       sb.append(p.name);
       sb.append("\", \"type\": \"");
-      sb.append(javaTypeToYailType(p.type));
+      final String type = javaTypeToYailType(p.type.toString());
+      if (type.startsWith("ProcedureProxy:")) {
+        ProcedureParameterType ppt = (ProcedureParameterType) p.type;
+        sb.append("lambda\", \"params\": ");
+        outputParameters(ppt.parameters, sb);
+        sb.append(", \"proxy\": \"");
+        sb.append(ppt.proxyClass);
+      } else {
+        sb.append(type);
+      }
       sb.append("\"}");
       separator = ",";
     }

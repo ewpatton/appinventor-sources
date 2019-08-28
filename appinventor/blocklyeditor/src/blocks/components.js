@@ -714,9 +714,15 @@ Blockly.Blocks.component_method = {
     }
     this.setTooltip(tooltipDescription);
 
-    var params = [];
+    var params = [], continuations = [];
     if (methodTypeObject) {
-      params = methodTypeObject.parameters;
+      for (var i = 0; i < methodTypeObject.parameters.length; i++) {
+        if (methodTypeObject.parameters[i].type === 'lambda') {
+          continuations.push(methodTypeObject.parameters[i]);
+        } else {
+          params.push(methodTypeObject.parameters[i]);
+        }
+      }
     }
     oldInputValues.splice(0, oldInputValues.length - params.length);
     for (var i = 0, param; param = params[i]; i++) {
@@ -727,6 +733,21 @@ Blockly.Blocks.component_method = {
       if (oldInputValues[i] && newInput.connection) {
         Blockly.Mutator.reconnect(oldInputValues[i].outputConnection, this, 'ARG' + i);
       }
+    }
+    for (var i = 0, cont; cont = continuations[i]; i++) {
+      var argname = 'ARG' + (params.length + i);
+      var newInput = this.appendDummyInput(argname + '$HEADER')
+        .appendField(componentDb.getInternationalizedParameterName(cont.name));
+      if (cont.params.length > 0) {
+        newInput = this.appendDummyInput(argname + '$VARS');
+        for (var j = 0, contParam; contParam = cont.params[j]; j++) {
+          newInput.appendField(' ')
+            .appendField(new Blockly.FieldParameterFlydown(contParam.name, false,
+              Blockly.FieldFlydown.DISPLAY_BELOW, undefined, contParam.name));
+        }
+        newInput.appendField(' ');
+      }
+      this.appendStatementInput(argname).appendField(Blockly.Msg.LANG_COMPONENT_BLOCK_TITLE_DO);
     }
 
     for (var i = 0, input; input = this.inputList[i]; i++) {
@@ -807,6 +828,39 @@ Blockly.Blocks.component_method = {
     return argList;
   },
 
+  declaredNames: function() {
+    var names = [], params = this.getMethodTypeObject().parameters;
+    for (var i = 0; i < params.length; i++) {
+      if (params[i].type === 'lambda') {
+        names = names.concat(params[i].params.map(function(param) { return param.name }));
+      }
+    }
+    return names;
+  },
+
+  declaredVariables: function() {
+    var names = [], params = this.getMethodTypeObject().parameters,
+      db = this.getTopWorkspace().getComponentDatabase();
+    for (var i = 0; i < params.length; i++) {
+      if (params[i].type === 'lambda') {
+        names = names.concat(params[i].params.map(function(param) { return db.getInternationalizedParameterName(param.name) }));
+      }
+    }
+    return names;
+  },
+
+  getParameters: function () {
+    /** @type {MethodDescriptor} */
+    var method = this.getMethodTypeObject();
+    var params = [];
+    method.parameters.forEach(function(param) {
+      if (param.type === 'lambda') {
+        params = params.concat(param.params);
+      }
+    });
+    return method && params;
+  },
+
   typeblock : function(){
     var componentDb = Blockly.mainWorkspace.getComponentDatabase();
     var tb = [];
@@ -878,6 +932,10 @@ Blockly.Blocks.component_method = {
             }
             var blockyType = Blockly.Blocks.Utilities.YailTypeToBlocklyType(param.type,Blockly.Blocks.Utilities.INPUT);
             input.connection.setCheck(blockyType); // correct type
+            found = true;
+            break;
+          } else if (param.type === 'lambda' && argList[x] === Blockly.Msg.LANG_COMPONENT_BLOCK_TITLE_DO) {
+            // Continuations have type lambda and the arg "label" is always the translated DO string.
             found = true;
             break;
           }

@@ -18,6 +18,7 @@ import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.components.runtime.errors.YailRuntimeError;
 import com.google.appinventor.components.runtime.util.Dates;
+import com.google.appinventor.components.runtime.util.ProcedureProxy;
 import com.google.appinventor.components.runtime.util.TimerInternal;
 import com.google.appinventor.components.runtime.util.ErrorMessages;
 
@@ -623,5 +624,17 @@ public final class Clock extends AndroidNonvisibleComponent
   @Override
   public void onDelete() {
     timerInternal.Enabled(false);
+  }
+
+  @SimpleFunction
+  public void WaitFor(int milliseconds, final ClockContinuation andThen) {
+
+  }
+
+  public static class ClockContinuation extends ProcedureProxy {
+    @SimpleFunction
+    public void onComplete() throws Throwable {
+      apply();
+    }
   }
 }
