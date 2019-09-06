@@ -45,6 +45,7 @@ import com.google.appinventor.common.version.AppInventorFeatures;
 
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
+import com.google.appinventor.components.annotations.IsColor;
 import com.google.appinventor.components.annotations.PropertyCategory;
 import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleFunction;
@@ -109,7 +110,7 @@ import java.util.Set;
  */
 
 @DesignerComponent(version = YaVersion.FORM_COMPONENT_VERSION,
-    category = ComponentCategory.LAYOUT,
+    category = ComponentCategory.USERINTERFACE,
     description = "Top-level component containing all other components in the program",
     androidMinSdk = 7,
     showOnPalette = false)
@@ -1214,6 +1215,7 @@ public class Form extends AppInventorCompatActivity
    * @return  background RGB color with alpha
    */
   @SimpleProperty(category = PropertyCategory.APPEARANCE)
+  @IsColor
   public int BackgroundColor() {
     return backgroundColor;
   }
@@ -1790,6 +1792,7 @@ public class Form extends AppInventorCompatActivity
   }
 
   @SimpleProperty()
+  @IsColor
   public int PrimaryColor() {
     return primaryColor;
   }
@@ -1803,6 +1806,7 @@ public class Form extends AppInventorCompatActivity
   }
 
   @SimpleProperty()
+  @IsColor
   public int PrimaryColorDark() {
     return primaryColorDark;
   }
@@ -1816,6 +1820,7 @@ public class Form extends AppInventorCompatActivity
   }
 
   @SimpleProperty()
+  @IsColor
   public int AccentColor() {
     return accentColor;
   }

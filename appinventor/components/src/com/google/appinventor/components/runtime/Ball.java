@@ -8,6 +8,7 @@ package com.google.appinventor.components.runtime;
 
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
+import com.google.appinventor.components.annotations.IsColor;
 import com.google.appinventor.components.annotations.PropertyCategory;
 import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
@@ -136,6 +137,7 @@ public final class Ball extends Sprite {
    */
   @SimpleProperty(
       category = PropertyCategory.APPEARANCE)
+  @IsColor
   public int PaintColor() {
     return paintColor;
   }

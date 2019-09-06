@@ -197,15 +197,15 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
    * supported conversion is from a GeoJSON point to Marker component. If the feature has
    * properties, they will be mapped into App Inventor properties using the following mapping:
    *
-   * description becomes Description;
-   * draggable becomes Draggable;
-   * infobox becomes EnableInfobox;
-   * fill becomes FillColor;
-   * image becomes ImageAsset;
-   * stroke becomes StrokeColor;
-   * stroke-width becomes StrokeWidth;
-   * title becomes Title;
-   * visible becomes Visible
+   * * description becomes Description
+   * * draggable becomes Draggable
+   * * infobox becomes EnableInfobox
+   * * fill becomes FillColor
+   * * image becomes ImageAsset
+   * * stroke becomes StrokeColor
+   * * stroke-width becomes StrokeWidth
+   * * title becomes Title
+   * * visible becomes Visible
    *
    * @param description The description of a map feature, as a list of key-value pairs.
    * @return A new component representing the feature, or a string indicating an error.

@@ -9,6 +9,7 @@ package com.google.appinventor.components.runtime;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
 import com.google.appinventor.components.annotations.DesignerProperty;
+import com.google.appinventor.components.annotations.IsColor;
 import com.google.appinventor.components.annotations.PropertyCategory;
 import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleObject;
@@ -357,6 +358,7 @@ public abstract class ButtonBase extends AndroidViewComponent
   @SimpleProperty(
       category = PropertyCategory.APPEARANCE,
       description = "Returns the button's background color")
+  @IsColor
   public int BackgroundColor() {
     return backgroundColor;
   }
@@ -671,6 +673,7 @@ public abstract class ButtonBase extends AndroidViewComponent
   @SimpleProperty(
       category = PropertyCategory.APPEARANCE,
       description = "Color for button text.")
+  @IsColor
   public int TextColor() {
     return textColor;
   }

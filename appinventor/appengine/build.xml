@@ -87,7 +87,7 @@
   <!-- =====================================================================
        Builds the documentation from the corresponding Markdown files.
        ===================================================================== -->
-  <target name="BuildDocs" depends="CheckDocs" unless="Docs.uptodate">
+  <target name="BuildDocs" depends="components_Markdown,CheckDocs" unless="Docs.uptodate">
     <exec executable="jekyll" failonerror="true">
       <arg value="build" />
       <arg value="-s" />

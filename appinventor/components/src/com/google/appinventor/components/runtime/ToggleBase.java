@@ -8,6 +8,7 @@ package com.google.appinventor.components.runtime;
 
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
+import com.google.appinventor.components.annotations.IsColor;
 import com.google.appinventor.components.annotations.PropertyCategory;
 import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleObject;
@@ -116,6 +117,7 @@ public abstract class ToggleBase<T extends CompoundButton> extends AndroidViewCo
    */
   @SimpleProperty(
           category = PropertyCategory.APPEARANCE)
+  @IsColor
   public int BackgroundColor() {
     return backgroundColor;
   }
@@ -307,6 +309,7 @@ public abstract class ToggleBase<T extends CompoundButton> extends AndroidViewCo
    */
   @SimpleProperty(
           category = PropertyCategory.APPEARANCE)
+  @IsColor
   public int TextColor() {
     return textColor;
   }
