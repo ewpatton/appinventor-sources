@@ -500,14 +500,23 @@
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
       </classpath>
       <jvmarg value="-Xss2M"/>  <!-- increase if you see a StackOverflowError -->
-      <jvmarg value="-Xmx1G"/>
+      <jvmarg value="-Xmx2G"/>
       <jvmarg line="${XstartOnFirstThread}"/>
       <jvmarg value="-Dfile.encoding=UTF-8" />
       <arg line="-war"/>
       <arg value="${build.war.dir}"/>
       <arg line="-logLevel INFO -extra ${build.extra.dir} -style pretty"/>
+      <arg line="-draftCompile -saveSource -setProperty compiler.useSourceMaps=true -setProperty includeSourceMapUrl=/ode/__HASH___sourceMap__FRAGMENT__.json"/>
       <arg value="com.google.appinventor.YaClient"/>
     </java>
+    <copy todir="${build.war.dir}/ode">
+      <fileset dir="${build.extra.dir}/ode/symbolMaps/">
+        <include name="*.json" />
+      </fileset>
+      <fileset dir="${build.extra.dir}/ode/src/">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
   </target>
 
   <!-- =====================================================================

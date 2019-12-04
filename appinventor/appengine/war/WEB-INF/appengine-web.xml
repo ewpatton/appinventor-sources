@@ -39,6 +39,8 @@
 
     <include path="/ode/**.cache.*" expiration="365d" />
     <exclude path="/ode/**.gwt.rpc" />
+    <include path="/ode/*.json" expiration="0s" />
+    <include path="/ode/src/**/*.java" expiration="0s" />
 
     <!-- don't serve the key file as a static file! -->
     <exclude path="/keystore/**" />
