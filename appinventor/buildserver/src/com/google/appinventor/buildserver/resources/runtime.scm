@@ -18,6 +18,11 @@
 ;;; but the top-level forms are evaluated in that run() function.
 ;;;
 
+(import (rnrs hashtables))
+
+(define-alias StackFrame <com.google.appinventor.components.runtime.util.StackFrame>)
+(define stackframes :: gnu.lists.LList '())
+
 ;;; also see *debug-form* below
 (define *debug* #f)
 
@@ -265,7 +270,10 @@
 (define-syntax set-lexical!
   (syntax-rules ()
     ((_ var value)
-      (set! var value))))
+      (begin
+        (set! var value)
+        (if *this-is-the-repl*
+          ((car stackframes):set 'var var))))))
 
 ;;; We can't use Kawa's and/or directly here, because we want to enforce that
 ;;; the argument types are booleans.  So we delay the arguments and check the types
@@ -524,6 +532,9 @@
           (string->symbol
            (com.google.appinventor.components.runtime.EventDispatcher:makeFullEventName
             componentName eventName))))
+
+       (define ($getBlockStack) :: List[StackFrame]
+         stacktrace)
 
        ;; This defines the Simple Form's abstract $define method. The Simple Form
        ;; implementation will call this to cause initialization.
@@ -979,6 +990,8 @@
 (define-alias YailRuntimeError <com.google.appinventor.components.runtime.errors.YailRuntimeError>)
 (define-alias PermissionException <com.google.appinventor.components.runtime.errors.PermissionException>)
 (define-alias JavaJoinListOfStrings <com.google.appinventor.components.runtime.util.JavaJoinListOfStrings>)
+(define-alias Exception <java.lang.Exception>)
+(define-alias WrappedException <com.google.appinventor.components.runtime.errors.WrappedException>)
 
 (define-alias JavaCollection <java.util.Collection>)
 (define-alias JavaIterator <java.util.Iterator>)
@@ -2784,6 +2797,67 @@ list, use the make-yail-list constructor with no arguments.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; End Support for REPL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Debug Macro
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (add-to-stacktrace blockid)
+  (set! stacktrace
+        (cons blockid
+              stacktrace)))
+
+(define (remove-from-stacktrace)
+  (set! stacktrace
+        (cdr stacktrace)))
+
+(define (list-copy l)
+  (if (null? l)
+    '()
+    (cons (car l) (list-copy (cdr l)))))
+
+(define-syntax debuglet
+  (syntax-rules ()
+    ((_ () c1 ...)
+      (let () c1 ...))
+    ((_ block-id ((v1 b1) (v2 b2) ...) c1 c2 ...)
+      (if *this-is-the-repl*
+        (begin
+          (set! stackframes (StackFrame block-id) stackframes))
+          (try-finally
+           (let ((v1 b1) (v2 b2) ...)
+             (begin
+               ((car stackframes):set 'v1 v1)
+               ((car stackframes):set 'v2 v2)
+               ...)
+             (android-log stackframes)
+             c1 c2 ...)
+           (set! stackframes (cdr stackframes))))
+        (let ((v1 b1) (v2 b2) ...) c1 c2 ...)))))
+
+(define-syntax debug
+  (syntax-rules ()
+    ((_ blockid code ...)
+     (if *this-is-the-repl*
+      (begin
+        (add-to-stacktrace blockid)
+        (android-log stacktrace)
+        (try-finally
+         (try-catch
+          (begin code ...)
+          (exception WrappedException
+            (primitive-throw exception))
+          (exception Exception
+            (primitive-throw (make WrappedException exception))))
+         (remove-from-stacktrace)))
+      (begin code ...)))))
+           ;; finally pop blockid (once block finishes executing, you want to remove blockid) - within the try-catch block
+           ;; do try-finally with the body as a try-catch (finally should happen after try-catch)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; End Debug Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *ui-handler* #!null)

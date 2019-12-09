@@ -72,6 +72,7 @@ import com.google.appinventor.components.runtime.util.PaintUtil;
 import com.google.appinventor.components.runtime.util.BulkPermissionRequest;
 import com.google.appinventor.components.runtime.util.ScreenDensityUtil;
 import com.google.appinventor.components.runtime.util.SdkLevel;
+import com.google.appinventor.components.runtime.util.StackFrame;
 import com.google.appinventor.components.runtime.util.ViewUtil;
 import org.json.JSONException;
 
@@ -2000,6 +2001,10 @@ public class Form extends AppInventorCompatActivity
   @Override
   public void $add(AndroidViewComponent component) {
     viewLayout.add(component);
+  }
+
+  public List<StackFrame> $getBlockStack() {
+    return Collections.emptyList();
   }
 
   public float deviceDensity(){

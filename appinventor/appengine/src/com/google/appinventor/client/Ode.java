@@ -18,6 +18,7 @@ import com.google.appinventor.client.boxes.PrivateUserProfileTabPanel;
 import com.google.appinventor.client.boxes.MessagesOutputBox;
 import com.google.appinventor.client.boxes.OdeLogBox;
 import com.google.appinventor.client.boxes.PaletteBox;
+import com.google.appinventor.client.boxes.DebuggerBox;
 import com.google.appinventor.client.boxes.ProjectListBox;
 import com.google.appinventor.client.boxes.ModerationPageBox;
 import com.google.appinventor.client.boxes.GalleryListBox;
@@ -29,6 +30,7 @@ import com.google.appinventor.client.boxes.ViewerBox;
 import com.google.appinventor.client.editor.EditorManager;
 import com.google.appinventor.client.editor.FileEditor;
 import com.google.appinventor.client.editor.youngandroid.BlocklyPanel;
+import com.google.appinventor.client.editor.youngandroid.DebuggerPanel;
 import com.google.appinventor.client.editor.youngandroid.TutorialPanel;
 import com.google.appinventor.client.explorer.commands.ChainableCommand;
 import com.google.appinventor.client.explorer.commands.CommandRegistry;
@@ -1064,6 +1066,13 @@ public class Ode implements EntryPoint {
     structureAndAssets.add(BlockSelectorBox.getBlockSelectorBox());  // initially not visible
     structureAndAssets.add(AssetListBox.getAssetListBox());
     workColumns.add(structureAndAssets);
+
+    Box debuggerbox = DebuggerBox.getDebuggerBox();
+    debuggerbox.setWidth("240px");
+    workColumns.add(debuggerbox);
+    //DebuggerPanel debuggerArea = new DebuggerPanel();
+    //debuggerArea.setWidth("240px");
+    //workColumns.add(debuggerArea);
 
     Box propertiesbox = PropertiesBox.getPropertiesBox();
     propertiesbox.setWidth("222px");

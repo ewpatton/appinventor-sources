@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -231,6 +233,47 @@ public class JsonUtil {
         return getListFromJsonObject((JSONObject)value);
       }
       throw new JSONException("Invalid JSON string.");
+    }
+  }
+
+  /**
+   * Convert the given object into a JSON object.
+   *
+   * @param o The object to convert.
+   * @return An object compatible with {@link org.json.JSONStringer}
+   * @throws JSONException If the object cannot be converted into a valid
+   *     JSON object.
+   */
+  public static Object toJsonValue(Object o) throws JSONException {
+    if (o == null || o == JSONObject.NULL || o instanceof Boolean
+        || o instanceof Number || o instanceof String) {
+      return o;
+    } else if (o instanceof FString) {
+      return o.toString();
+    } else if (o instanceof YailList) {
+      return toJsonValue(((YailList) o).getCdr());
+    } else if (o instanceof List) {
+      JSONArray array = new JSONArray();
+      for (Object child : (List<?>) o) {
+        array.put(toJsonValue(child));
+      }
+      return array;
+    } else if (o instanceof Map) {
+      JSONObject object = new JSONObject();
+      for (Entry<?, ?> e : ((Map<?, ?>) o).entrySet()) {
+        Object key = e.getKey();
+        if (key instanceof String) {
+          object.put((String) key, toJsonValue(e.getValue()));
+        } else if (key instanceof FString) {
+          object.put(key.toString(), toJsonValue(e.getValue()));
+        } else {
+          throw new JSONException("Unknown key type: " + key.getClass());
+        }
+      }
+      return object;
+    } else {
+      throw new JSONException("Unknown how to convert object of type "
+          + o.getClass() + " to JSON.");
     }
   }
 

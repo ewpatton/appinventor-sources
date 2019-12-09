@@ -13,6 +13,7 @@ import com.google.appinventor.components.runtime.ReplForm;
 
 import java.util.ArrayList;
 
+import com.google.appinventor.components.runtime.errors.WrappedException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,6 +90,36 @@ public class RetValManager {
         semaphore.notifyAll();
       }
     }
+  }
+
+  public static void sendErrorRepl(WrappedException e) {
+    synchronized (semaphore) {
+      JSONObject retval = new JSONObject();
+      try {
+        retval.put("status", "OK");
+        retval.put("type", "error");
+        retval.put("value", e.getMessage());
+        retval.put("stacktrace", toStackTrace(e));
+      } catch (JSONException ex) {
+        Log.e(LOG_TAG, "Error building retval", ex);
+        return;
+      }
+      boolean sendNotify = currentArray.isEmpty();
+      currentArray.add(retval);
+      if (PhoneStatus.getUseWebRTC()) {
+        webRTCsendCurrent();
+      } else if (sendNotify) {
+        semaphore.notifyAll();
+      }
+    }
+  }
+
+  private static JSONArray toStackTrace(WrappedException e) throws JSONException {
+    JSONArray trace = new JSONArray();
+    for (StackFrame frame : e.getBlockStackTrace()) {
+      trace.put(frame.toJson());
+    }
+    return trace;
   }
 
   /*

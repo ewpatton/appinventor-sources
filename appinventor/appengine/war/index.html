@@ -8,6 +8,7 @@
     <!--meta name="gwt:property" content="locale=en_US"-->
     <!-- Title is set at runtime. -->
     <title> </title>
+    <link rel="manifest" href="/manifest.json" />
     <link type="text/css" rel="stylesheet" href="gwt.css">
     <link type="text/css" rel="stylesheet" href="assets/blockly.css">
     <link type="text/css" rel="stylesheet" href="assets/ai2blockly.css">
@@ -50,6 +51,18 @@
     <script>
       if (window.navigator.userAgent.indexOf("MSIE") != -1){
           document.getElementById("unsupported").style.display = 'block';
+      }
+    </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+                  .then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                  }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                  });
+        });
       }
     </script>
   </body>

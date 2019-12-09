@@ -11,12 +11,14 @@ import com.google.appinventor.client.OdeAsyncCallback;
 import com.google.appinventor.client.boxes.AssetListBox;
 import com.google.appinventor.client.boxes.BlockSelectorBox;
 import com.google.appinventor.client.boxes.PaletteBox;
+import com.google.appinventor.client.boxes.DebuggerBox;
 import com.google.appinventor.client.editor.FileEditor;
 import com.google.appinventor.client.editor.simple.SimpleComponentDatabase;
 import com.google.appinventor.client.editor.simple.components.FormChangeListener;
 import com.google.appinventor.client.editor.simple.components.MockComponent;
 import com.google.appinventor.client.editor.simple.components.MockForm;
 import com.google.appinventor.client.editor.simple.palette.DropTargetProvider;
+import com.google.appinventor.client.editor.youngandroid.DebuggerPanel;
 import com.google.appinventor.client.editor.youngandroid.BlocklyPanel.BlocklyWorkspaceChangeListener;
 import com.google.appinventor.client.editor.youngandroid.events.EventHelper;
 import com.google.appinventor.client.editor.youngandroid.palette.YoungAndroidPalettePanel;
@@ -91,6 +93,7 @@ public final class YaBlocksEditor extends FileEditor
   // back to this blocks editor after having switched projects, the blocksArea
   // will get reinitialized.
   private final BlocklyPanel blocksArea;
+  private final DebuggerPanel debuggerArea;
 
   // True once we've finished loading the current file.
   private boolean loadComplete = false;
@@ -118,6 +121,11 @@ public final class YaBlocksEditor extends FileEditor
     formToBlocksEditor.put(fullFormName, this);
     blocksArea = new BlocklyPanel(this, fullFormName); // [lyn, 2014/10/28] pass in editor so can extract form json from it
     blocksArea.setWidth("100%");
+
+    debuggerArea = new DebuggerPanel(this, fullFormName);
+    debuggerArea.setWidth("100%");
+    debuggerArea.setHeight("500px");
+
     // This code seems to be using a rather old layout, so we cannot simply pass 100% for height.
     // Instead, it needs to be calculated from the client's window, and a listener added to Window
     // We use VIEWER_WINDOW_OFFSET as an approximation of the size of the top navigation bar
@@ -224,6 +232,9 @@ public final class YaBlocksEditor extends FileEditor
     }
     PaletteBox.getPaletteBox().setVisible(false);
 
+    DebuggerBox.getDebuggerBox().setVisible(true);
+    DebuggerBox.getDebuggerBox().setContent(debuggerArea);
+
     // Update the source structure explorer with the tree of this form's components.
     MockForm form = getForm();
     if (form != null) {
@@ -239,6 +250,7 @@ public final class YaBlocksEditor extends FileEditor
       BlockSelectorBox.getBlockSelectorBox().setVisible(true);
       AssetListBox.getAssetListBox().setVisible(true);
       blocksArea.injectWorkspace();
+      debuggerArea.injectWorkspace();
       hideComponentBlocks();
     } else {
       OdeLog.wlog("Can't get form editor for blocks: " + getFileId());
@@ -695,6 +707,7 @@ public final class YaBlocksEditor extends FileEditor
   @Override
   public void makeActiveWorkspace() {
     blocksArea.makeActive();
+    debuggerArea.makeActive();
   }
 
   public static native void resendAssetsAndExtensions()/*-{

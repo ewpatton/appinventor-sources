@@ -88,7 +88,6 @@ public final class Compiler {
 
   public static final String RUNTIME_FILES_DIR = "/" + "files" + "/";
 
-
   // Native library directory names
   private static final String LIBS_DIR_NAME = "libs";
   private static final String ARMEABI_DIR_NAME = "armeabi";
@@ -1518,6 +1517,7 @@ public final class Compiler {
         LOG.log(Level.SEVERE, "Kawa compile has failed.");
       }
       String kawaOutput = kawaOutputStream.toString();
+      LOG.log(Level.SEVERE, kawaOutput);
       out.print(kawaOutput);
       String kawaCompileTimeMessage = "Kawa compile time: " +
           ((System.currentTimeMillis() - start) / 1000.0) + " seconds";
