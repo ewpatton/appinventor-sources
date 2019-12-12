@@ -612,7 +612,7 @@ Blockly.Yail.scrub_ = function(block, code, thisOnly) {
   var nextCode = thisOnly ? "" : this.blockToCode(nextBlock);
 
   //want top level block
-  if (block.category) {
+  if (block.getParent()) {
     code = "(debug \"" + block.id + "\" " + code + ")";
   }
   return commentCode + code + nextCode;

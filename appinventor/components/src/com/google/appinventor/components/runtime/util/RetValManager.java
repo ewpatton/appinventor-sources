@@ -93,6 +93,7 @@ public class RetValManager {
   }
 
   public static void sendErrorRepl(WrappedException e) {
+    Log.d(LOG_TAG, "In sendErrorRepl", e);
     synchronized (semaphore) {
       JSONObject retval = new JSONObject();
       try {

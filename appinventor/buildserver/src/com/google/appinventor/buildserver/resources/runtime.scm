@@ -21,10 +21,11 @@
 (import (rnrs hashtables))
 
 (define-alias StackFrame <com.google.appinventor.components.runtime.util.StackFrame>)
+(define-alias WrappedException <com.google.appinventor.components.runtime.errors.WrappedException>)
 (define stackframes :: gnu.lists.LList '())
 
 ;;; also see *debug-form* below
-(define *debug* #f)
+(define *debug* #t)
 
 (define *this-is-the-repl* #f)
 
@@ -409,13 +410,16 @@
 
        (define (process-exception ex)
          (define-alias YailRuntimeError <com.google.appinventor.components.runtime.errors.YailRuntimeError>)
+         (define-alias WrappedException <com.google.appinventor.components.runtime.errors.WrappedException>)
          ;; The call below is a no-op unless we are in the wireless repl
 ;; Commented out -- we only send reports from the setting menu choice
 ;;         (com.google.appinventor.components.runtime.ReplApplication:reportError ex)
          (if isrepl
              (when ((this):toastAllowed)
                    (let ((message (if (instance? ex java.lang.Error) (ex:toString) (ex:getMessage))))
-                     (send-error message)
+                     (if (instance? ex WrappedException)
+                         (com.google.appinventor.components.runtime.util.RetValManager:sendErrorRepl (as WrappedException ex))
+                       (send-error message))
                      ((android.widget.Toast:makeText (this) message 5):show)))
 
              (com.google.appinventor.components.runtime.util.RuntimeErrorAlert:alert
@@ -690,7 +694,7 @@
 
 (define-syntax define-event-helper
   (syntax-rules ()
-    ((_ event-func-name (arg ...) (expr ...))
+    ((_ event-func-name block-id (arg ...) (expr ...))
 
      ;; Note that if we expand directly into a lambda expression  below we expose
      ;; an error in the Kawa compiler and the function doesn't get defined properly.
@@ -701,8 +705,12 @@
          ;; The arguments to the handler come from the components and
          ;; need to be sanitized before we can operate on them in Yail.  See
          ;; the comments on sanitize below
-         (let ((arg (sanitize-component-data arg)) ...)
-           expr ...))
+         (android-log (format #f "In event handler with block id ~A" block-id))
+         (if *this-is-the-repl*
+             (debuglet block-id ((arg (sanitize-component-data arg)) ...)
+                expr ...)
+           (let ((arg (sanitize-component-data arg)) ...)
+             expr ...)))
        (if *this-is-the-repl*
            (add-to-current-form-environment 'event-func-name event-func-name)
            (add-to-form-environment 'event-func-name event-func-name))))))
@@ -731,13 +739,14 @@
 (define-syntax define-event
   (lambda (stx)
     (syntax-case stx ()
-      ((_ component-name event-name args . body)
+      ((_ component-name event-name block-id args . body)
        #`(begin
-           (define-event-helper ,(gen-event-name #`component-name #`event-name) args body)
+           (define-event-helper ,(gen-event-name #`component-name #`event-name) block-id args body)
            ;; TODO(markf): consider breaking this out as a procedure
            ;; that is parallel to add-to-current-form-environment,
            ;; which would make define-event look more like def, which
            ;; might be easier for people coming back to the code later.
+           (android-log (format #f "Defining block event handler ~A" block-id))
            (if *this-is-the-repl*
                (com.google.appinventor.components.runtime.EventDispatcher:registerEventForDelegation
                 (as com.google.appinventor.components.runtime.HandlesEventDispatching *this-form*)
@@ -749,9 +758,9 @@
 (define-syntax define-generic-event
   (lambda (stx)
     (syntax-case stx ()
-      ((_ component-type event-name args . body)
+      ((_ component-type event-name block-id args . body)
        #`(begin
-           (define-event-helper ,(gen-generic-event-name #`component-type #`event-name) args body))))))
+           (define-event-helper ,(gen-generic-event-name #`component-type #`event-name) block-id args body))))))
 
 ;;;; def
 
@@ -991,7 +1000,6 @@
 (define-alias PermissionException <com.google.appinventor.components.runtime.errors.PermissionException>)
 (define-alias JavaJoinListOfStrings <com.google.appinventor.components.runtime.util.JavaJoinListOfStrings>)
 (define-alias Exception <java.lang.Exception>)
-(define-alias WrappedException <com.google.appinventor.components.runtime.errors.WrappedException>)
 
 (define-alias JavaCollection <java.util.Collection>)
 (define-alias JavaIterator <java.util.Iterator>)
@@ -2803,46 +2811,38 @@ list, use the make-yail-list constructor with no arguments.
 ;;;; Debug Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (add-to-stacktrace blockid)
-  (set! stacktrace
-        (cons blockid
-              stacktrace)))
-
-(define (remove-from-stacktrace)
-  (set! stacktrace
-        (cdr stacktrace)))
-
-(define (list-copy l)
-  (if (null? l)
-    '()
-    (cons (car l) (list-copy (cdr l)))))
-
 (define-syntax debuglet
   (syntax-rules ()
-    ((_ () c1 ...)
-      (let () c1 ...))
+    ((_ block-id () c1 ...)
+     (if *this-is-the-repl*
+         (begin
+           (StackFrame:pushFrame block-id)
+           (try-finally
+            (let () c1 ...)
+            (StackFrame:popFrame)))
+         (let () c1 ...)))
     ((_ block-id ((v1 b1) (v2 b2) ...) c1 c2 ...)
       (if *this-is-the-repl*
         (begin
-          (set! stackframes (StackFrame block-id) stackframes))
+          (StackFrame:pushFrame block-id)
           (try-finally
            (let ((v1 b1) (v2 b2) ...)
              (begin
                ((car stackframes):set 'v1 v1)
                ((car stackframes):set 'v2 v2)
                ...)
-             (android-log stackframes)
+             (android-log (StackFrame:get))
              c1 c2 ...)
-           (set! stackframes (cdr stackframes))))
+           (StackFrame:popFrame)))
         (let ((v1 b1) (v2 b2) ...) c1 c2 ...)))))
 
 (define-syntax debug
   (syntax-rules ()
-    ((_ blockid code ...)
+    ((_ block-id code ...)
      (if *this-is-the-repl*
       (begin
-        (add-to-stacktrace blockid)
-        (android-log stacktrace)
+        (StackFrame:enter block-id)
+        (android-log (StackFrame:get))
         (try-finally
          (try-catch
           (begin code ...)
@@ -2850,7 +2850,7 @@ list, use the make-yail-list constructor with no arguments.
             (primitive-throw exception))
           (exception Exception
             (primitive-throw (make WrappedException exception))))
-         (remove-from-stacktrace)))
+         (StackFrame:exit block-id)))
       (begin code ...)))))
            ;; finally pop blockid (once block finishes executing, you want to remove blockid) - within the try-catch block
            ;; do try-finally with the body as a try-catch (finally should happen after try-catch)

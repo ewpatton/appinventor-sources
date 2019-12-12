@@ -1,5 +1,6 @@
 package com.google.appinventor.components.runtime.util;
 
+import android.util.Log;
 import gnu.mapping.Symbol;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,9 +13,11 @@ import java.util.Map;
 
 public class StackFrame implements Cloneable {
 
-  private static ThreadLocal<List<StackFrame>> frames = new ThreadLocal<List<StackFrame>>() {
+  private static final String LOG_TAG = "StackFrame";
+
+  private static ThreadLocal<Deque<StackFrame>> frames = new ThreadLocal<Deque<StackFrame>>() {
     @Override
-    protected List<StackFrame> initialValue() {
+    protected Deque<StackFrame> initialValue() {
       return new LinkedList<>();
     }
   };
@@ -61,10 +64,42 @@ public class StackFrame implements Cloneable {
 
   @Override
   public Object clone() throws CloneNotSupportedException {
-    return super.clone();
+    StackFrame copy = (StackFrame) super.clone();
+    copy.blockIds = (LinkedList<String>) ((LinkedList<String>) blockIds).clone();
+    copy.values = (HashMap<Symbol, Object>) ((HashMap<Symbol, Object>) values).clone();
+    return copy;
   }
 
-  public static List<StackFrame> get() {
+  public static Deque<StackFrame> get() {
     return frames.get();
+  }
+
+  public static StackFrame enter(String blockId) {
+    Log.d(LOG_TAG, "Entering block " + blockId);
+    Deque<StackFrame> myFrames = frames.get();
+    myFrames.getLast().push(blockId);
+    return myFrames.getLast();
+  }
+
+  public static StackFrame exit(String blockId) {
+    Log.d(LOG_TAG, "Exiting block " + blockId);
+    Deque<StackFrame> myFrames = frames.get();
+    String topBlockId = myFrames.getLast().pop();
+    if (!topBlockId.equals(blockId)) {
+      Log.w(LOG_TAG, "Unexpected block id " + topBlockId + "; wanted to see: " + blockId);
+    }
+    return myFrames.getLast();
+  }
+
+  public static StackFrame pushFrame(String blockId) {
+    Log.d(LOG_TAG, "Pushing new frame for block id " + blockId);
+    StackFrame newFrame = new StackFrame(blockId);
+    frames.get().push(newFrame);
+    return newFrame;
+  }
+
+  public static StackFrame popFrame() {
+    Log.d(LOG_TAG, "Popping stack frame");
+    return frames.get().pop();
   }
 }

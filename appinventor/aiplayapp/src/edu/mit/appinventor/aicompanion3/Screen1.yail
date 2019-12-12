@@ -33,7 +33,7 @@ $Source $Yail
  (set-and-coerce-property! 'Screen1 'Title "MIT App Inventor 2" 'text)
 )
 
-(define-event Screen1 Initialize()(set-this-form)
+(define-event Screen1 Initialize "-1" ()(set-this-form)
     (set-var! g$rendezvousServer ((get-var p$getRendezvousServer) ))(set-and-coerce-property! 'ScanButton 'BackgroundColor -16738048 'number)(set-and-coerce-property! 'ConnectButton 'BackgroundColor -13312 'number)(if (call-component-method 'PhoneStatus1 'isDirect (*list-for-runtime*) '()) (begin   (set-and-coerce-property! 'PhonePanel 'Visible #f 'boolean)(set-and-coerce-property! 'EmulatorPanel 'Visible #t 'boolean)(set-and-coerce-property! 'IPContainer 'Visible #f 'boolean)((get-var p$startdirectconnect) )) (begin   (set-and-coerce-property! 'PhonePanel 'Visible #t 'boolean)(set-and-coerce-property! 'EmulatorPanel 'Visible #f 'boolean)(set-and-coerce-property! 'ipaddrlabel 'Text (call-component-method 'PhoneStatus1 'GetWifiIpAddress (*list-for-runtime*) '()) 'text)(set-and-coerce-property! 'IPContainer 'Visible #t 'boolean)((get-var p$checkWiFi) )))(call-component-method 'PhoneStatus1 'setAssetsLoaded (*list-for-runtime*) '())(set-and-coerce-property! 'versionlabel 'Text (call-component-method 'PhoneStatus1 'GetVersionName (*list-for-runtime*) '()) 'text)(set-and-coerce-property! 'PhoneStatus1 'WebRTC (get-property 'CheckBox1 'Checked) 'boolean))
 ;;; SettingsPanel
 
@@ -88,7 +88,7 @@ $Source $Yail
 
 )
 
-(define-event SetRenzvousServer Click()(set-this-form)
+(define-event SetRenzvousServer Click "-1" ()(set-this-form)
     ((get-var p$setRendezvousServer) (get-property 'rendezvoustextbox 'Text) #t)(call-component-method 'rendezvoustextbox 'HideKeyboard (*list-for-runtime*) '())(set-and-coerce-property! 'SettingsPanel 'Visible #f 'boolean)(set-and-coerce-property! 'MainPanel 'Visible #t 'boolean))
 ;;; ResetRendezvousServer
 
@@ -97,7 +97,7 @@ $Source $Yail
 
 )
 
-(define-event ResetRendezvousServer Click()(set-this-form)
+(define-event ResetRendezvousServer Click "-1" ()(set-this-form)
     ((get-var p$resetRendezvousServer) )(set-and-coerce-property! 'SettingsPanel 'Visible #f 'boolean)(set-and-coerce-property! 'MainPanel 'Visible #t 'boolean))
 ;;; aidLabel
 
@@ -273,7 +273,7 @@ $Source $Yail
 
 )
 
-(define-event ConnectButton Click()(set-this-form)
+(define-event ConnectButton Click "-1" ()(set-this-form)
     (call-component-method 'CodeBox 'HideKeyboard (*list-for-runtime*) '())((get-var p$processcode) (get-property 'CodeBox 'Text)))
 ;;; Spacer
 
@@ -297,7 +297,7 @@ $Source $Yail
 
 )
 
-(define-event ScanButton Click()(set-this-form)
+(define-event ScanButton Click "-1" ()(set-this-form)
     (call-component-method 'BarcodeScanner1 'DoScan (*list-for-runtime*) '()))
 ;;; IPContainer
 
@@ -360,21 +360,21 @@ $Source $Yail
 
 )
 
-(define-event CheckBox1 Changed()(set-this-form)
+(define-event CheckBox1 Changed "-1" ()(set-this-form)
     (set-and-coerce-property! 'PhoneStatus1 'WebRTC (call-yail-primitive yail-not (*list-for-runtime* (get-property 'CheckBox1 'Checked)) '(boolean) "not") 'boolean))
 ;;; PhoneStatus1
 
 (add-component MainPanel com.google.appinventor.components.runtime.PhoneStatus PhoneStatus1 
 )
 
-(define-event PhoneStatus1 OnSettings()(set-this-form)
+(define-event PhoneStatus1 OnSettings "-1" ()(set-this-form)
     (set-and-coerce-property! 'MainPanel 'Visible #f 'boolean)(set-and-coerce-property! 'SettingsPanel 'Visible #t 'boolean)(set-and-coerce-property! 'rendezvoustextbox 'Text ((get-var p$getRendezvousServer) ) 'text)(set-and-coerce-property! 'aidLabel 'Text (call-component-method 'PhoneStatus1 'InstallationId (*list-for-runtime*) '()) 'text))
 ;;; Web1
 
 (add-component MainPanel com.google.appinventor.components.runtime.Web Web1 
 )
 
-(define-event Web1 GotText($url $responseCode $responseType $responseContent)(set-this-form)
+(define-event Web1 GotText "-1"($url $responseCode $responseType $responseContent)(set-this-form)
     (call-component-method 'PhoneStatus1 'startWebRTC (*list-for-runtime* (get-var g$rendezvousServer)  (lexical-value $responseContent)) '(text text)))
 ;;; BarcodeScanner1
 
@@ -383,14 +383,14 @@ $Source $Yail
 
 )
 
-(define-event BarcodeScanner1 AfterScan($result)(set-this-form)
+(define-event BarcodeScanner1 AfterScan "-1" ($result)(set-this-form)
     (set-and-coerce-property! 'CodeBox 'Text (lexical-value $result) 'text)((get-var p$processcode) (lexical-value $result)))
 ;;; Notifier1
 
 (add-component MainPanel com.google.appinventor.components.runtime.Notifier Notifier1 
 )
 
-(define-event Notifier1 AfterChoosing($choice)(set-this-form)
+(define-event Notifier1 AfterChoosing "-1" ($choice)(set-this-form)
     (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $choice) "Exit") '(any any) "=") (begin   (call-component-method 'PhoneStatus1 'shutdown (*list-for-runtime*) '()))))
 ;;; TinyDB1
 

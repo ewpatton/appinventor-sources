@@ -49,6 +49,9 @@ Blockly.Yail.component_event = function() {
 
 
   var code = preamble
+    + Blockly.Yail.YAIL_SPACER
+    + '\"' + this.id + '\"'
+    + Blockly.Yail.YAIL_SPACER
     + Blockly.Yail.YAIL_OPEN_COMBINATION
     // TODO: formal params go here
     // declaredNames gives us names in local language, but we want the default

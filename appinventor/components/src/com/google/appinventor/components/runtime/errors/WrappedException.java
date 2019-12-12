@@ -1,7 +1,9 @@
 package com.google.appinventor.components.runtime.errors;
 
+import android.util.Log;
 import com.google.appinventor.components.runtime.Form;
 import com.google.appinventor.components.runtime.util.StackFrame;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.lang.Exception;
 
 public class WrappedException extends Exception {
+  private static final String LOG_TAG = "WrappedException";
   private String errorType;
   private List<StackFrame> stackTrace;
 
@@ -19,9 +22,12 @@ public class WrappedException extends Exception {
     this.stackTrace = captureStack();
   }
 
-  public WrappedException(Exception e) {
+  public WrappedException(Exception e) throws JSONException {
     super(e);
     this.stackTrace = captureStack();
+    for (StackFrame f : stackTrace) {
+      Log.d(LOG_TAG, "StackFrame: " + f.toJson().toString());
+    }
   }
 
   public String getErrorType() {
@@ -34,7 +40,7 @@ public class WrappedException extends Exception {
 
   private static List<StackFrame> captureStack() {
     List<StackFrame> frames = new ArrayList<>();
-    for (StackFrame frame : Form.getActiveForm().$getBlockStack()) {
+    for (StackFrame frame : StackFrame.get()) {
       try {
         frames.add((StackFrame) frame.clone());
       } catch (CloneNotSupportedException e) {
