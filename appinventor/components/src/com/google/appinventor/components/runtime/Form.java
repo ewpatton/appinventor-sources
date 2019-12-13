@@ -74,6 +74,7 @@ import com.google.appinventor.components.runtime.util.ScreenDensityUtil;
 import com.google.appinventor.components.runtime.util.SdkLevel;
 import com.google.appinventor.components.runtime.util.StackFrame;
 import com.google.appinventor.components.runtime.util.ViewUtil;
+import gnu.mapping.Environment;
 import org.json.JSONException;
 
 import java.io.FileNotFoundException;
@@ -2005,6 +2006,10 @@ public class Form extends AppInventorCompatActivity
 
   public List<StackFrame> $getBlockStack() {
     return Collections.emptyList();
+  }
+
+  public Environment getGlobalEnvironment() {
+    return null;
   }
 
   public float deviceDensity(){

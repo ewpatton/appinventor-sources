@@ -3,6 +3,9 @@ package com.google.appinventor.components.runtime.errors;
 import android.util.Log;
 import com.google.appinventor.components.runtime.Form;
 import com.google.appinventor.components.runtime.util.StackFrame;
+import gnu.mapping.Location;
+import gnu.mapping.LocationEnumeration;
+import gnu.mapping.Symbol;
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -27,6 +30,15 @@ public class WrappedException extends Exception {
     this.stackTrace = captureStack();
     for (StackFrame f : stackTrace) {
       Log.d(LOG_TAG, "StackFrame: " + f.toJson().toString());
+    }
+    LocationEnumeration it = Form.getActiveForm().getGlobalEnvironment().enumerateAllLocations();
+    Log.d(LOG_TAG, "Global environment:");
+    while (it.hasMoreElements()) {
+      Location l = it.nextElement();
+      Symbol key = l.getKeySymbol();
+      Object value = l.getValue();
+      Log.d(LOG_TAG, "  key = " + key);
+      Log.d(LOG_TAG, "  value = " + value);
     }
   }
 
