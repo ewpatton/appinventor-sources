@@ -39,6 +39,7 @@ public class ProjectUploadWizard extends Wizard {
     // Initialize UI
     final FileUpload upload = new FileUpload();
     upload.setName(ServerLayout.UPLOAD_PROJECT_ARCHIVE_FORM_ELEMENT);
+    upload.getElement().setAttribute("accept", ".aia");
     setStylePrimaryName("ode-DialogBox");
     VerticalPanel panel = new VerticalPanel();
     panel.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);

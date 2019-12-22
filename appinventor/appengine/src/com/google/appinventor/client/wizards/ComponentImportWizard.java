@@ -229,6 +229,7 @@ public class ComponentImportWizard extends Wizard {
 
   private FileUpload createFileUpload() {
     FileUpload upload = new FileUpload();
+    upload.getElement().setAttribute("accept", ".aix");
     upload.setName(ServerLayout.UPLOAD_COMPONENT_ARCHIVE_FORM_ELEMENT);
     return upload;
   }

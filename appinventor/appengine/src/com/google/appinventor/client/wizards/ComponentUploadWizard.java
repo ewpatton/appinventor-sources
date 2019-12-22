@@ -31,6 +31,7 @@ public class ComponentUploadWizard extends Wizard {
 
     final FileUpload uploadWiget = new FileUpload();
     uploadWiget.setName(ServerLayout.UPLOAD_COMPONENT_ARCHIVE_FORM_ELEMENT);
+    uploadWiget.getElement().setAttribute("accept", ".aix");
 
     VerticalPanel panel = new VerticalPanel();
     panel.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
