@@ -1119,6 +1119,14 @@ public class YaVersion {
   //  - Initial Version
   public static final int SWITCH_COMPONENT_VERSION = 1;
 
+  // For TAB_COMPONENT_VERSION 1
+  //  - Initial Version
+  public static final int TAB_COMPONENT_VERSION = 1;
+
+  // For TABARRANGEMENT_COMPONENT_VERSION 1
+  //  - Initial Version
+  public static final int TABARRANGEMENT_COMPONENT_VERSION = 1;
+
   public static final int TABLEARRANGEMENT_COMPONENT_VERSION = 1;
 
   // For TEXTBOX_COMPONENT_VERSION 2:

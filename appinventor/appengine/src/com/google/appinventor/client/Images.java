@@ -636,4 +636,10 @@ public interface Images extends Resources {
   @Source("com/google/appinventor/images/mediaIcon_video.png")
   ImageResource mediaIconVideo();
 
+  @Source("com/google/appinventor/images/horizontal.png")
+  ImageResource tabArrangement();
+
+  @Source("com/google/appinventor/images/vertical.png")
+  ImageResource tab();
+
 }

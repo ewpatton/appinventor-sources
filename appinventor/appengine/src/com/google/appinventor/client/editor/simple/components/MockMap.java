@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.appinventor.client.ErrorReporter;
-import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.editor.simple.SimpleEditor;
 import com.google.appinventor.client.editor.simple.palette.SimplePaletteItem;
 import com.google.appinventor.client.widgets.dnd.DragSource;
@@ -23,7 +22,7 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Image;
 
-public final class MockMap extends MockContainer {
+public final class MockMap extends MockContainer<MockMapLayout> {
   public static final String TYPE = "Map";
   protected static final String PROPERTY_NAME_LATITUDE = "Latitude";
   protected static final String PROPERTY_NAME_LONGITUDE = "Longitude";
