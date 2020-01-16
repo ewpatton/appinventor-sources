@@ -1,0 +1,12 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+        "namespace": "android_app",
+        "package_name": "edu.mit.appinventor.aicompanion3",
+        "sha256_cert_fingerprints": [
+            "33:1E:41:53:11:B4:E2:4A:E0:17:A5:D7:56:32:FB:59:4D:26:F2:AC:88:FE:7D:89:23:7F:12:99:0C:72:9E:6C",
+            "2F:FC:17:46:2E:10:31:B6:80:82:2D:32:F5:FD:93:3B:A1:94:5C:9B:64:11:32:B3:E6:C4:96:4D:A2:C4:FE:90",
+            "21:59:E8:B1:B0:D5:6C:C3:BC:15:58:DE:56:68:CF:55:CE:04:EE:74:40:C3:36:2C:1A:C5:C6:5B:7F:A0:BD:B7"
+        ]
+    }
+}]

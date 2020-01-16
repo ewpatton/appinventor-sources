@@ -138,6 +138,26 @@ public class ReplForm extends Form {
         webviewIntent.setClassName(activeForm.$context(), SPLASH_ACTIVITY_CLASS);
         activeForm.$context().startActivity(webviewIntent);
       }
+    Intent intent = getIntent();
+    String data = intent.getDataString();
+    if (data != null && (data.startsWith("http://ai2.appinventor.mit.edu/")
+        || data.startsWith("http://code.appinventor.mit.edu/")
+        || data.startsWith("http://ai2-test.appinventor.mit.edu/")
+        || data.startsWith("http://localhost:"))) {
+      String code = data.substring(data.indexOf("/connect/") + 9);
+      PhoneStatus status = new PhoneStatus(this);
+      code = status.setHmacSeedReturnCode(code, "rendezvous.appinventor.mit.edu");
+      boolean webrtc = true;
+      Web web = new Web(this);
+      web.Url("http://rendezvous.appinventor.mit.edu/rendezvous/");
+      web.PostText("ipaddr=100.115.92.2&port=9987&webrtc=" + webrtc
+          + "&version=2.56u&api=24&aid=&installer=unknown&r2=true&key=" + code);
+      if (webrtc) {
+        status.startWebRTC("rendezvous.appinventor.mit.edu", "OK");
+      } else {
+        startHTTPD(false);
+      }
+    }
   }
 
   @Override

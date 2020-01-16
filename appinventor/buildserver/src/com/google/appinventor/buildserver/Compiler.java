@@ -993,6 +993,25 @@ public final class Compiler {
           out.write("        <category android:name=\"android.intent.category.LAUNCHER\" />\n");
         }
         out.write("      </intent-filter>\n");
+        if (isForCompanion) {
+          out.write("<intent-filter android:autoVerify=\"true\">\n");
+          out.write("<action android:name=\"android.intent.action.VIEW\" />\n");
+          out.write("<category android:name=\"android.intent.category.DEFAULT\" />\n");
+          out.write("<category android:name=\"android.intent.category.BROWSABLE\" />\n");
+          out.write("<data android:scheme=\"http\" android:host=\"appinventor-dev.csail.mit.edu\" android:pathPrefix=\"/connect\" />\n");
+          out.write("<data android:host=\"ai2.appinventor.mit.edu\" />\n");
+          out.write("<data android:host=\"code.appinventor.mit.edu\" />\n");
+          out.write("<data android:host=\"ai2-test.appinventor.mit.edu\" />\n");
+          out.write("<data android:host=\"localhost:8888\" />\n");
+          out.write("<data android:scheme=\"https\" />\n");
+          out.write("</intent-filter>\n");
+//          out.write("<intent-filter>\n");
+//          out.write("<action android:name=\"android.intent.action.VIEW\" />\n");
+//          out.write("<category android:name=\"android.intent.category.DEFAULT\" />\n");
+//          out.write("<category android:name=\"android.intent.category.BROWSABLE\" />\n");
+//          out.write("<data android:scheme=\"appinventor\" android:host=\"appinventor\" android:pathPrefix=\"/connect\" />\n");
+//          out.write("</intent-filter>\n");
+        }
 
         if (simpleCompTypes.contains("com.google.appinventor.components.runtime.NearField") &&
             !isForCompanion && isMain) {

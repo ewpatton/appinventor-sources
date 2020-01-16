@@ -1345,7 +1345,7 @@ Blockly.ReplMgr.quoteUnicode = function(input) {
     return sb.join("");
 };
 
-Blockly.ReplMgr.startRepl = function(already, emulator, usb) {
+Blockly.ReplMgr.startRepl = function(already, chromebook, emulator, usb) {
     var rs = top.ReplState;
     var me = this;
     rs.didversioncheck = false; // Re-check
@@ -1373,6 +1373,11 @@ Blockly.ReplMgr.startRepl = function(already, emulator, usb) {
         rs = top.ReplState;
         rs.state = this.rsState.RENDEZVOUS; // We are now rendezvousing
         rs.replcode = this.genCode();
+        if (chromebook) {
+            var a = top.document.createElement("a");
+            a.href = "/connect/" + rs.replcode;
+            a.click();
+        }
         rs.rendezvouscode = this.sha1(rs.replcode);
         rs.seq_count = 1;          // used for the creating the hmac mac
         rs.count = 0;
