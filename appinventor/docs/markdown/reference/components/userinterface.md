@@ -15,6 +15,7 @@ Table of Contents:
 * [Label](#Label)
 * [ListPicker](#ListPicker)
 * [ListView](#ListView)
+* [MenuItem](#MenuItem)
 * [Notifier](#Notifier)
 * [PasswordTextBox](#PasswordTextBox)
 * [Screen](#Screen)
@@ -544,6 +545,34 @@ Valid values for the month field are 1-12 and 1-31 for the day field.
 
 {:id="ListView.AfterPicking"} AfterPicking()
 : Simple event to be raised after the an element has been chosen in the list. The selected element is available in the Selection property.
+
+## MenuItem  {#MenuItem}
+
+### Properties  {#MenuItem-Properties}
+
+{:.properties}
+
+{:id="MenuItem.Enabled" .boolean} *Enabled*
+: If true, user can tap menu item to cause action.
+
+{:id="MenuItem.Icon" .text} *Icon*
+: Path of the icon to display for this menu item.
+
+{:id="MenuItem.ShowOnActionBar" .boolean} *ShowOnActionBar*
+: Returns true if the menu item is shown on action bar, false otherwise.
+
+{:id="MenuItem.Text" .text} *Text*
+: Returns the text displayed by the menu item.
+
+{:id="MenuItem.Visible" .boolean} *Visible*
+: Returns true if the menu item is visible, false otherwise.
+
+### Events  {#MenuItem-Events}
+
+{:.events}
+
+{:id="MenuItem.Click"} Click()
+: Event raised when user selects this menu item.
 
 ## Notifier  {#Notifier}
 
