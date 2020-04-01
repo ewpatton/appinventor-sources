@@ -8,6 +8,7 @@ package com.google.appinventor.client.editor.youngandroid;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
 
+import com.google.appinventor.blocklyeditor.ReplMgr;
 import com.google.appinventor.client.DesignToolbar;
 import com.google.appinventor.client.ErrorReporter;
 import com.google.appinventor.client.Ode;
@@ -658,7 +659,7 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
                 }
               }
               // Change in extensions requires companion refresh
-              YaBlocksEditor.resendExtensionsList();
+              ReplMgr.resendExtensionsList();
             }
           });
     }
@@ -756,7 +757,7 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
       editors.blocksEditor.onComponentTypeAdded(componentTypes);
     }
     // Change of extensions...
-    YaBlocksEditor.resendAssetsAndExtensions();
+    ReplMgr.resendAssetsAndExtensions();
   }
 
   @Override

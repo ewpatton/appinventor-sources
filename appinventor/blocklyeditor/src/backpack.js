@@ -255,7 +255,7 @@ Blockly.Backpack.prototype.dispose = function() {
 Blockly.Backpack.prototype.pasteBackpack = function() {
   var p = this;
   this.getContents(function(bp_contents) {
-    if (bp_contents === undefined || bp_contents.length == 0) {
+    if (bp_contents === undefined || bp_contents.length === 0) {
       return;
     }
     var lastPastedBlock = null;
@@ -263,7 +263,7 @@ Blockly.Backpack.prototype.pasteBackpack = function() {
       Blockly.Events.setGroup(true);
       for (var i = 0; i < bp_contents.length; i++) {
         var xml = Blockly.Xml.textToDom(bp_contents[i]);
-        var blk = xml.childNodes[0];
+        var blk = /** @type {Element} */ xml.childNodes[0];
         var arr = [];
         p.checkValidBlockTypes(blk, arr);
         var ok = true;
@@ -300,7 +300,7 @@ Blockly.Backpack.prototype.pasteBackpack = function() {
  * Pre-condition block has nodeName 'block' and some type.
  */
 Blockly.Backpack.prototype.checkValidBlockTypes = function(block, arr) {
-  if (block.nodeName=='block') {
+  if (block.nodeName === 'block') {
     arr.push(block.getAttribute('type'));
   }
   var children = block.childNodes;
@@ -317,7 +317,7 @@ Blockly.Backpack.prototype.checkValidBlockTypes = function(block, arr) {
 Blockly.Backpack.prototype.addAllToBackpack = function() {
   var topBlocks = Blockly.mainWorkspace.getTopBlocks(false);
   var p = this;
-  this.getContents(function(contents) {
+  this.getContents(function() {
     var saveAsync = p.NoAsync_;
     try {
       p.NoAsync_ = true;
@@ -461,7 +461,7 @@ Blockly.Backpack.prototype.openBackpackMenu = function(e) {
 /**
  * On left click, open backpack and view flyout
  *
- * @param {?MouseEvent} e Click event if the backpack is being opened in
+ * @param {?MouseEvent=} e Click event if the backpack is being opened in
  * response to a user action.
  */
 Blockly.Backpack.prototype.openBackpack = function(e) {
@@ -513,7 +513,7 @@ Blockly.Backpack.prototype.onMouseMove = function(e) {
     return;
   }
   var over = this.mouseIsOver(e);
-  if (this.isOpen != over) {
+  if (this.isOpen !== over) {
      this.setOpen_(over);
   }
 };
@@ -534,7 +534,7 @@ Blockly.Backpack.prototype.mouseIsOver = function(e) {
  * @private
  */
 Blockly.Backpack.prototype.setOpen_ = function(state) {
-  if (this.isOpen == state) {
+  if (this.isOpen === state) {
     return;
   }
   goog.Timer.clear(this.openTask_);
@@ -635,22 +635,15 @@ Blockly.Backpack.prototype.getContents = function(callback) {
   // fetched the contents, then we do not have to do it again. This
   // happens in addAllToBackpack()
   var p = this;
-  if (Blockly.Backpack.backPackId && !this.NoAsync_) {
-    top.BlocklyPanel_getSharedBackpack(Blockly.Backpack.backPackId, function(content) {
-      if (!content) {
-        Blockly.Backpack.contents = [];
-        p.shrink();
-        callback([]);
-      } else {
-        var parsed = JSON.parse(content);
-        Blockly.Backpack.contents = parsed;
-        p.resize();
-        callback(parsed);
-      }
-    });
-  } else {
+  Blockly.Backpack.source_.getBackpackContents(function(content) {
+    if (content) {
+      Blockly.Backpack.contents = JSON.parse(content);
+    } else {
+      Blockly.Backpack.contents = [];
+    }
+    p.resize();
     callback(Blockly.Backpack.contents);
-  }
+  });
 };
 
 /**
@@ -660,13 +653,8 @@ Blockly.Backpack.prototype.getContents = function(callback) {
  */
 Blockly.Backpack.prototype.setContents = function(backpack, store) {
   Blockly.Backpack.contents = backpack;
-  if (store) {
-    if (Blockly.Backpack.backPackId) {
-      top.BlocklyPanel_storeSharedBackpack(Blockly.Backpack.backPackId,
-                                           JSON.stringify(backpack));
-    } else {
-      top.BlocklyPanel_storeBackpack(JSON.stringify(backpack));
-    }
+  if (store && !this.NoAsync_) {
+    Blockly.Backpack.source_.setBackpackContents(JSON.stringify(backpack));
   }
 };
 
@@ -679,4 +667,30 @@ Blockly.Backpack.prototype.resize = function() {
   } else {
     this.shrink();
   }
+};
+
+Blockly.LocalBackpack = function() {
+  this.contents = '';
+};
+
+Blockly.LocalBackpack.prototype.setBackpackContents = function(contents) {
+  this.contents = contents;
+};
+
+Blockly.LocalBackpack.prototype.getBackpackContents = function(receiver) {
+  receiver(this.contents);
+};
+
+Blockly.Backpack.source_ = new Blockly.LocalBackpack();
+
+Blockly.Backpack.getSharedBackpack = function(receiver) {
+  Blockly.Backpack.source_.getBackpackContents(receiver);
+};
+
+Blockly.Backpack.setSharedBackpack = function(contents) {
+  Blockly.Backpack.source_.setBackpackContents(contents);
+};
+
+Blockly.Backpack.setBackpackSource = function(source) {
+  Blockly.Backpack.source_ = source;
 };

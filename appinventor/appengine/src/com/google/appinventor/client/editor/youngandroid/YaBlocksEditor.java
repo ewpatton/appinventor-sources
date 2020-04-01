@@ -5,6 +5,18 @@
 // http://www.apache.org/licenses/LICENSE-2.0
 package com.google.appinventor.client.editor.youngandroid;
 
+import static com.google.appinventor.client.Ode.MESSAGES;
+import static com.google.appinventor.client.editor.youngandroid.NativeTranslationMap.TRANSLATIONS;
+
+import com.google.appinventor.blocklyeditor.Blockly;
+import com.google.appinventor.blocklyeditor.BlocklyPanel;
+import com.google.appinventor.blocklyeditor.LoadBlocksException;
+import com.google.appinventor.blocklyeditor.ReplMgr;
+import com.google.appinventor.blocklyeditor.WorkspaceSvg;
+import com.google.appinventor.blocklyeditor.YailGenerationException;
+import com.google.appinventor.blocklyeditor.api.WorkspaceChangeListener;
+import com.google.appinventor.blocklyeditor.api.WorkspaceSettingsProvider;
+import com.google.appinventor.blocklyeditor.events.Event;
 import com.google.appinventor.client.ErrorReporter;
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.OdeAsyncCallback;
@@ -17,22 +29,21 @@ import com.google.appinventor.client.editor.simple.components.FormChangeListener
 import com.google.appinventor.client.editor.simple.components.MockComponent;
 import com.google.appinventor.client.editor.simple.components.MockForm;
 import com.google.appinventor.client.editor.simple.palette.DropTargetProvider;
-import com.google.appinventor.client.editor.youngandroid.BlocklyPanel.BlocklyWorkspaceChangeListener;
-import com.google.appinventor.client.editor.youngandroid.events.EventHelper;
 import com.google.appinventor.client.editor.youngandroid.palette.YoungAndroidPalettePanel;
 import com.google.appinventor.client.explorer.SourceStructureExplorer;
 import com.google.appinventor.client.explorer.SourceStructureExplorerItem;
 import com.google.appinventor.client.explorer.project.ComponentDatabaseChangeListener;
 import com.google.appinventor.client.output.OdeLog;
 import com.google.appinventor.client.widgets.dnd.DropTarget;
+import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.shared.rpc.project.ChecksumedFileException;
 import com.google.appinventor.shared.rpc.project.ChecksumedLoadFile;
 import com.google.appinventor.shared.rpc.project.FileDescriptorWithContent;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidBlocksNode;
+import com.google.appinventor.shared.settings.SettingsConstants;
 import com.google.appinventor.shared.youngandroid.YoungAndroidSourceAnalyzer;
 import com.google.common.collect.Maps;
-import com.google.gwt.core.client.Callback;
-import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Command;
@@ -42,14 +53,12 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.google.appinventor.client.Ode.MESSAGES;
+import jsinterop.annotations.JsMethod;
 
 /**
  * Editor for Young Android Blocks (.blk) files.
@@ -58,12 +67,68 @@ import static com.google.appinventor.client.Ode.MESSAGES;
  * @author sharon@google.com (Sharon Perl) added Blockly functionality
  */
 public final class YaBlocksEditor extends FileEditor
-    implements FormChangeListener, BlockDrawerSelectionListener, ComponentDatabaseChangeListener, BlocklyWorkspaceChangeListener {
+    implements FormChangeListener, BlockDrawerSelectionListener, ComponentDatabaseChangeListener, WorkspaceChangeListener {
+
+  static {
+    BlocklyPanel.setLanguageVersion(YaVersion.YOUNG_ANDROID_VERSION,
+        YaVersion.BLOCKS_LANGUAGE_VERSION);
+    BlocklyPanel.setPreferredCompanion(MESSAGES.useCompanion(YaVersion.PREFERRED_COMPANION, YaVersion.PREFERRED_COMPANION + "u"),
+        YaVersion.COMPANION_UPDATE_URL, YaVersion.COMPANION_UPDATE_URL1,
+        YaVersion.COMPANION_UPDATE_EMULATOR_URL);
+    BlocklyPanel.setAcceptableCompanionPackage(YaVersion.ACCEPTABLE_COMPANION_PACKAGE);
+    for (String version : YaVersion.ACCEPTABLE_COMPANIONS) {
+      BlocklyPanel.addAcceptableCompanion(version);
+    }
+  }
 
   // A constant to substract from the total height of the Viewer window, set through
   // the computed height of the user's window (Window.getClientHeight())
   // This is an approximation of the size of the header navigation panel
   private static final int VIEWER_WINDOW_OFFSET = 170;
+
+  private static final WorkspaceSettingsProvider DEFAULT_SETTINGS_PROVIDER = new WorkspaceSettingsProvider() {
+    private Scheduler.ScheduledCommand pendingSave = null;
+    @Override
+    @JsMethod
+    public void onGridEnabled(boolean enabled) {
+      Ode.getUserSettings().getSettings(SettingsConstants.BLOCKS_SETTINGS)
+          .changePropertyValue(SettingsConstants.GRID_ENABLED, Boolean.toString(enabled));
+      scheduleSave();
+    }
+
+    @Override
+    @JsMethod
+    public void onSnapEnabled(boolean enabled) {
+      Ode.getUserSettings().getSettings(SettingsConstants.BLOCKS_SETTINGS)
+          .changePropertyValue(SettingsConstants.SNAP_ENABLED, Boolean.toString(enabled));
+      scheduleSave();
+    }
+
+    @Override
+    @JsMethod
+    public boolean getGridEnabled() {
+      return Boolean.parseBoolean(Ode.getUserSettings().getSettings(SettingsConstants.BLOCKS_SETTINGS).getPropertyValue(SettingsConstants.GRID_ENABLED));
+    }
+
+    @Override
+    @JsMethod
+    public boolean getSnapEnabled() {
+      return Boolean.parseBoolean(Ode.getUserSettings().getSettings(SettingsConstants.BLOCKS_SETTINGS).getPropertyValue(SettingsConstants.SNAP_ENABLED));
+    }
+
+    private void scheduleSave() {
+      if (pendingSave == null) {
+        pendingSave = new Scheduler.ScheduledCommand() {
+          @Override
+          public void execute() {
+            pendingSave = null;
+            Ode.getUserSettings().saveSettings(null);
+          }
+        };
+        Scheduler.get().scheduleDeferred(pendingSave);
+      }
+    }
+  };
 
   // Database of component type descriptions
   private final SimpleComponentDatabase COMPONENT_DATABASE;
@@ -116,7 +181,7 @@ public final class YaBlocksEditor extends FileEditor
 
     fullFormName = blocksNode.getProjectId() + "_" + blocksNode.getFormName();
     formToBlocksEditor.put(fullFormName, this);
-    blocksArea = new BlocklyPanel(this, fullFormName); // [lyn, 2014/10/28] pass in editor so can extract form json from it
+    blocksArea = new BlocklyPanel(this.getProjectId(), fullFormName, false, DEFAULT_SETTINGS_PROVIDER);
     blocksArea.setWidth("100%");
     // This code seems to be using a rather old layout, so we cannot simply pass 100% for height.
     // Instead, it needs to be calculated from the client's window, and a listener added to Window
@@ -131,7 +196,8 @@ public final class YaBlocksEditor extends FileEditor
      }
     });
     initWidget(blocksArea);
-    blocksArea.populateComponentTypes(COMPONENT_DATABASE.getComponentsJSONString());
+    blocksArea.getWorkspace().setYailMenuEnabled(Ode.getInstance().getUser().getIsAdmin());
+    blocksArea.getWorkspace().populateComponentTypes(COMPONENT_DATABASE.getComponentsJSONString(), TRANSLATIONS);
 
     // Get references to the source structure explorer
     sourceStructureExplorer = BlockSelectorBox.getBlockSelectorBox().getSourceStructureExplorer();
@@ -264,7 +330,10 @@ public final class YaBlocksEditor extends FileEditor
   @Override
   public void onClose() {
     // our partner YaFormEditor added us as a FormChangeListener, but we remove ourself.
-    getForm().removeFormChangeListener(this);
+    MockForm form = getForm();
+    if (form != null) {
+      form.removeFormChangeListener(this);
+    }
     BlockSelectorBox.getBlockSelectorBox().removeBlockDrawerSelectionListener(this);
     formToBlocksEditor.remove(fullFormName);
   }
@@ -297,17 +366,19 @@ public final class YaBlocksEditor extends FileEditor
   }
 
   @Override
-  public void onWorkspaceChange(BlocklyPanel panel, JavaScriptObject event) {
-    if (!EventHelper.isTransient(event)) {
-      Ode.getInstance().getEditorManager().scheduleAutoSave(this);
-    }
-    if (!EventHelper.isUi(event)) {
-      sendComponentData();
+  public void onWorkspaceChange(BlocklyPanel panel, Event event) {
+    if (event != null) {
+      if (!event.isTransient()) {
+        Ode.getInstance().getEditorManager().scheduleAutoSave(this);
+      }
+      if (ReplMgr.isConnected() && !event.isUi() && !event.isSave()) {
+        sendComponentData();
+      }
     }
   }
 
   @Override
-  public void getBlocksImage(Callback<String, String> callback) {
+  public void getBlocksImage(WorkspaceSvg.ExportCallback callback) {
     blocksArea.getBlocksImage(callback);
   }
 
@@ -446,23 +517,19 @@ public final class YaBlocksEditor extends FileEditor
 
   public void addComponent(String typeName, String instanceName, String uuid) {
     if (componentUuids.add(uuid)) {
-      blocksArea.addComponent(uuid, instanceName, typeName);
+      blocksArea.getWorkspace().addComponent(uuid, instanceName, typeName);
     }
   }
 
   public void removeComponent(String typeName, String instanceName, String uuid) {
     if (componentUuids.remove(uuid)) {
-      blocksArea.removeComponent(uuid);
+      blocksArea.getWorkspace().removeComponent(uuid);
     }
-  }
-
-  public void renameComponent(String oldName, String newName, String uuid) {
-    blocksArea.renameComponent(uuid, oldName, newName);
   }
 
   public void showComponentBlocks(String instanceName) {
     String instanceDrawer = "component_" + instanceName;
-    if (selectedDrawer == null || !blocksArea.drawerShowing()
+    if (selectedDrawer == null || !blocksArea.isDrawerShowing()
         || !selectedDrawer.equals(instanceDrawer)) {
       blocksArea.showComponentBlocks(instanceName);
       selectedDrawer = instanceDrawer;
@@ -480,7 +547,7 @@ public final class YaBlocksEditor extends FileEditor
   public void showBuiltinBlocks(String drawerName) {
     OdeLog.log("Showing built-in drawer " + drawerName);
     String builtinDrawer = "builtin_" + drawerName;
-    if (selectedDrawer == null || !blocksArea.drawerShowing()
+    if (selectedDrawer == null || !blocksArea.isDrawerShowing()
         || !selectedDrawer.equals(builtinDrawer)) {
       blocksArea.showBuiltinBlocks(drawerName);
       selectedDrawer = builtinDrawer;
@@ -493,7 +560,7 @@ public final class YaBlocksEditor extends FileEditor
   public void showGenericBlocks(String drawerName) {
     OdeLog.log("Showing generic drawer " + drawerName);
     String genericDrawer = "generic_" + drawerName;
-    if (selectedDrawer == null || !blocksArea.drawerShowing()
+    if (selectedDrawer == null || !blocksArea.isDrawerShowing()
         || !selectedDrawer.equals(genericDrawer)) {
       blocksArea.showGenericBlocks(drawerName);
       selectedDrawer = genericDrawer;
@@ -574,7 +641,7 @@ public final class YaBlocksEditor extends FileEditor
    */
   @Override
   public void onComponentRenamed(MockComponent component, String oldName) {
-    renameComponent(oldName, component.getName(), component.getUuid());
+    blocksArea.getWorkspace().renameComponent(component.getUuid(), oldName, component.getName());
     if (loadComplete) {
       updateSourceStructureExplorer();
       // renaming could potentially confuse an open drawer so close just in case
@@ -644,13 +711,15 @@ public final class YaBlocksEditor extends FileEditor
   /*
    * Perform a hideChaff of Blockly
    */
-  public void hideChaff () {blocksArea.hideChaff();}
+  public void hideChaff () {
+    Blockly.hideChaff();
+  }
 
   // Static Function. Find the associated editor for formName and
   // set its "damaged" bit. This will cause the editor manager's scheduleAutoSave
   // method to ignore this blocks file and not save it out.
 
-  public static void setBlocksDamaged(String formName) {
+  private static void setBlocksDamaged(String formName) {
     YaBlocksEditor editor = formToBlocksEditor.get(formName);
     if (editor != null) {
       editor.setDamaged(true);
@@ -665,19 +734,11 @@ public final class YaBlocksEditor extends FileEditor
     blocksArea.updateCompanion();
   }
 
-  /*
-   * [lyn, 2014/10/28] Added for accessing current form json from BlocklyPanel
-   * Encodes the associated form's properties as a JSON encoded string. Used by YaBlocksEditor as well,
-   * to send the form info to the blockly world during code generation.
-   */
-  protected String encodeFormAsJsonString(boolean forYail) {
-    return myFormEditor.encodeFormAsJsonString(forYail);
-  }
-
   @Override
   public void onComponentTypeAdded(List<String> componentTypes) {
-    blocksArea.populateComponentTypes(COMPONENT_DATABASE.getComponentsJSONString());
-    blocksArea.verifyAllBlocks();
+    blocksArea.getWorkspace()
+        .populateComponentTypes(COMPONENT_DATABASE.getComponentsJSONString(), TRANSLATIONS)
+        .verifyAllBlocks();
   }
 
   @Override
@@ -687,14 +748,16 @@ public final class YaBlocksEditor extends FileEditor
 
   @Override
   public void onComponentTypeRemoved(Map<String, String> componentTypes) {
-    blocksArea.populateComponentTypes(COMPONENT_DATABASE.getComponentsJSONString());
-    blocksArea.verifyAllBlocks();
+    blocksArea.getWorkspace()
+        .populateComponentTypes(COMPONENT_DATABASE.getComponentsJSONString(), TRANSLATIONS)
+        .verifyAllBlocks();
   }
 
   @Override
   public void onResetDatabase() {
-    blocksArea.populateComponentTypes(COMPONENT_DATABASE.getComponentsJSONString());
-    blocksArea.verifyAllBlocks();
+    blocksArea.getWorkspace()
+        .populateComponentTypes(COMPONENT_DATABASE.getComponentsJSONString(), TRANSLATIONS)
+        .verifyAllBlocks();
   }
 
   @Override
@@ -702,18 +765,8 @@ public final class YaBlocksEditor extends FileEditor
     blocksArea.makeActive();
   }
 
-  public static native void resendAssetsAndExtensions()/*-{
-    if (top.ReplState && (top.ReplState.state == Blockly.ReplMgr.rsState.CONNECTED ||
-                          top.ReplState.state == Blockly.ReplMgr.rsState.EXTENSIONS ||
-                          top.ReplState.state == Blockly.ReplMgr.rsState.ASSET)) {
-      Blockly.ReplMgr.resendAssetsAndExtensions();
-    }
-  }-*/;
+  @Override
+  public void onToggleWarning(BlocklyPanel panel) {
 
-  public static native void resendExtensionsList()/*-{
-    if (top.ReplState && top.ReplState.state == Blockly.ReplMgr.rsState.CONNECTED) {
-      Blockly.ReplMgr.loadExtensions();
-    }
-  }-*/;
-
+  }
 }

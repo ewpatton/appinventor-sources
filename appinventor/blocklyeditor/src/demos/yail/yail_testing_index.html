@@ -144,10 +144,6 @@ function start() {
 
 
   // ----- Emulate GWT Provided functions
-  BlocklyPanel_getComponentsJSONString = function(type) {
-    return JSON.stringify(componentTypeJson);
-  };
-
   BlocklyPanel_getComponentInstanceTypeName = function(formName,instanceName) {
     var json = JSON.parse(formJson);
     var components = json.Properties.$Components;

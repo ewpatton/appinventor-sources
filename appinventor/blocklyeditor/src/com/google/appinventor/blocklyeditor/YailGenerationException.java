@@ -1,6 +1,6 @@
 // Copyright 2012 Massachusetts Institute of Technology. All rights reserved.
 
-package com.google.appinventor.client.editor.youngandroid;
+package com.google.appinventor.blocklyeditor;
 
 /**
  * Exception for error that occur when attempting to generate Yail code from blocks

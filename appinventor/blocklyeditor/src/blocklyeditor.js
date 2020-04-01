@@ -151,7 +151,7 @@ Blockly.BlocklyEditor.addPngExportOption = function(myBlock, options) {
 Blockly.Block.prototype.customContextMenu = function(options) {
   var myBlock = this;
   Blockly.BlocklyEditor.addPngExportOption(myBlock, options);
-  if (window.parent.BlocklyPanel_checkIsAdmin()) {
+  if (this.workspace.yailMenuEnabled) {
     var yailOption = {enabled: !this.disabled};
     yailOption.text = Blockly.Msg.GENERATE_YAIL;
     yailOption.callback = function() {
@@ -386,8 +386,8 @@ Blockly.BlocklyEditor['create'] = function(container, formName, readOnly, rtl) {
 Blockly.ai_inject = function(container, workspace) {
   Blockly.mainWorkspace = workspace;  // make workspace the 'active' workspace
   workspace.fireChangeListener(new AI.Events.ScreenSwitch(workspace.projectId, workspace.formName));
-  var gridEnabled = top.BlocklyPanel_getGridEnabled && top.BlocklyPanel_getGridEnabled();
-  var gridSnap = top.BlocklyPanel_getSnapEnabled && top.BlocklyPanel_getSnapEnabled();
+  var gridEnabled = workspace.settingsProvider && workspace.settingsProvider.getGridEnabled();
+  var gridSnap = workspace.settingsProvider && workspace.settingsProvider.getSnapEnabled();
   if (workspace.injected) {
     workspace.setGridSettings(gridEnabled, gridSnap);
     // Update the workspace size in case the window was resized while we were hidden

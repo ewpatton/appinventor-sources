@@ -6,8 +6,8 @@
 
 package com.google.appinventor.client.explorer.commands;
 
+import com.google.appinventor.blocklyeditor.ReplMgr;
 import com.google.appinventor.client.Ode;
-import com.google.appinventor.client.editor.youngandroid.BlocklyPanel;
 import com.google.appinventor.client.output.OdeLog;
 import com.google.appinventor.shared.rpc.project.ProjectNode;
 import com.google.gwt.core.client.GWT;
@@ -77,7 +77,7 @@ public class ShowBarcodeCommand extends ChainableCommand {
       cancelButton.addClickHandler(buttonHandler);
       Button okButton = new Button(MESSAGES.okButton());
       okButton.addClickHandler(buttonHandler);
-      HTML barcodeQrcode = new HTML("<center>" + BlocklyPanel.getQRCode(appInstallUrl) + "</center>");
+      HTML barcodeQrcode = new HTML("<center>" + ReplMgr.makeqrcode(appInstallUrl) + "</center>");
       HTML linkQrcode = new HTML("<center><a href=\"" + appInstallUrl + "\" target=\"_blank\">" + appInstallUrl + "</a></center>");
       HorizontalPanel buttonPanel = new HorizontalPanel();
       buttonPanel.setHorizontalAlignment(HorizontalPanel.ALIGN_CENTER);

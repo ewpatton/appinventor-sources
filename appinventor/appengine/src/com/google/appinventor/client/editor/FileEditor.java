@@ -6,6 +6,7 @@
 
 package com.google.appinventor.client.editor;
 
+import com.google.appinventor.blocklyeditor.WorkspaceSvg;
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.shared.rpc.project.FileNode;
 import com.google.appinventor.shared.rpc.project.ProjectRootNode;
@@ -163,7 +164,7 @@ public abstract class FileEditor extends Composite {
   public void updateCompanion() {
   }
 
-  public void getBlocksImage(Callback<String, String> callback) {
+  public void getBlocksImage(WorkspaceSvg.ExportCallback callback) {
   }
 
   /**

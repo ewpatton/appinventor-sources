@@ -6,8 +6,9 @@
 
 package com.google.appinventor.client;
 
+import com.google.appinventor.blocklyeditor.ReplMgr;
+import com.google.appinventor.blocklyeditor.api.ReplListener;
 import com.google.appinventor.client.boxes.ProjectListBox;
-import com.google.appinventor.client.editor.youngandroid.BlocklyPanel;
 import com.google.appinventor.client.editor.youngandroid.YaBlocksEditor;
 import com.google.appinventor.client.explorer.commands.BuildCommand;
 import com.google.appinventor.client.explorer.commands.ChainableCommand;
@@ -884,12 +885,12 @@ public class TopToolbar extends Composite {
       if (!YaVersion.COMPANION_UPDATE_URL1.equals("")) {
         String url = "http://" + Window.Location.getHost() + YaVersion.COMPANION_UPDATE_URL1;
         downloadinfo = "<br/>\n<a href=" + url + ">Download URL: " + url + "</a><br/>\n";
-        downloadinfo += BlocklyPanel.getQRCode(url);
+        downloadinfo += ReplMgr.makeqrcode(url);
       }
 
       VerticalPanel DialogBoxContents = new VerticalPanel();
       HTML message = new HTML(
-          "Companion Version " + BlocklyPanel.getCompVersion() + downloadinfo
+          "Companion Version " + MESSAGES.useCompanion(YaVersion.PREFERRED_COMPANION, YaVersion.PREFERRED_COMPANION + "u") + downloadinfo
       );
 
       SimplePanel holder = new SimplePanel();

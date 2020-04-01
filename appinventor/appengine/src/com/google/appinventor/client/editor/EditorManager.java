@@ -8,11 +8,11 @@ package com.google.appinventor.client.editor;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
 
+import com.google.appinventor.blocklyeditor.YailGenerationException;
 import com.google.appinventor.client.ErrorReporter;
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.OdeAsyncCallback;
 import com.google.appinventor.client.editor.youngandroid.YaBlocksEditor;
-import com.google.appinventor.client.editor.youngandroid.YailGenerationException;
 import com.google.appinventor.client.explorer.project.Project;
 import com.google.appinventor.client.output.OdeLog;
 import com.google.appinventor.client.settings.project.ProjectSettings;

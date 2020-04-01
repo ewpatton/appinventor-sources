@@ -30,6 +30,30 @@
        ===================================================================== -->
   <property name="common.pkg" value="com/google/appinventor/common" />
 
+  <target name="CommonDataModel"
+          depends="init">
+    <property name="CommonDataModel-class.dir" location="${class.dir}/CommonDataModel" />
+    <mkdir dir="${CommonDataModel-class.dir}"/>
+
+    <ai.javac destdir="${CommonDataModel-class.dir}">
+      <include name="${common.pkg}/datamodel/*.java"/>
+      <classpath>
+        <pathelement location="${lib.dir}/gwt/2.8.1-patched/gwt-dev.jar"/>
+        <pathelement location="${lib.dir}/gwt/2.8.1-patched/gwt-user.jar"/>
+      </classpath>
+    </ai.javac>
+    <jar destfile="${public.build.dir}/CommonDataModel.jar">
+      <fileset dir="${CommonDataModel-class.dir}"/>
+    </jar>
+    <jar destfile="${public.build.dir}/CommonDataModel-gwt.jar">
+      <fileset dir="${CommonDataModel-class.dir}"/>
+      <fileset dir="${src.dir}">
+        <include name="${common.pkg}/datamodel/*.java"/>
+        <include name="${common.pkg}/CommonDataModel.gwt.xml"/>
+      </fileset>
+    </jar>
+  </target>
+
   <!-- =====================================================================
        CommonUtils: library containing utility classes.
        ===================================================================== -->

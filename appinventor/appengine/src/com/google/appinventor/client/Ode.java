@@ -6,32 +6,30 @@
 
 package com.google.appinventor.client;
 
-import java.util.Random;
-
-import java.util.List;
-import java.util.logging.Logger;
-
+import com.google.appinventor.blocklyeditor.Backpack;
+import com.google.appinventor.blocklyeditor.BlocklyEditor;
+import com.google.appinventor.blocklyeditor.WorkspaceSvg;
 import com.google.appinventor.client.boxes.AdminUserListBox;
 import com.google.appinventor.client.boxes.AssetListBox;
 import com.google.appinventor.client.boxes.BlockSelectorBox;
-import com.google.appinventor.client.boxes.PrivateUserProfileTabPanel;
+import com.google.appinventor.client.boxes.GalleryAppBox;
+import com.google.appinventor.client.boxes.GalleryListBox;
 import com.google.appinventor.client.boxes.MessagesOutputBox;
+import com.google.appinventor.client.boxes.ModerationPageBox;
 import com.google.appinventor.client.boxes.OdeLogBox;
 import com.google.appinventor.client.boxes.PaletteBox;
-import com.google.appinventor.client.boxes.ProjectListBox;
-import com.google.appinventor.client.boxes.ModerationPageBox;
-import com.google.appinventor.client.boxes.GalleryListBox;
-import com.google.appinventor.client.boxes.GalleryAppBox;
+import com.google.appinventor.client.boxes.PrivateUserProfileTabPanel;
 import com.google.appinventor.client.boxes.ProfileBox;
+import com.google.appinventor.client.boxes.ProjectListBox;
 import com.google.appinventor.client.boxes.PropertiesBox;
 import com.google.appinventor.client.boxes.SourceStructureBox;
 import com.google.appinventor.client.boxes.TrashProjectListBox;
 import com.google.appinventor.client.boxes.ViewerBox;
 import com.google.appinventor.client.editor.EditorManager;
 import com.google.appinventor.client.editor.FileEditor;
-import com.google.appinventor.client.editor.youngandroid.BlocklyPanel;
+import com.google.appinventor.client.editor.youngandroid.BackpackImpl;
+import com.google.appinventor.client.editor.youngandroid.SharedBackpackImpl;
 import com.google.appinventor.client.editor.youngandroid.TutorialPanel;
-import com.google.appinventor.client.editor.youngandroid.YaBlocksEditor;
 import com.google.appinventor.client.explorer.commands.ChainableCommand;
 import com.google.appinventor.client.explorer.commands.CommandRegistry;
 import com.google.appinventor.client.explorer.commands.SaveAllEditorsCommand;
@@ -58,26 +56,27 @@ import com.google.appinventor.client.wizards.NewProjectWizard.NewProjectCommand;
 import com.google.appinventor.client.wizards.TemplateUploadWizard;
 import com.google.appinventor.common.version.AppInventorFeatures;
 import com.google.appinventor.components.common.YaVersion;
-import com.google.appinventor.shared.rpc.cloudDB.CloudDBAuthService;
-import com.google.appinventor.shared.rpc.cloudDB.CloudDBAuthServiceAsync;
-import com.google.appinventor.shared.rpc.component.ComponentService;
-import com.google.appinventor.shared.rpc.component.ComponentServiceAsync;
 import com.google.appinventor.shared.rpc.GetMotdService;
 import com.google.appinventor.shared.rpc.GetMotdServiceAsync;
 import com.google.appinventor.shared.rpc.RpcResult;
 import com.google.appinventor.shared.rpc.ServerLayout;
 import com.google.appinventor.shared.rpc.admin.AdminInfoService;
 import com.google.appinventor.shared.rpc.admin.AdminInfoServiceAsync;
+import com.google.appinventor.shared.rpc.cloudDB.CloudDBAuthService;
+import com.google.appinventor.shared.rpc.cloudDB.CloudDBAuthServiceAsync;
+import com.google.appinventor.shared.rpc.component.ComponentService;
+import com.google.appinventor.shared.rpc.component.ComponentServiceAsync;
 import com.google.appinventor.shared.rpc.project.FileNode;
+import com.google.appinventor.shared.rpc.project.GalleryApp;
 import com.google.appinventor.shared.rpc.project.GalleryAppListResult;
 import com.google.appinventor.shared.rpc.project.GalleryComment;
+import com.google.appinventor.shared.rpc.project.GalleryService;
+import com.google.appinventor.shared.rpc.project.GalleryServiceAsync;
 import com.google.appinventor.shared.rpc.project.GallerySettings;
 import com.google.appinventor.shared.rpc.project.ProjectRootNode;
 import com.google.appinventor.shared.rpc.project.ProjectService;
 import com.google.appinventor.shared.rpc.project.ProjectServiceAsync;
 import com.google.appinventor.shared.rpc.project.UserProject;
-import com.google.appinventor.shared.rpc.project.GalleryService;
-import com.google.appinventor.shared.rpc.project.GalleryServiceAsync;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidSourceNode;
 import com.google.appinventor.shared.rpc.user.Config;
 import com.google.appinventor.shared.rpc.user.SplashConfig;
@@ -86,7 +85,6 @@ import com.google.appinventor.shared.rpc.user.UserInfoService;
 import com.google.appinventor.shared.rpc.user.UserInfoServiceAsync;
 import com.google.appinventor.shared.settings.SettingsConstants;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -126,7 +124,9 @@ import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.appinventor.shared.rpc.project.GalleryApp;
+import java.util.List;
+import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Main entry point for Ode. Defines the startup UI elements in
@@ -801,18 +801,6 @@ public class Ode implements EntryPoint {
         user = result.getUser();
         isReadOnly = user.isReadOnly();
 
-        // load the user's backpack if we are not using a shared
-        // backpack
-
-        String backPackId = user.getBackpackId();
-        if (backPackId == null || backPackId.isEmpty()) {
-          loadBackpack();
-          OdeLog.log("backpack: No shared backpack");
-        } else {
-          BlocklyPanel.setSharedBackpackId(backPackId);
-          OdeLog.log("Have a shared backpack backPackId = " + backPackId);
-        }
-
         // Setup noop timer (if enabled)
         int noop = config.getNoop();
         if (noop > 0) {
@@ -900,6 +888,20 @@ public class Ode implements EntryPoint {
 
             // Initialize UI
             initializeUi();
+
+            // load the user's backpack if we are not using a shared
+            // backpack
+
+            String backPackId = user.getBackpackId();
+            if (backPackId == null || backPackId.isEmpty()) {
+              BackpackImpl backpack = new BackpackImpl(userInfoService);
+              Backpack.setBackpackSource(backpack);
+              backpack.loadBackpack();
+              OdeLog.log("backpack: No shared backpack");
+            } else {
+              Backpack.setBackpackSource(new SharedBackpackImpl(userInfoService, backPackId));
+              OdeLog.log("Have a shared backpack backPackId = " + backPackId);
+            }
 
             topPanel.showUserEmail(user.getUserEmail());
           }
@@ -989,6 +991,7 @@ public class Ode implements EntryPoint {
    * Initializes all UI elements.
    */
   private void initializeUi() {
+    BlocklyEditor.initialize();
     rpcStatusPopup = new RpcStatusPopup();
 
     // Register services with RPC status popup
@@ -2467,9 +2470,10 @@ public class Ode implements EntryPoint {
     FileEditor editor = Ode.getInstance().getCurrentFileEditor();
     final long projectId = editor.getProjectId();
     final FileNode fileNode = editor.getFileNode();
-    currentFileEditor.getBlocksImage(new Callback<String,String>() {
-        @Override
-        public void onSuccess(String result) {
+    currentFileEditor.getBlocksImage(new WorkspaceSvg.ExportCallback() {
+      @Override
+      public void run(String result, String error) {
+        if (result != null) {
           int comma = result.indexOf(",");
           if (comma < 0) {
             OdeLog.log("screenshot invalid");
@@ -2499,13 +2503,12 @@ public class Ode implements EntryPoint {
           if (!deferred) {
             next.run();
           }
-        }
-        @Override
-        public void onFailure(String error) {
+        } else {
           OdeLog.log("Screenshot failed: " + error);
           next.run();
         }
-      });
+      }
+    });
   }
 
   private void initializeGallery() {
@@ -2648,21 +2651,6 @@ public class Ode implements EntryPoint {
       designToolbar.setTutorialToggleVisible(true);
       setTutorialVisible(true);
     }
-  }
-
-  // Load the user's backpack. This is not called if we are using
-  // a shared backpack
-  private void loadBackpack() {
-    userInfoService.getUserBackpack(new AsyncCallback<String>() {
-        @Override
-        public void onSuccess(String backpack) {
-          BlocklyPanel.setInitialBackpack(backpack);
-        }
-        @Override
-        public void onFailure(Throwable caught) {
-          OdeLog.log("Fetching backpack failed");
-        }
-      });
   }
 
   public boolean hasSecondBuildserver() {

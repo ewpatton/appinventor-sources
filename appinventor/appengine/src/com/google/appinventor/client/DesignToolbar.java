@@ -6,12 +6,9 @@
 
 package com.google.appinventor.client;
 
+import com.google.appinventor.blocklyeditor.ReplMgr;
 import com.google.appinventor.client.editor.FileEditor;
 import com.google.appinventor.client.editor.ProjectEditor;
-import com.google.appinventor.client.editor.youngandroid.BlocklyPanel;
-import com.google.appinventor.client.editor.youngandroid.YaBlocksEditor;
-import com.google.appinventor.client.editor.youngandroid.YaFormEditor;
-import com.google.appinventor.client.editor.youngandroid.YaProjectEditor;
 
 import com.google.appinventor.client.explorer.commands.AddFormCommand;
 import com.google.appinventor.client.explorer.commands.ChainableCommand;
@@ -33,7 +30,6 @@ import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidSource
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.Scheduler;
 
 import com.google.gwt.user.client.Command;
@@ -88,8 +84,6 @@ public class DesignToolbar extends Toolbar {
       screens = Maps.newHashMap();
       // Screen1 is initial screen by default
       currentScreen = YoungAndroidSourceNode.SCREEN1_FORM_NAME;
-      // Let BlocklyPanel know which screen to send Yail for
-      BlocklyPanel.setCurrentForm(projectId + "_" + currentScreen);
     }
 
     // Returns true if we added the screen (it didn't previously exist), false otherwise.
@@ -341,7 +335,6 @@ public class DesignToolbar extends Toolbar {
       Ode.getInstance().getTopToolbar().updateFileMenuButtons(1);
     }
     // Inform the Blockly Panel which project/screen (aka form) we are working on
-    BlocklyPanel.setCurrentForm(projectId + "_" + newScreenName);
     screen.blocksEditor.makeActiveWorkspace();
   }
 
@@ -416,7 +409,7 @@ public class DesignToolbar extends Toolbar {
             screen.screenName, new SwitchScreenAction(projectId, screen.screenName)));
       }
       projectNameLabel.setText(projectName);
-      YaBlocksEditor.resendAssetsAndExtensions();  // Send assets for active project
+      ReplMgr.resendAssetsAndExtensions();  // Send assets for active project
     } else {
       ErrorReporter.reportError("Design toolbar doesn't know about project " + projectName +
           " with id " + projectId);

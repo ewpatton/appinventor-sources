@@ -1,0 +1,46 @@
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.8.0//EN"
+    "http://www.gwtproject.org/doctype/2.8.1/gwt-module.dtd">
+<module>
+
+  <inherits name='com.google.gwt.user.User'/>
+  <inherits name='com.google.gwt.logging.Logging'/>
+  <inherits name='com.google.gwt.i18n.I18N'/>
+  <inherits name="com.google.appinventor.common.CommonDataModel"/>
+  <inherits name="com.google.gwt.query.Query"/>
+
+  <source path=""/>
+
+  <!-- English language, independent of country -->
+  <extend-property name="locale" values="en"/>
+  <!-- Simplified Chinese -->
+  <extend-property name="locale" values="zh_CN"/>
+  <!-- Traditional Chinese -->
+  <extend-property name="locale" values="zh_TW"/>
+  <!-- Spanish from Spain -->
+  <extend-property name="locale" values="es_ES"/>
+  <!-- French -->
+  <extend-property name="locale" values="fr_FR"/>
+  <!-- Italian -->
+  <extend-property name="locale" values="it_IT"/>
+  <!-- Russian -->
+  <extend-property name="locale" values="ru"/>
+  <!-- Korean -->
+  <extend-property name="locale" values="ko_KR"/>
+  <!-- Swedish -->
+  <extend-property name="locale" values="sv"/>
+  <!-- Portuguese (Brazilian) -->
+  <extend-property name="locale" values="pt_BR"/>
+  <!-- Portuguese (Portugal) -->
+  <extend-property name="locale" values="pt"/>
+  <!-- Hungarian -->
+  <extend-property name="locale" values="hu"/>
+  <!-- Dutch -->
+  <extend-property name="locale" values="nl"/>
+  <!-- German -->
+  <extend-property name="locale" values="de"/>
+  <!-- Polish -->
+  <extend-property name="locale" values="pl"/>
+
+  <set-property-fallback name="locale" value="en"/>
+
+</module>

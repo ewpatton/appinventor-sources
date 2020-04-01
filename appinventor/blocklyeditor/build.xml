@@ -17,8 +17,15 @@
     In-browser blocks editor for App Inventor based on Blockly
   </description>
 
+	<condition property="XstartOnFirstThread" value="-XstartOnFirstThread">
+		<os family="mac"/>
+	</condition>
+	<condition property="XstartOnFirstThread" value="">
+		<not><os family="mac"/></not>
+	</condition>
+
 	<target name="all" 
-		      depends="BlocklyCompile, BlocklyTestbed">
+		      depends="BlocklyCompile, BlocklyEditorCompile">
 	</target>
 
 	<target name="tests"
@@ -46,15 +53,15 @@
        Targets
        ===================================================================== -->
 
-        <target name="CheckBlocklyCompile">
-          <uptodate property="BlocklyCompile.uptodate" targetfile="${public.build.dir}/blockly-all.js">
-            <srcfiles dir="src/" includes="**/*.js" />
-            <srcfiles dir="${blockly.src.dir}/" includes="core/**/*.js" />
-            <srcfiles dir="${lib.dir}/closure-library/" includes="closure/goog/**/*.js" />
-            <srcfiles dir="${basedir}" includes="ploverConfig.js" />
-            <!-- <mapper type="merge" to="${public.build.dir}/blockly-all.js" /> -->
-          </uptodate>
-        </target>
+	<target name="CheckBlocklyCompile">
+		<uptodate property="BlocklyCompile.uptodate" targetfile="${public.build.dir}/blockly-all.js">
+			<srcfiles dir="src/" includes="**/*.js" />
+			<srcfiles dir="${blockly.src.dir}/" includes="core/**/*.js" />
+			<srcfiles dir="${lib.dir}/closure-library/" includes="closure/goog/**/*.js" />
+			<srcfiles dir="${basedir}" includes="ploverConfig.js" />
+			<!-- <mapper type="merge" to="${public.build.dir}/blockly-all.js" /> -->
+		</uptodate>
+	</target>
 
 	<target name="BlocklyCompile"
 		      description="For now, compiling the Blockly editor means cat-ing its javascript together with the relevant javascript in the Blockly library" 
@@ -63,6 +70,40 @@
 		<java failonerror="true" fork="true" jar="${lib.dir}/plovr/plovr-eba786b34df9.jar">
 			<arg line="build ploverConfig.js" />
 		</java>
+	</target>
+
+	<property name="gwt.sdk" location="${lib.dir}/gwt/2.8.1-patched" />
+	<target name="BlocklyEditorCompile"
+					depends="common_CommonDataModel,BlocklyCompile">
+		<property name="BlocklyEditor-class.dir" location="${local.build.dir}/BlocklyEditor"/>
+		<mkdir dir="${BlocklyEditor-class.dir}"/>
+		<ai.javac destdir="${BlocklyEditor-class.dir}" srcdir="${src.dir}"
+							debug="true" debuglevel="lines,vars,source">
+			<classpath>
+				<pathelement location="${gwt.sdk}/gwt-user.jar"/>
+				<pathelement location="${gwt.sdk}/gwt-servlet.jar"/>
+				<pathelement location="${gwt.sdk}/gwt-dev.jar"/>
+				<pathelement location="${lib.dir}/gwt_query/gwtquery-1.5-beta1.jar"/>
+				<pathelement location="${build.dir}/common/CommonDataModel-gwt.jar"/>
+			</classpath>
+			<include name="${blocklyeditor.pkg}/**/*.java"/>
+		</ai.javac>
+		<copy todir="${BlocklyEditor-class.dir}/${blocklyeditor.pkg}" file="${public.build.dir}/blockly-all.js"/>
+		<copy todir="${BlocklyEditor-class.dir}/${blocklyeditor.pkg}/i18n">
+			<fileset dir="${src.dir}/${blocklyeditor.pkg}/i18n">
+				<include name="*.json"/>
+			</fileset>
+		</copy>
+		<jar destfile="${public.build.dir}/BlocklyEditor.jar">
+			<fileset dir="${BlocklyEditor-class.dir}" />
+		</jar>
+		<jar destfile="${public.build.dir}/BlocklyEditor-gwt.jar">
+			<fileset dir="${BlocklyEditor-class.dir}" />
+			<fileset dir="${src.dir}">
+				<include name="**/*.java"/>
+				<include name="**/*.gwt.xml"/>
+			</fileset>
+		</jar>
 	</target>
 
 	<!--  property name="js.tests.dir" location="./tests" /-->

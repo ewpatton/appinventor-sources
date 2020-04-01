@@ -292,6 +292,11 @@
          target="BlocklyCompile"/>
   </target>
 
+  <target name="blocklyeditor_BlocklyEditorCompile">
+    <ant inheritall="false" usenativebasedir="true" dir="${appinventor.dir}/blocklyeditor"
+         target="BlocklyEditorCompile"/>
+  </target>
+
   <!-- ====================================================================
        components_ComponentTranslation builds:
        common/build/src/com/google/appinventor/ComponentsTranslation.java
@@ -315,6 +320,11 @@
   <target name="buildserver_StarterApp">
     <ant inheritAll="false" useNativeBasedir="true" dir="${appinventor.dir}/buildserver"
          target="StarterApp"/>
+  </target>
+
+  <target name="common_CommonDataModel">
+    <ant inheritall="false" usenativebasedir="true" dir="${appinventor.dir}/common"
+         target="CommonDataModel"/>
   </target>
 
   <!-- ====================================================================

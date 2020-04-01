@@ -1011,7 +1011,7 @@ Blockly.WorkspaceSvg.prototype.customContextMenu = function(menuOptions) {
     Blockly.Msg.ENABLE_GRID;
   gridOption.callback = function() {
     self.options.gridOptions['enabled'] = !self.options.gridOptions['enabled'];
-    self.options.gridOptions['snap'] = self.options.gridOptions['enabled'] && top.BlocklyPanel_getSnapEnabled();
+    self.options.gridOptions['snap'] = self.options.gridOptions['enabled'] && self.settingsProvider.getSnapEnabled();
     if (self.options.gridOptions['enabled']) {
       // add grid
       self.svgBackground_.setAttribute('style', 'fill: url(#' + self.options.gridPattern.id + ');');
@@ -1019,9 +1019,8 @@ Blockly.WorkspaceSvg.prototype.customContextMenu = function(menuOptions) {
       // remove grid
       self.svgBackground_.setAttribute('style', 'fill: white;');
     }
-    if (top.BlocklyPanel_setGridEnabled) {
-      top.BlocklyPanel_setGridEnabled(self.options.gridOptions['enabled']);
-      top.BlocklyPanel_saveUserSettings();
+    if (self.settingsProvider) {
+      self.settingsProvider.onGridEnabled(self.options.gridOptions['enabled']);
     }
   };
   menuOptions.push(gridOption);
@@ -1033,9 +1032,8 @@ Blockly.WorkspaceSvg.prototype.customContextMenu = function(menuOptions) {
       Blockly.Msg.ENABLE_SNAPPING;
     snapOption.callback = function() {
       self.options.gridOptions['snap'] = !self.options.gridOptions['snap'];
-      if (top.BlocklyPanel_setSnapEnabled) {
-        top.BlocklyPanel_setSnapEnabled(self.options.gridOptions['enabled']);
-        top.BlocklyPanel_saveUserSettings();
+      if (self.settingsProvider) {
+        self.settingsProvider.onSnapEnabled(self.options.gridOptions['snap']);
       }
     };
     menuOptions.push(snapOption);
@@ -1407,4 +1405,24 @@ Blockly.WorkspaceSvg.prototype.refreshBackpack = function() {
   if (this.backpack_) {
     this.backpack_.resize();
   }
+};
+
+function WorkspaceSettingsProvider() {
+}
+
+WorkspaceSettingsProvider.prototype.onGridEnabled = function(enabled){};
+WorkspaceSettingsProvider.prototype.onSnapEnabled = function(enabled){};
+WorkspaceSettingsProvider.prototype.getGridEnabled = function(){};
+WorkspaceSettingsProvider.prototype.getSnapEnabled = function(){};
+
+/**
+ *
+ * @param {WorkspaceSettingsProvider} provider
+ */
+Blockly.WorkspaceSvg.prototype.setSettingsProvider = function(provider) {
+  this.settingsProvider = provider;
+};
+
+Blockly.WorkspaceSvg.prototype.setYailMenuEnabled = function(enabled) {
+  this.yailMenuEnabled = enabled;
 };

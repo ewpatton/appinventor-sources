@@ -2746,3 +2746,5 @@ div.vector-marker>svg, div.leaflet-marker-icon>img {
   box-sizing: border-box;
   padding: 2px;
 }
+
+.DialogBox-message{}

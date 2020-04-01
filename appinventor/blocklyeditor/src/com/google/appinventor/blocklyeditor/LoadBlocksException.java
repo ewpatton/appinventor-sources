@@ -1,4 +1,4 @@
-package com.google.appinventor.client.editor.youngandroid;
+package com.google.appinventor.blocklyeditor;
 
 import java.io.IOException;
 

@@ -8,6 +8,7 @@ package com.google.appinventor.client.editor.youngandroid;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
 
+import com.google.appinventor.blocklyeditor.WorkspaceSvg;
 import com.google.appinventor.client.ErrorReporter;
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.OdeAsyncCallback;
@@ -815,10 +816,12 @@ public final class YaFormEditor extends SimpleEditor implements FormChangeListen
   }
 
   @Override
-  public void getBlocksImage(Callback<String, String> callback) {
+  public void getBlocksImage(WorkspaceSvg.ExportCallback callback) {
     YaProjectEditor yaProjectEditor = (YaProjectEditor) projectEditor;
     YaBlocksEditor blockEditor = yaProjectEditor.getBlocksFileEditor(formNode.getFormName());
-    blockEditor.getBlocksImage(callback);
+    if (blockEditor != null) {
+      blockEditor.getBlocksImage(callback);
+    }
   }
 
   /*
