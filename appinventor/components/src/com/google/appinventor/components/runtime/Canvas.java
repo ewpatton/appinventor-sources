@@ -774,7 +774,8 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
     // Note: The code below does not call ourselves after the
     // onGranted because we don't do anything beyond getting
     // permissions. If we ever add code to this Initialize method,
-    // then be sure to call ourselves in onGranted()
+    // that requires permissions, then be sure to call ourselves in
+    // onGranted().
     if (!havePermission && form.doesAppDeclarePermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
       final Canvas me = this;
       form.askPermission(new BulkPermissionRequest(this, "Canvas",
