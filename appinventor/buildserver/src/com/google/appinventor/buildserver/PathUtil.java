@@ -87,6 +87,18 @@ public class PathUtil {
   }
 
   /**
+   * Returns the file name extension of the given path.
+   *
+   * @param path the path
+   * @return file name extension
+   */
+  public static String getFileExtension(String path) {
+    int lastSlash = path.lastIndexOf('/');
+    int lastDot = path.lastIndexOf('.');
+    return (lastDot > lastSlash) ? path.substring(lastDot + 1) : "";
+  }
+
+  /**
    * Returns the package name part of an dot-qualified class name.
    *
    * @param qualifiedName  qualified class name

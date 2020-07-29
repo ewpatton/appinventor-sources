@@ -15,11 +15,18 @@ import com.google.appinventor.components.common.ComponentDescriptorConstants;
 import com.google.appinventor.components.common.YaVersion;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.codehaus.jettison.json.JSONTokener;
+
+import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Ellipse2D;
@@ -59,11 +66,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.imageio.ImageIO;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.codehaus.jettison.json.JSONTokener;
 
 /**
  * Main entry point for the YAIL compiler.
@@ -1399,6 +1401,11 @@ public final class Compiler {
       return false;
     }
 
+    // Run Jetifier to transform extension libs to use AndroidX
+    if (!compiler.runJetifier()) {
+      return false;
+    }
+
     // Invoke aapt to package everything up
     out.println("________Invoking AAPT");
     File deployDir = createDir(buildDir, "deploy");
@@ -1650,16 +1657,13 @@ public final class Compiler {
       }
 
       // Construct the class path including component libraries (jars)
-      StringBuilder classpath = new StringBuilder(getResource(KAWA_RUNTIME));
-      classpath.append(COLON);
-      classpath.append(getResource(ACRA_RUNTIME));
-      classpath.append(COLON);
-      classpath.append(getResource(SIMPLE_ANDROID_RUNTIME_JAR));
-      classpath.append(COLON);
+      List<String> classpathList = new ArrayList<>();
+      classpathList.add(getResource(KAWA_RUNTIME));
+      classpathList.add(getResource(ACRA_RUNTIME));
+      classpathList.add(getResource(SIMPLE_ANDROID_RUNTIME_JAR));
 
       for (String jar : SUPPORT_JARS) {
-        classpath.append(getResource(jar));
-        classpath.append(COLON);
+        classpathList.add(getResource(jar));
       }
 
       // attach the jars of external comps
@@ -1667,49 +1671,23 @@ public final class Compiler {
       for (String type : extCompTypes) {
         String sourcePath = getExtCompDirPath(type) + SIMPLE_ANDROID_RUNTIME_JAR;
         if (!addedExtJars.contains(sourcePath)) {  // don't add multiple copies for bundled extensions
-          classpath.append(sourcePath);
-          classpath.append(COLON);
+          classpathList.add(sourcePath);
           addedExtJars.add(sourcePath);
         }
       }
 
-      // Add component library names to classpath
-      for (String type : libsNeeded.keySet()) {
-        for (String lib : libsNeeded.get(type)) {
-          String sourcePath = "";
-          String pathSuffix = RUNTIME_FILES_DIR + lib;
-
-          if (simpleCompTypes.contains(type)) {
-            sourcePath = getResource(pathSuffix);
-          } else if (extCompTypes.contains(type)) {
-            sourcePath = getExtCompDirPath(type) + pathSuffix;
-          } else {
-            userErrors.print(String.format(ERROR_IN_STAGE, "Compile"));
-            return false;
-          }
-
-          uniqueLibsNeeded.add(sourcePath);
-
-          classpath.append(sourcePath);
-          classpath.append(COLON);
-        }
+      if (!computeUniqueLibs()) {
+        return false;
       }
+      classpathList.addAll(uniqueLibsNeeded);
 
-      // Add dependencies for classes.jar in any AAR libraries
-      for (File classesJar : explodedAarLibs.getClasses()) {
-        if (classesJar != null) {  // true for optimized AARs in App Inventor libs
-          final String abspath = classesJar.getAbsolutePath();
-          uniqueLibsNeeded.add(abspath);
-          classpath.append(abspath);
-          classpath.append(COLON);
-        }
-      }
       if (explodedAarLibs.size() > 0) {
-        classpath.append(explodedAarLibs.getOutputDirectory().getAbsolutePath());
-        classpath.append(COLON);
+        classpathList.add(explodedAarLibs.getOutputDirectory().getAbsolutePath());
       }
 
-      classpath.append(getResource(ANDROID_RUNTIME));
+      classpathList.add(getResource(ANDROID_RUNTIME));
+
+      String classpath = Joiner.on(COLON).join(classpathList);
 
       System.out.println("Libraries Classpath = " + classpath);
 
@@ -1720,7 +1698,7 @@ public final class Compiler {
           System.getProperty("java.home") + "/bin/java",
           "-Dfile.encoding=UTF-8",
           "-mx" + mx + "M",
-          "-cp", classpath.toString(),
+          "-cp", classpath,
           "kawa.repl",
           "-f", yailRuntime,
           "-d", classesDir.getAbsolutePath(),
@@ -1774,6 +1752,63 @@ public final class Compiler {
     }
 
     return true;
+  }
+
+  private boolean computeUniqueLibs() {
+    // Add component library names to classpath
+    for (String type : libsNeeded.keySet()) {
+      for (String lib : libsNeeded.get(type)) {
+        String sourcePath = "";
+        String pathSuffix = RUNTIME_FILES_DIR + lib;
+
+        if (simpleCompTypes.contains(type)) {
+          sourcePath = getResource(pathSuffix);
+        } else if (extCompTypes.contains(type)) {
+          sourcePath = getExtCompDirPath(type) + pathSuffix;
+        } else {
+          userErrors.print(String.format(ERROR_IN_STAGE, "Compile"));
+          return false;
+        }
+
+        uniqueLibsNeeded.add(sourcePath);
+      }
+    }
+
+    // Add dependencies for classes.jar in any AAR libraries
+    for (File classesJar : explodedAarLibs.getClasses()) {
+      if (classesJar != null) {  // true for optimized AARs in App Inventor libs
+        uniqueLibsNeeded.add(classesJar.getAbsolutePath());
+      }
+    }
+
+    return true;
+  }
+
+  private List<String> getExtensionLibs() {
+    List<String> extLibs = new ArrayList<>();
+    for (String type : libsNeeded.keySet()) {
+      if (!extCompTypes.contains(type)) continue;
+      for (String lib : libsNeeded.get(type)) {
+        extLibs.add(getExtCompDirPath(type) + RUNTIME_FILES_DIR + lib);
+      }
+    }
+
+    // Add dependencies for classes.jar in any AAR libraries
+    for (File classesJar : explodedAarLibs.getClasses()) {
+      if (classesJar != null) {  // true for optimized AARs in App Inventor libs
+        extLibs.add(classesJar.getAbsolutePath());
+      }
+    }
+    return extLibs;
+  }
+
+  private boolean runJetifier() {
+    for (String lib : getExtensionLibs()) {
+      if (!JetifierTask.getInstance().execute(lib)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean runZipAlign(String apkAbsolutePath, File tmpDir) {

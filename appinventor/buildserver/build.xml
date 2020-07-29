@@ -80,11 +80,10 @@
       <fileset dir="${lib.dir}/android/tools" includes="*/aapt" />
       <fileset dir="${lib.dir}/android/tools" includes="*/libwinpthread-1.dll" />
       <fileset dir="${lib.dir}/android/tools" includes="*/lib64/*" />
+      <fileset dir="${lib.dir}/android/tools" includes="*/zipalign" />
+      <fileset dir="${lib.dir}/android/tools" includes="jetifier-standalone/lib/*.jar" />
     </copy>
     <chmod dir="${classes.tools.dir}" includes="*/aapt" perm="ugo+rx"/>
-    <copy todir="${classes.tools.dir}">
-      <fileset dir="${lib.dir}/android/tools" includes="*/zipalign" />
-    </copy>
     <chmod dir="${classes.tools.dir}" includes="*/zipalign" perm="ugo+rx"/>
 
     <!-- jar up the classes and resource files -->
