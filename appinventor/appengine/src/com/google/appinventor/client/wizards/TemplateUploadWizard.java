@@ -9,6 +9,7 @@ package com.google.appinventor.client.wizards;
 import static com.google.appinventor.client.Ode.MESSAGES;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -295,6 +296,12 @@ public class TemplateUploadWizard extends Wizard implements NewUrlDialogCallback
       if (obj != null)
         templates.add(new TemplateInfo(obj)); // Create TemplateInfo from Json
     }
+    templates.sort(new Comparator<TemplateInfo>() {
+      @Override
+      public int compare(TemplateInfo o1, TemplateInfo o2) {
+        return o1.name.compareTo(o2.name);
+      }
+    });
     return templates;
   }
 
