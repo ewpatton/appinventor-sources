@@ -34,7 +34,7 @@ public class PropertiesPanel extends Composite implements ComponentDatabaseChang
   /**
    * Creates a new properties panel.
    */
-  private PropertiesPanel() {
+  public PropertiesPanel() {
     // Initialize UI
     VerticalPanel outerPanel = new VerticalPanel();
     outerPanel.setWidth("100%");

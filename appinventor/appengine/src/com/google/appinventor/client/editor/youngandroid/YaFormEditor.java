@@ -109,6 +109,8 @@ public final class YaFormEditor extends SimpleEditor
 
   private final SimpleComponentDatabase componentDatabase;
 
+  private final PropertiesPanel designProperties;
+
   private final YoungAndroidFormNode formNode;
 
   // Flag to indicate when loading the file is completed. This is needed because building the mock

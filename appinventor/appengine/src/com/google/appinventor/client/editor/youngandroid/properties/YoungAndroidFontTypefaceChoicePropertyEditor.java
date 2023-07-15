@@ -50,8 +50,8 @@ public final class YoungAndroidFontTypefaceChoicePropertyEditor extends Addition
    *
    * @param editor the editor that this property editor belongs to
    */
-  public YoungAndroidFontTypefaceChoicePropertyEditor(final YaFormEditor editor) {
-    Project project = Ode.getInstance().getProjectManager().getProject(editor.getProjectId());
+  public YoungAndroidFontTypefaceChoicePropertyEditor() {
+    Project project = Ode.getInstance().getProjectManager().getProject(Ode.getInstance().getCurrentYoungAndroidProjectId());
     assetsFolder = ((YoungAndroidProjectNode) project.getRootNode()).getAssetsFolder();
     project.addProjectChangeListener(this);
 
@@ -86,6 +86,11 @@ public final class YoungAndroidFontTypefaceChoicePropertyEditor extends Addition
       @Override
       public void setSelectedIndex(int index) {
         fontAssetsList.setSelectedIndex(index);
+      }
+
+      @Override
+      public void clear() {
+        fontAssetsList.clear();
       }
     });
     
@@ -128,20 +133,6 @@ public final class YoungAndroidFontTypefaceChoicePropertyEditor extends Addition
     });
     selectorPanel.add(addButton);
     selectorPanel.setWidth("100%");
-    
-    // At this point, the editor hasn't finished loading.
-    // Use a DeferredCommand to finish the initialization after the editor has finished loading.
-    DeferredCommand.addCommand(new Command() {
-      @Override
-      public void execute() {
-        if (editor.isLoadComplete()) {
-          finishInitialization();
-        } else {
-          // Editor still hasn't finished loading.
-          DeferredCommand.addCommand(this);
-        }
-      }
-    });
     
     initAdditionalChoicePanel(selectorPanel);
   }

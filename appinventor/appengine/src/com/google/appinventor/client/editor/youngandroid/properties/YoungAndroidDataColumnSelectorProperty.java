@@ -45,7 +45,7 @@ public class YoungAndroidDataColumnSelectorProperty
    *
    * @param editor the editor that this property editor belongs to
    */
-  public YoungAndroidDataColumnSelectorProperty(final YaFormEditor editor) {
+  public YoungAndroidDataColumnSelectorProperty() {
 
     final VerticalPanel selectorPanel = new VerticalPanel();
     columnsList = new ListBox();
@@ -56,20 +56,6 @@ public class YoungAndroidDataColumnSelectorProperty
 
     // Initializes the choices list
     initializeChoices();
-
-    // At this point, the editor hasn't finished loading.
-    // Use a DeferredCommand to finish the initialization after the editor has finished loading.
-    DeferredCommand.addCommand(new Command() {
-      @Override
-      public void execute() {
-        if (editor.isLoadComplete()) {
-          finishInitialization();
-        } else {
-          // Editor still hasn't finished loading.
-          DeferredCommand.addCommand(this);
-        }
-      }
-    });
 
     initAdditionalChoicePanel(selectorPanel);
   }
@@ -141,6 +127,11 @@ public class YoungAndroidDataColumnSelectorProperty
       @Override
       public void setSelectedIndex(int index) {
         columnsList.setSelectedIndex(index);
+      }
+
+      @Override
+      public void clear() {
+        columnsList.clear();
       }
     });
   }
