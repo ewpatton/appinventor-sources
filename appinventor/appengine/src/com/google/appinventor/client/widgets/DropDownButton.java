@@ -118,7 +118,7 @@ public class DropDownButton extends TextButton {
   // items in the list cause a separator to be added at that position.
   public DropDownButton(String widgetName, String caption, List<DropDownItem> toolbarItems,
                         boolean rightAlign) {
-    super(caption + " \u25BE ");  // drop down triangle
+    super(caption);  // drop down triangle
 
     this.menu = new ContextMenu();
     this.items = new ArrayList<MenuItem>();

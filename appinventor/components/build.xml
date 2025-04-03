@@ -195,6 +195,7 @@
     </fileset>
     <pathelement location="${local.build.dir}/HtmlEntities.jar" />
     <pathelement location="${public.build.dir}/CommonConstants.jar" />
+    <pathelement location="${lib.dir}/gwt/2.8.1-patched/gwt-user.jar" />
   </path>
 
   <target name="AndroidRuntime.uptodate">
@@ -231,6 +232,8 @@
       <exclude name="${components.pkg}/scripts/**/*.java" /> <!-- exclude components/script package -->
       <exclude name="${components.pkg}/common/**/*.java" /> <!-- exclude components/common package -->
       <exclude name="**/helpers/*.java" /> <!-- exclude helpers as they are compiled with CommonConstants -->
+      <exclude name="**/client/*.java" />
+      <exclude name="**/supersrc/**/*.java" />
       <classpath>
         <path refid="AndroidRuntime.path" />
         <pathelement location="${local.build.dir}/AnnotationProcessors.jar" />
@@ -569,5 +572,31 @@
     <delete file="${ExternalComponent-class.dir}/${extensionClassFolder}.jar" />
     <move file="${ExternalComponent-class.dir}/${extensionClassFolder}_p.jar"
           tofile="${ExternalComponent-class.dir}/${extensionClassFolder}.jar" />
+  </target>
+
+  <target name="GwtCompile" depends="AndroidRuntime">
+    <mkdir dir="${ExternalComponent.dir}/war" />
+    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+      <classpath>
+        <fileset dir="${lib.dir}/gwt/2.8.1-patched">
+          <include name="*.jar" />
+        </fileset>
+        <file name="${public.build.dir}/CommonConstants-gwt.jar" />
+        <file name="${local.build.dir}/AnnotationProcessors.jar" />
+        <file name="src" />
+      </classpath>
+      <jvmarg value="-Xss2M" />
+      <jvmarg value="-Xmx2G" />
+      <jvmarg line="-XstartOnFirstThread" />
+      <jvmarg value="-Dfile.encoding=UTF-8" />
+      <arg value="-war"/>
+      <arg value="${ExternalComponent.dir}/war" />
+      <arg value="-extra" />
+      <arg value="${ExternalComponent.dir}/extra" />
+      <arg line="-style pretty" />
+      <arg value="-generateJsInteropExports" />
+      <!-- TODO: We need to generalize how to infer the module -->
+      <arg value="TeachableMachineExtension" />
+    </java>
   </target>
 </project>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TeachableMachine Test</title>
+</head>
+<body>
+  <script>
+    window.ExtensionFactory = {
+      extensions: {},
+      registerExtension: function(name, constructor) {
+        window.ExtensionFactory.extensions[name] = constructor;
+        if (window.ExtensionFactory.postRegistration[name]) {
+          window.ExtensionFactory.postRegistration[name]();
+        }
+      },
+      postRegistration: {
+        "TeachableMachine": function() {
+          let form = new com.google.appinventor.components.runtime.Form();
+          let webview = new com.google.appinventor.components.runtime.WebViewer(form);
+          let div = webview.getView();
+          div.style.width = "224px";
+          div.style.height = "224px";
+          div.style.backgroundColor = "#ccc";
+          document.body.appendChild(div);
+          window.tm = new window.ExtensionFactory.extensions["TeachableMachine"]();
+          window.tm.WebViewer = webview;
+          // TODO: Figure out how we would dispatch events so we can log them to the console, or
+          // eventually send them to the Playground
+        }
+      }
+    };
+  </script>
+  <script src="build/externalComponents/war/TeachableMachineExtension/TeachableMachineExtension.nocache.js"></script>
+</body>
+</html>

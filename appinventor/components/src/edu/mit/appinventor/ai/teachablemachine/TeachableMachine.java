@@ -5,31 +5,6 @@
 
 package edu.mit.appinventor.ai.teachablemachine;
 
-import android.Manifest;
-import android.Manifest.permission;
-import android.webkit.PermissionRequest;
-import com.google.appinventor.components.runtime.PermissionResultHandler;
-
-// For writing variable in a file
-import java.io.IOException;
-
-
-
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.util.Base64;
-import android.util.Log;
-import android.view.WindowManager.LayoutParams;
-import android.webkit.JavascriptInterface;
-import android.webkit.PermissionRequest;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.webkit.WebResourceRequest;
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
 import com.google.appinventor.components.annotations.PropertyCategory;
@@ -49,29 +24,15 @@ import com.google.appinventor.components.runtime.OnClearListener;
 import com.google.appinventor.components.runtime.OnPauseListener;
 import com.google.appinventor.components.runtime.OnResumeListener;
 import com.google.appinventor.components.runtime.WebViewer;
-import com.google.appinventor.components.runtime.errors.YailRuntimeError;
 import com.google.appinventor.components.runtime.util.ErrorMessages;
-import com.google.appinventor.components.runtime.util.MediaUtil;
-import com.google.appinventor.components.runtime.util.SdkLevel;
 import com.google.appinventor.components.runtime.util.YailDictionary;
-
-import java.io.*;
-import java.nio.MappedByteBuffer;
 import java.util.Collections;
-
-
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
-
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jsinterop.annotations.JsMethod;
+import jsinterop.annotations.JsProperty;
 
 /**
  * Component that classifies images using a user trained model from the teachable machine.
@@ -91,23 +52,20 @@ import java.util.zip.ZipInputStream;
 @SimpleObject(external = true)
 // Defining the assets
 @UsesAssets(fileNames = "teachable_machine.html, teachable_machine.js")
-@UsesPermissions({Manifest.permission.CAMERA})
-
-//@UsesPermissions(permissionNames = "android.permission.INTERNET, android.permission.CAMERA")
+@UsesPermissions("android.permission.CAMERA")
 public final class TeachableMachine extends AndroidNonvisibleComponent
     implements Component, OnPauseListener, OnResumeListener, OnClearListener {
 
     private static final String LOG_TAG = TeachableMachine.class.getSimpleName();
-    private static final int IMAGE_WIDTH = 500;
-    private static final int IMAGE_QUALITY = 100;
+    private static final Logger LOG = Logger.getLogger(TeachableMachine.class.getName());
     private static final String MODE_VIDEO = "Video";
     private static final String MODE_IMAGE = "Image";
-    private static final String ERROR_WEBVIEWER_NOT_SET =
+    public static final String ERROR_WEBVIEWER_NOT_SET =
         "You must specify a WebViewer using the WebViewer designer property before you can call %1s";
 
     // other error codes are defined in teachable_machine.js
     private static final int ERROR_CLASSIFICATION_NOT_SUPPORTED = -1;
-    private static final int ERROR_CLASSIFICATION_FAILED = -2;
+    public static final int ERROR_CLASSIFICATION_FAILED = -2;
     private static final int ERROR_CANNOT_TOGGLE_CAMERA_IN_IMAGE_MODE = -3;
     private static final int ERROR_CANNOT_CLASSIFY_IMAGE_IN_VIDEO_MODE = -4;
     private static final int ERROR_CANNOT_CLASSIFY_VIDEO_IN_IMAGE_MODE = -5;
@@ -117,12 +75,10 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
     private static final int ERROR_INVALID_MODEL_FILE = -8;
     private static final int ERROR_MODEL_REQUIRED = -9;
 
-
-
-    private WebView webview = null;
+    Object webview = null;
     private String inputMode = MODE_VIDEO;
-    private List<String> labels = Collections.emptyList();
-    private String modelPath = null;
+    List<String> labels = Collections.emptyList();
+    String modelPath = null;
     private boolean running = false;
     // Minimum time classfier should take to load
     private int minClassTime = 0;
@@ -130,112 +86,31 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
     // Store the latest classification result
     private YailDictionary latestClassificationResult = new YailDictionary();
 
+    public TeachableMachine() {
+        super(null);
+    }
 
     // Setting up of Hardware and Webviewer
     public TeachableMachine(final Form form) {
         super(form);
-        requestHardwareAcceleration(form);
-        WebView.setWebContentsDebuggingEnabled(true);
-        Log.d(LOG_TAG, "Created TeachableMachine component");
-        Log.d(LOG_TAG, "FIRST");
+        webViewHelper = BaseHelperFactory.getInstance().create(this);
+        LOG.fine("Created TeachableMachine component");
     }
 
 
-    private static final String MODEL_URL =  "https://teachablemachine.withgoogle.com/models/";
-
-
-
-
-    // Common for model
-    @SuppressLint("SetJavaScriptEnabled")
-    private void configureWebView(WebView webview) {
-        this.webview = webview;
-        webview.getSettings().setJavaScriptEnabled(true);
-        webview.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        // adds a way to send strings to the javascript
-        webview.addJavascriptInterface(new JsObject(), "TeachableMachine");
-
-
-        webview.setWebViewClient(new WebViewClient() {
-            @Override
-            public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-                Log.d(LOG_TAG, "shouldInterceptRequest called");
-
-                Log.d(LOG_TAG, url);
-
-                try {
-                    if ((url.startsWith(MODEL_URL)) || (url.startsWith("https://cdn.jsdelivr.net/npm/"))) {
-                        return null;
-                    }
-                    InputStream file = null;
-                    String charSet;
-                    String contentType;
-                    String fileName;
-
-                    if (url.startsWith("http://localhost/")) {
-                        fileName = url.substring("http://localhost/".length());
-                        file = form.openAssetForExtension(TeachableMachine.this , fileName);
-                    }
-                    if (url.endsWith(".json")) {
-                        contentType = "application/json";
-                        charSet = "UTF-8";
-                    } else {
-                        contentType = "application/octet-stream";
-                        charSet = "binary";
-                    }
-
-                    // For android permission
-                    if (file != null) {
-                        if (SdkLevel.getLevel() >= SdkLevel.LEVEL_LOLLIPOP) {
-                            Map<String, String> responseHeaders = new HashMap<>();
-                            responseHeaders.put("Access-Control-Allow-Origin", "*");
-                            return new WebResourceResponse(contentType, charSet, 200, "OK", responseHeaders, file);
-                        } else {
-                            return new WebResourceResponse(contentType, charSet, file);
-                        }
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return super.shouldInterceptRequest(view, url);
-                }
-
-                return super.shouldInterceptRequest(view, url);
-            }
-            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                final String url = request.getUrl().toString();
-                Log.d(LOG_TAG, "shouldInterceptRequest called");
-
-                return shouldInterceptRequest(view, url);
-            }
-        });
-
-        // permission to capture video
-        webview.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onPermissionRequest(final PermissionRequest request) {
-                Log.d(LOG_TAG, "onPermissionRequest called");
-
-                String[] requestedResources = request.getResources();
-                for (String r : requestedResources) {
-                    if (r.equals(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
-                        request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
-                    }
-                }
-            }
-        });
-    }
+    public static final String MODEL_URL =  "https://teachablemachine.withgoogle.com/models/";
 
     // Web view component that camera see
     public void Initialize() {
-        Log.d(LOG_TAG, "webview = " + webview);
+        LOG.fine("webview = " + webview);
         if (webview == null) {
             form.dispatchErrorOccurredEvent(this, "WebViewer",
                 ErrorMessages.ERROR_EXTENSION_ERROR, ERROR_WEBVIEWER_REQUIRED, LOG_TAG,
                 "You must specify a WebViewer component in the WebViewer property.");
+            return;
         }
         // if model link not given
-        Log.d(LOG_TAG, "modelPath = " + modelPath);
+        LOG.fine("modelPath = " + modelPath);
 
         if (modelPath == null) {
             form.dispatchErrorOccurredEvent(this, "Model",
@@ -244,13 +119,15 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
         }
     }
 
+    public void setLabels(List<String> labels) {
+        this.labels = labels;
+    }
+
     // Property that takes Model Link as the input
     @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING)
     @SimpleProperty(userVisible = false)
+    @JsProperty(name="ModelLink")
     public void ModelLink(String link) {
-        Log.d(LOG_TAG, "Model Link: " + link);
-        Log.d(LOG_TAG, "SIXTH");
-
         if (link.contains(MODEL_URL)) {
             modelPath = link;
 
@@ -263,41 +140,35 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
         }
     }
 
-
-
-
+    private IWebViewHelper webViewHelper = null;
 
     // Setting up webviewer
     @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_COMPONENT + ":com.google.appinventor.runtime.components.WebViewer")
     @SimpleProperty(userVisible = false)
+    @JsProperty(name="WebViewer")
     public void WebViewer(final WebViewer webviewer) {
+        webViewHelper = BaseHelperFactory.getInstance().create(TeachableMachine.this);
         Runnable next = new Runnable() {
             public void run() {
                 if (webviewer != null) {
-                    configureWebView((WebView) webviewer.getView());
-                    webview.requestLayout();
+                    webViewHelper.configureWebView(webviewer.getView());
 
                     try {
-                        Log.d(LOG_TAG, "isHardwareAccelerated? " + webview.isHardwareAccelerated());
-                        Log.d(LOG_TAG, "runnable called");
-
-                        webview.loadUrl(form.getAssetPathForExtension(TeachableMachine.this, "teachable_machine.html"));
+                        webViewHelper.loadUrl(form.getAssetPathForExtension(TeachableMachine.this, "teachable_machine.html"));
                         String js = "loadModel(\"" + modelPath + "\");";
-                        Log.d(LOG_TAG, js);
-                        webview.evaluateJavascript(js,null);
+                        webViewHelper.evaluateJavascript(js);
 
 
 
                     } catch (Exception e) {
-                        Log.d(LOG_TAG, e.getMessage());
-                        e.printStackTrace();
+                        LOG.log(Level.SEVERE, "Error loading teachable_machine.html", e);
                     }
 
                 }
             }
         };
-        if (SDK26Helper.shouldAskForPermission(form)) {
-            SDK26Helper.askForPermission(this, next);
+        if (webViewHelper.shouldAskForPermission()) {
+            webViewHelper.askForPermission(next);
         } else {
             next.run();
         }
@@ -309,17 +180,17 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
     @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
         editorArgs = {MODE_VIDEO, MODE_IMAGE})
     @SimpleProperty
+    @JsProperty(name="InputMode")
     public void InputMode(String mode) {
-        Log.d(LOG_TAG,"INPUT MODE RUN");
         if (webview == null) {
             inputMode = mode;
             return;
         }
         if (MODE_VIDEO.equalsIgnoreCase(mode)) {
-            webview.evaluateJavascript("setInputMode(\"video\");", null);
+            webViewHelper.evaluateJavascript("setInputMode(\"video\");");
             inputMode = MODE_VIDEO;
         } else if (MODE_IMAGE.equalsIgnoreCase(mode)) {
-            webview.evaluateJavascript("setInputMode(\"image\");", null);
+            webViewHelper.evaluateJavascript("setInputMode(\"image\");");
             inputMode = MODE_IMAGE;
         } else {
             form.dispatchErrorOccurredEvent(this, "InputMode", ErrorMessages.ERROR_EXTENSION_ERROR, ERROR_INVALID_INPUT_MODE, LOG_TAG, "Invalid input mode " + mode);
@@ -329,12 +200,14 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
     @SimpleProperty(category = PropertyCategory.BEHAVIOR,
         description = "Gets or sets the input mode for classification. Valid values are \"Video\" " +
             "(the default) and \"Image\".")
+    @JsProperty(name="InputMode")
     public String InputMode() {
         return inputMode;
     }
 
     // label like me or not me
     @SimpleProperty(description = "Gets all of the labels from this model. Only valid after ClassifierReady is signaled.")
+    @JsProperty(name="ModelLabels")
     public List<String> ModelLabels() {
         return labels;
     }
@@ -342,6 +215,7 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
 
     // return whether the classfier is running or not
     @SimpleProperty(category = PropertyCategory.BEHAVIOR)
+    @JsProperty(name="Running")
     public boolean Running() {
         return running;
     }
@@ -349,10 +223,11 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
     @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_NON_NEGATIVE_INTEGER,
         defaultValue = "0")
     @SimpleProperty(category = PropertyCategory.BEHAVIOR)
+    @JsProperty(name="MinimumInterval")
     public void MinimumInterval(int interval) {
         minClassTime = interval;
         if (webview != null) {
-            webview.evaluateJavascript("minClassTime = " + interval + ";", null);
+            webViewHelper.evaluateJavascript("minClassTime = " + interval + ";");
         }
     }
 
@@ -361,74 +236,55 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
     //continue from here
 
     @SimpleProperty
+    @JsProperty(name="MinimumInterval")
     public int MinimumInterval() {
         return minClassTime;
     }
 
     // classifying image data
     @SimpleFunction(description = "Performs classification on the image at the given path and triggers the GotClassification event when classification is finished successfully.")
+    @JsMethod
     public void ClassifyImageData(final String image) {
-        assertWebView("ClassifyImageData");
-        Log.d(LOG_TAG, "Entered Classify");
-        Log.d(LOG_TAG, image);
-
-        String imagePath = (image == null) ? "" : image;
-        BitmapDrawable imageDrawable;
-        Bitmap scaledImageBitmap = null;
-
-        try {
-            imageDrawable = MediaUtil.getBitmapDrawable(form.$form(), imagePath);
-            scaledImageBitmap = Bitmap.createScaledBitmap(imageDrawable.getBitmap(), IMAGE_WIDTH, (int) (imageDrawable.getBitmap().getHeight() * ((float) IMAGE_WIDTH) / imageDrawable.getBitmap().getWidth()), false);
-        } catch (IOException ioe) {
-            Log.e(LOG_TAG, "Unable to load " + imagePath);
-        }
-
-        // compression format of PNG -> not lossy
-        Bitmap immagex = scaledImageBitmap;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immagex.compress(Bitmap.CompressFormat.PNG, IMAGE_QUALITY, baos);
-        byte[] b = baos.toByteArray();
-
-        String imageEncodedbase64String = Base64.encodeToString(b, 0).replace("\n", "");
-        Log.d(LOG_TAG, "imageEncodedbase64String: " + imageEncodedbase64String);
-
-        webview.evaluateJavascript("classifyImageData(\"" + imageEncodedbase64String + "\");", null);
+        webViewHelper.assertWebView("ClassifyImageData");
+        webViewHelper.classifyImageData(image);
     }
 
     // toogling camera
     @SimpleFunction(description = "Toggles between user-facing and environment-facing camera.")
+    @JsMethod
     public void ToggleCameraFacingMode() {
-        assertWebView("ToggleCameraFacingMode");
-        webview.evaluateJavascript("toggleCameraFacingMode();", null);
+        webViewHelper.assertWebView("ToggleCameraFacingMode");
+        webViewHelper.evaluateJavascript("toggleCameraFacingMode();");
 
     }
 
     @SimpleFunction(description = "Performs classification on current video frame and triggers the GotClassification event when classification is finished successfully.")
+    @JsMethod
     public void ClassifyVideoData() {
-        assertWebView("ClassifyVideoData");
-        webview.evaluateJavascript("classifyVideoData();", null);
+        webViewHelper.assertWebView("ClassifyVideoData");
+        webViewHelper.evaluateJavascript("classifyVideoData();");
 
     }
 
     // starts classifying data[Still in Development mode]
-    @SimpleFunction()
+    @SimpleFunction
+    @JsMethod
     public void StartContinuousClassification() {
         if (MODE_VIDEO.equals(inputMode) && !running) {
-            assertWebView("StartVideoClassification");
-            webview.evaluateJavascript("startVideoClassification();", null);
+            webViewHelper.assertWebView("StartVideoClassification");
+            webViewHelper.evaluateJavascript("startVideoClassification();");
             running = true;
-            Log.d(LOG_TAG, "starting classification");
         }
     }
 
     // stops the classification[Still in Development mode]
-    @SimpleFunction()
+    @SimpleFunction
+    @JsMethod
     public void StopContinuousClassification() {
         if (MODE_VIDEO.equals(inputMode) && running) {
-            assertWebView("StopVideoClassification");
-            webview.evaluateJavascript("stopVideoClassification();", null);
+            webViewHelper.assertWebView("StopVideoClassification");
+            webViewHelper.evaluateJavascript("stopVideoClassification();");
             running = false;
-            Log.d(LOG_TAG, "Stopping classification");
         }
     }
 
@@ -438,7 +294,6 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
         InputMode(inputMode);
         MinimumInterval(minClassTime);
         EventDispatcher.dispatchEvent(this, "ClassifierReady");
-
     }
 
     // data we get after classification is done
@@ -460,9 +315,10 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
      * @return The most likely category name as a String. Empty string if no classification yet.
      */
     @SimpleProperty(category = PropertyCategory.BEHAVIOR, description = "Returns the name of the most likely category from the latest classification.  Will be empty text if no classification has been performed or if the classification result is empty.")
+    @JsProperty(name="Classification")
     public String Classification() {
         if (latestClassificationResult == null || latestClassificationResult.size() == 0) {
-            Log.w(LOG_TAG, "GetClassification: Classification result dictionary is empty or null.");
+            LOG.warning("GetClassification: Classification result dictionary is empty or null.");
             return ""; // Return empty string if no result
         }
 
@@ -471,7 +327,7 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
 
         for (Map.Entry<Object, Object> entry : latestClassificationResult.entrySet()) {
             String categoryName = (String) entry.getKey();
-            double confidence = (double) entry.getValue(); // Values are Doubles in YailDictionary in this case
+            double confidence = (Double) entry.getValue(); // Values are Doubles in YailDictionary in this case
 
             if (confidence > maxClassificationConfidence) {
                 maxClassificationConfidence = confidence;
@@ -480,9 +336,9 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
         }
 
         if (classifiedCategory.isEmpty()) {
-            Log.w(LOG_TAG, "GetClassification: No category with confidence found in dictionary.");
+            LOG.warning("GetClassification: No category with confidence found in dictionary.");
         } else {
-            Log.d(LOG_TAG, "GetClassification: Classified category is " + classifiedCategory + " with confidence " + maxClassificationConfidence);
+            LOG.warning("GetClassification: Classified category is " + classifiedCategory + " with confidence " + maxClassificationConfidence);
         }
 
         return classifiedCategory;
@@ -496,15 +352,16 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
      *     yet.
      */
     @SimpleProperty(category = PropertyCategory.BEHAVIOR, description = "Returns the confidence score (0.0 to 1.0) of the most likely category from the latest classification. Will be 0.0 if no classification has been performed or if the classification result is empty.")
+    @JsProperty(name="Confidence")
     public double Confidence() {
         if (latestClassificationResult == null || latestClassificationResult.size() == 0) {
-            Log.w(LOG_TAG, "Confidence Property: No classification result available yet.");
+            LOG.warning("Confidence Property: No classification result available yet.");
             return 0.0; // Return 0.0 if no result available
         }
 
         double maxClassificationConfidence = 0.0; // Default to 0.0 if no category found
         for (Map.Entry<Object, Object> entry : latestClassificationResult.entrySet()) {
-            double confidence = (double) entry.getValue(); // Values are Doubles in YailDictionary in this case
+            double confidence = (Double) entry.getValue(); // Values are Doubles in YailDictionary in this case
 
             if (confidence > maxClassificationConfidence) {
                 maxClassificationConfidence = confidence;
@@ -519,21 +376,21 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
     @Override
     public void onPause() {
         if (MODE_VIDEO.equals(inputMode)) {
-            webview.evaluateJavascript("stopVideo();", null);
+            webViewHelper.evaluateJavascript("stopVideo();");
         }
     }
 
     @Override
     public void onResume() {
         if (MODE_VIDEO.equals(inputMode)) {
-            webview.evaluateJavascript("startVideo();", null);
+            webViewHelper.evaluateJavascript("startVideo();");
         }
     }
 
 
     @Override
     public void onClear() {
-        webview.evaluateJavascript("stopVideo();", null);
+        webViewHelper.evaluateJavascript("stopVideo();");
     }
 
     ///ENDREGION
@@ -541,99 +398,6 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
 
     Form getForm() {
         return form;
-    }
-
-    private static void requestHardwareAcceleration(Activity activity) {
-        activity.getWindow().setFlags(LayoutParams.FLAG_HARDWARE_ACCELERATED, LayoutParams.FLAG_HARDWARE_ACCELERATED);
-    }
-
-    private void assertWebView(String method) {
-        if (webview == null) {
-            throw new RuntimeException(String.format(ERROR_WEBVIEWER_NOT_SET, method));
-        }
-    }
-
-
-    private static List<String> parseLabels(String labels) {
-        List<String> result = new ArrayList<>();
-        try {
-            JSONArray arr = new JSONArray(labels);
-            for (int i = 0; i < arr.length(); i++) {
-                result.add(arr.getString(i));
-            }
-        } catch (JSONException e) {
-            throw new YailRuntimeError("Got unparsable array from Javascript", "RuntimeError");
-        }
-        return result;
-    }
-
-
-    private class JsObject {
-        @JavascriptInterface
-        public void ready(String labels) {
-            Log.d(LOG_TAG, "Entered ready");
-
-            TeachableMachine.this.labels = parseLabels(labels);
-            form.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ClassifierReady();
-                }
-            });
-        }
-
-
-        @JavascriptInterface
-        public void reportResult(final String result) {
-            Log.d(LOG_TAG, "Entered reportResult: " + result);
-            try {
-                Log.d(LOG_TAG, "Entered try of reportResult");
-                JSONArray list = new JSONArray(result);
-                final YailDictionary resultDict = new YailDictionary();
-                for (int i = 0; i < list.length(); i++) {
-                    JSONArray pair = list.getJSONArray(i);
-                    resultDict.put(pair.getString(0), pair.getDouble(1));
-                }
-                Log.d(LOG_TAG, "Result Dict: " + resultDict);
-                form.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        GotClassification(resultDict);
-                    }
-
-                });
-            } catch (JSONException e) {
-                Log.d(LOG_TAG, "Entered catch of reportResult");
-                e.printStackTrace();
-                Error(ERROR_CLASSIFICATION_FAILED);
-            }
-        }
-
-        @JavascriptInterface
-        public void error(final int errorCode) {
-            Log.d(LOG_TAG, "Entered error: " + errorCode);
-            form.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Error(errorCode);
-                }
-            });
-        }
-
-        @JavascriptInterface
-        public String isLoaded(boolean isComplete) {
-            String modelLink;
-            if (isComplete) {
-                modelLink = modelPath;
-
-                Log.d(LOG_TAG, "Function in JsObject that is called from js");
-
-                return modelLink;
-            }
-            return modelPath;
-        }
-
-
     }
 
 }
