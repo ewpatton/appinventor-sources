@@ -10,6 +10,7 @@ public class WebViewer {
 
   public WebViewer() {
     container = Document.get().createDivElement();
+    container.setId("webcam-box");
   }
 
   public DivElement getView() {
