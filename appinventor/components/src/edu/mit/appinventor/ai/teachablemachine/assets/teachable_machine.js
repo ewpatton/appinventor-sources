@@ -1,10 +1,6 @@
 "use strict";
 
 console.log("TeachableMachine");
-loaded();
-
-
-
 
 const IMAGE_SIZE = 224;
 
@@ -103,8 +99,6 @@ async function predict() {
 
   console.log("TeachableMachine: prediction is " + JSON.stringify(result));
   TeachableMachine.reportResult(JSON.stringify(result));
-  TeachableMachine.ready(JSON.stringify(Object.values(prediction)));
-
 }
 
 function updateVideoSize() {
@@ -299,10 +293,3 @@ window.addEventListener('orientationchange', function() {
     setTimeout(updateVideoSize, 500);
   }
 });
-
-
-function loaded() {
-  let link = TeachableMachine.isLoaded(true);
-  loadModel(link);
-}
-
