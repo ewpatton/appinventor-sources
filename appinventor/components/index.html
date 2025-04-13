@@ -24,6 +24,7 @@
           div.style.backgroundColor = "#ccc";
           document.body.appendChild(div);
           window.tm = new window.ExtensionFactory.extensions["TeachableMachine"]();
+          // window.tm.ModelLink = 'Your TM model URL here';
           window.tm.WebViewer = webview;
           // TODO: Figure out how we would dispatch events so we can log them to the console, or
           // eventually send them to the Playground
