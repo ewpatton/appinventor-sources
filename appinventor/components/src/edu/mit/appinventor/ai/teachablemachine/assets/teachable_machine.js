@@ -97,6 +97,8 @@ async function predict() {
     result.push([labelName, currentValue]);
   }
 
+  result.sort((a, b) => b[1] - a[1]);
+
   console.log("TeachableMachine: prediction is " + JSON.stringify(result));
   TeachableMachine.reportResult(JSON.stringify(result));
 }
