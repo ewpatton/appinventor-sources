@@ -31,7 +31,20 @@
         }
       }
     };
+    window.registeredEvents = {
+      "GotClassification": function(results) {
+        let ul = document.getElementById("results");
+        ul.innerHTML = '';
+        for (const pair of results) {
+          let li = document.createElement("li");
+          li.innerText = pair[0] + ": " + pair[1];
+          ul.appendChild(li);
+        }
+      }
+    }
   </script>
   <script src="build/externalComponents/war/TeachableMachineExtension/TeachableMachineExtension.nocache.js"></script>
+  <ul id="results">
+  </ul>
 </body>
 </html>
