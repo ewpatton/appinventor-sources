@@ -45,11 +45,11 @@ class BrowserWebViewHelper implements IWebViewHelper {
   }-*/;
 
   @Override
-  public void loadUrl(String url) {
+  public void loadUrl(String url, Runnable callback) {
     if (scriptsLoaded) {
       return;
     }
-    doLoadUrl(url);
+    doLoadUrl(url, callback);
     scriptsLoaded = true;
   }
 
@@ -78,13 +78,25 @@ class BrowserWebViewHelper implements IWebViewHelper {
     owner.ClassifierReady();
   }
 
-  private native void doLoadUrl(String url) /*-{
+  private native void doLoadUrl(String url, Runnable callback) /*-{
     var script = $doc.createElement('script');
-    script.src = '//cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js';
-    $wnd.body.appendChild(script);
-    script = $doc.createElement('script');
-    script.src = '//cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js';
-    $wnd.body.appendChild(script);
-    // TODO: Add the teachablemachine.js script
+    script.setAttribute('src', '//cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js');
+    script.addEventListener('load', function() {
+      var script = $doc.createElement('script');
+      script = $doc.createElement('script');
+      script.setAttribute('src', '//cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js');
+      script.addEventListener('load', function() {
+        var script = $doc.createElement('script');
+        script.setAttribute('src', 'src/edu/mit/appinventor/ai/teachablemachine/assets/teachable_machine.js');
+        script.addEventListener('load', function() {
+          if (callback) {
+            callback.@java.lang.Runnable::run(*)();
+          }
+        });
+        $doc.body.appendChild(script);
+      });
+      $doc.body.appendChild(script);
+    })
+    $doc.body.appendChild(script);
   }-*/;
 }

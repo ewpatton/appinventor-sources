@@ -6,7 +6,7 @@ public interface IWebViewHelper {
   void configureWebView(Object container);
   void assertWebView(String method);
   void evaluateJavascript(String js);
-  void loadUrl(String url);
+  void loadUrl(String url, Runnable callback);
   void classifyImageData(String path);
   boolean shouldAskForPermission();
   void askForPermission(final Runnable next);

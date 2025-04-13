@@ -154,12 +154,15 @@ public final class TeachableMachine extends AndroidNonvisibleComponent
                     webViewHelper.configureWebView(webviewer.getView());
 
                     try {
-                        webViewHelper.loadUrl(form.getAssetPathForExtension(TeachableMachine.this, "teachable_machine.html"));
-                        String js = "loadModel(\"" + modelPath + "\");";
-                        webViewHelper.evaluateJavascript(js);
-
-
-
+                        webViewHelper.loadUrl(form.getAssetPathForExtension(TeachableMachine.this, "teachable_machine.html"), new Runnable() {
+                            @Override
+                            public void run() {
+                                if (modelPath != null) {
+                                    String js = "loadModel(\"" + modelPath + "\");";
+                                    webViewHelper.evaluateJavascript(js);
+                                }
+                            }
+                        });
                     } catch (Exception e) {
                         LOG.log(Level.SEVERE, "Error loading teachable_machine.html", e);
                     }

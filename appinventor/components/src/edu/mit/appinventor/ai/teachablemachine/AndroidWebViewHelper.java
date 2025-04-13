@@ -144,9 +144,12 @@ class AndroidWebViewHelper implements IWebViewHelper {
     }
   }
 
-  public void loadUrl(String url) {
+  public void loadUrl(String url, Runnable callback) {
     WebView webview = (WebView) owner.webview;
     webview.loadUrl(url);
+    if (callback != null) {
+      callback.run();
+    }
   }
 
   public void classifyImageData(String image) {
