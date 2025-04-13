@@ -1,5 +1,7 @@
 package edu.mit.appinventor.ai.teachablemachine.client;
 
+import com.google.appinventor.components.runtime.util.YailDictionary;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import edu.mit.appinventor.ai.teachablemachine.IWebViewHelper;
 import edu.mit.appinventor.ai.teachablemachine.TeachableMachine;
@@ -23,7 +25,8 @@ class BrowserWebViewHelper implements IWebViewHelper {
         self.@edu.mit.appinventor.ai.teachablemachine.client.BrowserWebViewHelper::handleLabels(*)(parsedLabels);
       },
       reportResult: function(result) {
-        // TODO: Implement this function
+        var parsedResult = JSON.parse(result);
+        self.@edu.mit.appinventor.ai.teachablemachine.client.BrowserWebViewHelper::handleResults(*)(parsedResult);
       },
       error: function(errorCode) {
         // TODO: Implement this function
@@ -76,6 +79,10 @@ class BrowserWebViewHelper implements IWebViewHelper {
     }
     owner.setLabels(labelList);
     owner.ClassifierReady();
+  }
+
+  private void handleResults(YailDictionary results) {
+    owner.GotClassification(results);
   }
 
   private native void doLoadUrl(String url, Runnable callback) /*-{
