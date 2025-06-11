@@ -1,5 +1,8 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright © 2017 MIT, All rights reserved.
+// Copyright © 2012-2025 MIT, All rights reserved.
+// Released under the Apache License, Version 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+
 package com.google.appinventor.client.editor.blocks;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
@@ -13,13 +16,13 @@ import com.google.appinventor.client.boxes.BlockSelectorBox;
 import com.google.appinventor.client.boxes.PaletteBox;
 import com.google.appinventor.client.editor.FileEditor;
 import com.google.appinventor.client.editor.ProjectEditor;
+import com.google.appinventor.client.editor.blocks.BlocklyPanel.BlocklyWorkspaceChangeListener;
 import com.google.appinventor.client.editor.designer.DesignerChangeListener;
 import com.google.appinventor.client.editor.designer.DesignerEditor;
 import com.google.appinventor.client.editor.designer.DesignerRootComponent;
 import com.google.appinventor.client.editor.simple.components.MockComponent;
 import com.google.appinventor.client.editor.simple.palette.DropTargetProvider;
 import com.google.appinventor.client.editor.simple.palette.SimplePalettePanel;
-import com.google.appinventor.client.editor.blocks.BlocklyPanel.BlocklyWorkspaceChangeListener;
 import com.google.appinventor.client.editor.youngandroid.events.EventHelper;
 import com.google.appinventor.client.explorer.SourceStructureExplorer;
 import com.google.appinventor.client.explorer.SourceStructureExplorerItem;
@@ -41,7 +44,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -533,7 +535,7 @@ public abstract class BlocksEditor<S extends SourceNode, T extends DesignerEdito
       Blockly.Events.setGroup(true);
     }
     blocks.forEach(function(blockXml) {
-      var dom = Blockly.Xml.textToDom(blockXml);
+      var dom = Blockly.utils.xml.textToDom(blockXml);
       var mutations = dom.getElementsByTagName('mutation');
       for (var i = 0; i < mutations.length; i++) {
         var mutation = mutations[i];

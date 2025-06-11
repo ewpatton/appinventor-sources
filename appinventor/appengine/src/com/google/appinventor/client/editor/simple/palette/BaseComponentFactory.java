@@ -1,5 +1,7 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright © 2017-2022 Massachusetts Institute of Technology, All rights reserved.
+// Copyright © 2017-2025 Massachusetts Institute of Technology, All rights reserved.
+// Released under the Apache License, Version 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 
 package com.google.appinventor.client.editor.simple.palette;
 
@@ -57,10 +59,9 @@ import com.google.appinventor.client.editor.simple.components.MockVideoPlayer;
 import com.google.appinventor.client.editor.simple.components.MockWebViewer;
 import com.google.appinventor.shared.simple.ComponentDatabaseInterface;
 import com.google.appinventor.shared.storage.StorageUtil;
-import com.google.common.collect.Maps;
+
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Image;
-
 import java.util.Map;
 
 /**
@@ -78,6 +79,12 @@ public class BaseComponentFactory implements ComponentFactory {
   private final Map<String, ImageResource> bundledImages;
   private final ComponentDatabaseInterface componentDatabase;
 
+  /**
+   * Creates a new BaseComponentFactory.
+   *
+   * @param editor the editor instance that will manage the components
+   * @param bundledImages the map of image names to images
+   */
   public BaseComponentFactory(DesignerEditor<?, ?, ?, ?, ?> editor,
                               Map<String, ImageResource> bundledImages) {
     this.editor = editor;
@@ -88,25 +95,25 @@ public class BaseComponentFactory implements ComponentFactory {
   @Override
   public MockComponent createMockComponent(String name, String type) {
     if (componentDatabase.getNonVisible(name)) {
-      if(name.equals(MockFirebaseDB.TYPE)) {
+      if (name.equals(MockFirebaseDB.TYPE)) {
         return new MockFirebaseDB(editor, name,
           getImageFromPath(componentDatabase.getIconName(name), null));
-      } else if(name.equals(MockCloudDB.TYPE)) {
+      } else if (name.equals(MockCloudDB.TYPE)) {
         return new MockCloudDB(editor, name,
           getImageFromPath(componentDatabase.getIconName(name), null));
-      } else if(name.equals(MockFusionTablesControl.TYPE)) {
+      } else if (name.equals(MockFusionTablesControl.TYPE)) {
         return new MockFusionTablesControl(editor, name,
           getImageFromPath(componentDatabase.getIconName(name), null));
-      } else if(name.equals(MockTranslator.TYPE)) {
+      } else if (name.equals(MockTranslator.TYPE)) {
         return new MockTranslator(editor, name,
           getImageFromPath(componentDatabase.getIconName(name), null));
-      } else if(name.equals(MockChatBot.TYPE)) {
+      } else if (name.equals(MockChatBot.TYPE)) {
         return new MockChatBot(editor, name,
           getImageFromPath(componentDatabase.getIconName(name), null));
-      } else if(name.equals(MockImageBot.TYPE)) {
+      } else if (name.equals(MockImageBot.TYPE)) {
         return new MockImageBot(editor, name,
           getImageFromPath(componentDatabase.getIconName(name), null));
-      } else if(name.equals(MockSpreadsheet.TYPE)) {
+      } else if (name.equals(MockSpreadsheet.TYPE)) {
         return new MockSpreadsheet(editor, name,
           getImageFromPath(componentDatabase.getIconName(name), null));
       } else if (name.equals(MockDataFile.TYPE)) {
@@ -137,7 +144,7 @@ public class BaseComponentFactory implements ComponentFactory {
     } else if (name.equals(MockListView.TYPE)) {
       return new MockListView(editor);
     } else if (name.equals(MockSlider.TYPE)) {
-        return new MockSlider(editor);
+      return new MockSlider(editor);
     } else if (name.equals(MockPasswordTextBox.TYPE)) {
       return new MockPasswordTextBox(editor);
     } else if (name.equals(MockRadioButton.TYPE)) {
@@ -208,10 +215,13 @@ public class BaseComponentFactory implements ComponentFactory {
     }
   }
 
+
+  @Override
   public Image getImage(String name, String type) {
-      return getImageFromPath(componentDatabase.getIconName(name), type);
+    return getImageFromPath(componentDatabase.getIconName(name), type);
   }
 
+  @Override
   public Image getImage(String name) {
     return getImage(name, null);
   }
@@ -222,7 +232,7 @@ public class BaseComponentFactory implements ComponentFactory {
    * @return path to license file of component
    */
   public String getLicense(String name, String type) {
-    return getLicenseURLFromPath(componentDatabase.getLicenseName(name),
+    return getLicenseUrlFromPath(componentDatabase.getLicenseName(name),
         type.substring(0, type.lastIndexOf('.')));
   }
 
@@ -242,12 +252,13 @@ public class BaseComponentFactory implements ComponentFactory {
     }
   }
 
-  private String getLicenseURLFromPath(String licensePath, String packageName) {
+
+  private String getLicenseUrlFromPath(String licensePath, String packageName) {
     if (licensePath.startsWith("aiwebres/") && packageName != null) {
       // License file is inside aiwebres
       return StorageUtil.getFileUrl(editor.getProjectId(),
           "assets/external_comps/" + packageName + "/" + licensePath) + "&inline";
-    } else if(licensePath.startsWith("http:") || licensePath.startsWith("https:")) {
+    } else if (licensePath.startsWith("http:") || licensePath.startsWith("https:")) {
       // The license is an external URL
       return licensePath;
     } else {

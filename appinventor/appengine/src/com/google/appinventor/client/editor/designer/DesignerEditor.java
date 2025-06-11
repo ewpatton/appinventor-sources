@@ -1,5 +1,7 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright © 2017-2020 Massachusetts Institute of Technology, All rights reserved.
+// Copyright © 2017-2025 Massachusetts Institute of Technology, All rights reserved.
+// Released under the Apache License, Version 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 
 package com.google.appinventor.client.editor.designer;
 
@@ -23,17 +25,17 @@ import com.google.appinventor.client.editor.simple.components.MockVisibleCompone
 import com.google.appinventor.client.editor.simple.components.utils.PropertiesUtil;
 import com.google.appinventor.client.editor.simple.palette.SimplePalettePanel;
 import com.google.appinventor.client.explorer.SourceStructureExplorer;
-import com.google.appinventor.shared.properties.json.JSONObject;
-import com.google.appinventor.shared.properties.json.JSONValue;
-import com.google.appinventor.shared.simple.ComponentDatabaseChangeListener;
 import com.google.appinventor.client.tracking.Tracking;
 import com.google.appinventor.client.widgets.properties.EditableProperties;
 import com.google.appinventor.client.widgets.properties.EditableProperty;
 import com.google.appinventor.client.widgets.properties.PropertiesPanel;
 import com.google.appinventor.client.widgets.properties.PropertyChangeListener;
+import com.google.appinventor.shared.properties.json.JSONObject;
+import com.google.appinventor.shared.properties.json.JSONValue;
 import com.google.appinventor.shared.rpc.project.ChecksumedFileException;
 import com.google.appinventor.shared.rpc.project.ChecksumedLoadFile;
 import com.google.appinventor.shared.rpc.project.SourceNode;
+import com.google.appinventor.shared.simple.ComponentDatabaseChangeListener;
 import com.google.appinventor.shared.simple.ComponentDatabaseInterface;
 import com.google.appinventor.shared.storage.StorageUtil;
 import com.google.common.base.Preconditions;
@@ -44,10 +46,10 @@ import com.google.gwt.user.client.ui.DockPanel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 /**

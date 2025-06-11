@@ -206,6 +206,11 @@ public class YoungAndroidSettingsBuilder {
     return this;
   }
 
+  public YoungAndroidSettingsBuilder setDefaultLastOpened(String lastOpened) {
+    this.lastOpened = lastOpened;
+    return this;
+  }
+
   /**
    * Convert the internal settings into a JSON structure.
    *
@@ -261,6 +266,7 @@ public class YoungAndroidSettingsBuilder {
     addPropertyIfSet(result, "color.primary.dark", primaryColorDark);
     addPropertyIfSet(result, "color.accent", accentColor);
     addPropertyIfSet(result, "defaultfilescope", defaultFileScope);
+    addPropertyIfSet(result, "lastopened", lastOpened);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     try {
       result.store(out, "");
@@ -305,6 +311,7 @@ public class YoungAndroidSettingsBuilder {
       result &= other.primaryColorDark.equals(primaryColorDark);
       result &= other.accentColor.equals(accentColor);
       result &= other.defaultFileScope.equals(defaultFileScope);
+      result &= other.lastOpened.equals(lastOpened);
       return result;
     }
     return false;

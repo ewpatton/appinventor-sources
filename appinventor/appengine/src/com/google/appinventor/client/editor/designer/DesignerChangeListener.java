@@ -1,19 +1,20 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2017 MIT, All rights reserved
+// Copyright 2011-2025 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
 package com.google.appinventor.client.editor.designer;
 
-import com.google.appinventor.client.editor.simple.components.*;
+import com.google.appinventor.client.editor.simple.components.MockComponent;
+import com.google.appinventor.client.editor.simple.components.MockDesignerRoot;
 
 /**
  * Listener interface for receiving form change events.
  *
  * <p>Classes interested in processing form change events implement this
  * interface, and instances of that class are registered with a form, using
- * the form's {@link MockForm#addDesignerChangeListener(DesignerChangeListener)}
+ * the form's {@link MockDesignerRoot#addDesignerChangeListener(DesignerChangeListener)}
  * method.
  *
  * @author lizlooney@google.com (Liz Looney)

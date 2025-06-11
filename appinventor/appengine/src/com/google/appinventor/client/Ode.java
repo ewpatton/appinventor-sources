@@ -1,10 +1,17 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2019 MIT, All rights reserved
+// Copyright 2011-2025 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
 package com.google.appinventor.client;
+
+import static com.google.appinventor.client.utils.Promise.RejectCallback;
+import static com.google.appinventor.client.utils.Promise.ResolveCallback;
+import static com.google.appinventor.client.utils.Promise.reject;
+import static com.google.appinventor.client.utils.Promise.rejectWithReason;
+import static com.google.appinventor.client.utils.Promise.resolve;
+import static com.google.appinventor.client.wizards.TemplateUploadWizard.TEMPLATES_ROOT_DIRECTORY;
 
 import com.google.appinventor.client.boxes.AssetListBox;
 import com.google.appinventor.client.boxes.PaletteBox;

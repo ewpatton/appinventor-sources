@@ -164,20 +164,7 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
     newBlocksEditor.loadFile(new Command() {
         @Override
         public void execute() {
-          int pos = Collections.binarySearch(fileIds, newBlocksEditor.getFileId(),
-              getFileIdComparator());
-          if (pos < 0) {
-            pos = -pos - 1;
-          }
-          insertFileEditor(newBlocksEditor, pos);
-          if (isLastOpened(formName)) {
-            screen1BlocksLoaded = true;
-            if (readyToShowScreen1()) {
-              LOG.info("YaProjectEditor.addBlocksEditor.loadFile.execute: switching to screen "
-                  + formName + " for project " + newBlocksEditor.getProjectId());
-              switchToForm(formName, newBlocksEditor.getProjectId());
-            }
-          }
+          addBlocksEditor(newBlocksEditor);
         }
       });
   }
@@ -776,14 +763,12 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
   }
 
   private boolean isLastOpened(String formName) {
-    EditorSet editorSet = editorMap.get(formName);
     String lastOpened = this.getProjectSettingsProperty(SettingsConstants.PROJECT_YOUNG_ANDROID_SETTINGS,
         SettingsConstants.YOUNG_ANDROID_SETTINGS_LAST_OPENED);
     return lastOpened.equals(formName);
   }
 
   private void switchToForm(String entityName, long projectId) {
-    Ode.CLog("Switching to " + entityName);
     Ode.getInstance().getDesignToolbar().switchToScreen(projectId, entityName, DesignToolbar.View.DESIGNER);
   }
 

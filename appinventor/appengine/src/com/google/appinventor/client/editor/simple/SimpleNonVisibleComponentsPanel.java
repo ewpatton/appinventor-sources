@@ -1,10 +1,12 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2017 MIT, All rights reserved
+// Copyright 2011-2025 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
 package com.google.appinventor.client.editor.simple;
+
+import static com.google.appinventor.client.Ode.MESSAGES;
 
 import com.google.appinventor.client.editor.designer.DesignerRootComponent;
 import com.google.appinventor.client.editor.simple.components.MockComponent;
@@ -17,7 +19,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,8 @@ import static com.google.appinventor.client.Ode.MESSAGES;
  * Panel in the Simple design editor holding non-visible Simple components.
  *
  */
-public class SimpleNonVisibleComponentsPanel<T extends DesignerRootComponent> extends Composite implements DropTarget, ComponentDatabaseChangeListener {
+public class SimpleNonVisibleComponentsPanel<T extends DesignerRootComponent> extends Composite
+    implements DropTarget, ComponentDatabaseChangeListener {
 
   // UI elements
   protected final Label heading;
