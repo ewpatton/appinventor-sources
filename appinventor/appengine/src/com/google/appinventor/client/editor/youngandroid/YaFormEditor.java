@@ -1,6 +1,6 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2020 MIT, All rights reserved
+// Copyright 2011-2025 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,6 +22,7 @@ import com.google.appinventor.client.editor.simple.palette.DropTargetProvider;
 import com.google.appinventor.client.editor.youngandroid.palette.YoungAndroidPalettePanel;
 import com.google.appinventor.client.properties.json.ClientJsonParser;
 import com.google.appinventor.client.properties.json.ClientJsonString;
+import com.google.appinventor.client.tracking.Tracking;
 import com.google.appinventor.client.widgets.dnd.DropTarget;
 import com.google.appinventor.client.widgets.properties.EditableProperties;
 import com.google.appinventor.client.youngandroid.YoungAndroidFormUpgrader;
@@ -119,6 +120,12 @@ public final class YaFormEditor extends DesignerEditor<YoungAndroidFormNode, Moc
 //    registerKeyDownListeners();
   }
 
+  @Override
+  public void onShow() {
+    super.onShow();
+    visibleComponentsPanel.show(getForm());
+  }
+
   public boolean shouldDisplayHiddenComponents() {
     return projectEditor.getScreenCheckboxState(root.getTitle()) != null
                && projectEditor.getScreenCheckboxState(root.getTitle());
@@ -142,6 +149,7 @@ public final class YaFormEditor extends DesignerEditor<YoungAndroidFormNode, Moc
   }
 
   @Override
+
   public void onHide() {
     LOG.info("YaFormEditor: got onHide() for " + getFileId());
     // When an editor is detached, if we are the "current" editor,
@@ -720,6 +728,7 @@ public final class YaFormEditor extends DesignerEditor<YoungAndroidFormNode, Moc
           container.addVisibleComponent(pasted, insertBefore);
           insertBefore = container.getChildren().indexOf(pasted) + 1;
         }
+        container.onPaste(pasted);
         lastComponentCreated = pasted;
       }
     }

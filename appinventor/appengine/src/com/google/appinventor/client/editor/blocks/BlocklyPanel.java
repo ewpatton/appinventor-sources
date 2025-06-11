@@ -1,6 +1,6 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright © 2009-2011 Google, All Rights reserved
-// Copyright © 2011-2019 Massachusetts Institute of Technology, All rights reserved
+// Copyright © 2011-2021 Massachusetts Institute of Technology, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -468,6 +468,13 @@ public class BlocklyPanel extends HTMLPanel {
     return blocksEditor == null ? "" : blocksEditor.getComponentInstancePropertyValue(instanceName, propertyName);
   }
 
+  public static String getComponentContainerUuid(String formName, String instanceName) {
+    BlocksEditor<?, ?> blocksEditor = getBlocksEditor(currentForm);
+    return blocksEditor == null ? "" : blocksEditor.getComponentContainerUuid(formName, instanceName);
+  }
+
+
+
   public static int getYaVersion() {
     return YaVersion.YOUNG_ANDROID_VERSION;
   }
@@ -602,6 +609,7 @@ public class BlocklyPanel extends HTMLPanel {
           public void onSuccess(Void v) {
             // Nothing to do
           }
+
           @Override
           public void onFailure(Throwable caught) {
             LOG.info("storeSharedBackpack failed.");
@@ -625,6 +633,7 @@ public class BlocklyPanel extends HTMLPanel {
     callback.call(null, buttonName);
   }-*/;
 
+  @SuppressWarnings("LineLength")
   private static native void exportMethodsToJavascript() /*-{
     $wnd.BlocklyPanel_callToggleWarning =
       $entry(@com.google.appinventor.client.editor.blocks.BlocklyPanel::callToggleWarning());
@@ -673,6 +682,8 @@ public class BlocklyPanel extends HTMLPanel {
       $entry(@com.google.appinventor.client.editor.blocks.BlocklyPanel::getProjectName());
     $wnd.BlocklyPanel_getDefaultCloudDBServer =
       $entry(@com.google.appinventor.client.editor.blocks.BlocklyPanel::getDefaultCloudDBServer());
+    $wnd.BlocklyPanel_getComponentContainerUuid =
+      $entry(@com.google.appinventor.client.editor.blocks.BlocklyPanel::getComponentContainerUuid(*));
   }-*/;
 
   private native void initWorkspace(String projectId, boolean readOnly, boolean rtl, String targetLang)/*-{
@@ -702,6 +713,7 @@ public class BlocklyPanel extends HTMLPanel {
       }
     }.bind(workspace));
     this.@com.google.appinventor.client.editor.blocks.BlocklyPanel::workspace = workspace;
+    workspace.setVisible(false);  // The workspace is invisible by default
   }-*/;
 
   /**

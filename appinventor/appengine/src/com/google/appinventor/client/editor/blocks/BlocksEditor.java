@@ -346,6 +346,27 @@ public abstract class BlocksEditor<S extends SourceNode, T extends DesignerEdito
     return mockComponent.getPropertyValue(propertyName);
   }
 
+
+  /**
+   * Get the UUID for the parent component identified by {@code instanceName}. If the component
+   * is not contained within another component (e.g., Form), the empty string is returned.
+   *
+   * @param formName the name for the screen in project_name format
+   * @param instanceName the name of the component instance of interest
+   * @return the parent component UUID
+   */
+  public String getComponentContainerUuid(String formName, String instanceName) {
+    Map<String, MockComponent> componentMap = designer.getComponents();
+    MockComponent mockComponent = componentMap.get(instanceName);
+    MockComponent component = mockComponent.getContainer();
+    if (component == null) {
+      return "";
+    } else {
+      return component.getUuid();
+    }
+  }
+
+
   @Override
   public final String getEditorType() {
     return EDITOR_TYPE;

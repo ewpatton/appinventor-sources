@@ -7,10 +7,25 @@
 package com.google.appinventor.client.editor.simple;
 
 import com.google.appinventor.client.editor.designer.DesignerRootComponent;
+import com.google.appinventor.client.Ode;
+import com.google.appinventor.client.editor.youngandroid.HiddenComponentsManager;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+
+import com.google.appinventor.client.editor.ProjectEditor;
+import com.google.appinventor.client.editor.simple.components.MockForm;
 import com.google.appinventor.client.editor.simple.palette.SimplePaletteItem;
 import com.google.appinventor.client.widgets.dnd.DragSource;
 import com.google.appinventor.client.widgets.dnd.DropTarget;
 import com.google.appinventor.shared.simple.ComponentDatabaseChangeListener;
+import com.google.appinventor.shared.settings.SettingsConstants;
+
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.List;
@@ -100,4 +115,5 @@ public abstract class SimpleVisibleComponentsPanel<T extends DesignerRootCompone
   public void onResetDatabase() {
 
   }
+
 }

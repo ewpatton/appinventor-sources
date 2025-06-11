@@ -3,6 +3,7 @@
 
 package com.google.appinventor.client.editor.youngandroid;
 
+import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.editor.ProjectEditor;
 import com.google.appinventor.client.editor.simple.SimpleNonVisibleComponentsPanel;
 import com.google.appinventor.client.editor.simple.SimpleVisibleComponentsPanel;
@@ -17,12 +18,16 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import java.util.logging.Logger;
+
 /**
  * An implementation of SimpleVisibleComponentsPanel for the MockForm designer.
  *
  * @author ewpatton@mit.edu (Evan W. Patton)
  */
 public class YaVisibleComponentsPanel extends SimpleVisibleComponentsPanel<MockForm> {
+  private static final Logger LOG = Logger.getLogger(SimpleVisibleComponentsPanel.class.getName());
+
   interface YaVisibleComponentsPanelUiBinder extends UiBinder<VerticalPanel,
        YaVisibleComponentsPanel> {}
   // UI elements
@@ -110,6 +115,32 @@ public class YaVisibleComponentsPanel extends SimpleVisibleComponentsPanel<MockF
         }
       }
     };
+  }
+
+  public void show(MockForm form) {
+//    this.form = form;
+    HiddenComponentsManager manager = HiddenComponentsManager.getInstance();
+    manager.setCurrentForm(form);
+    Boolean state = Ode.getCurrentProjectEditor().getScreenCheckboxState(form.getTitle());
+    boolean effectiveState = (state != null) ? state : false;
+    LOG.info("Setting checkbox state for " + form.getTitle() + " to " + effectiveState);
+    HiddenComponentsCheckbox.setValue(effectiveState);
+  }
+
+  public void showHiddenComponentsCheckbox() {
+    if (HiddenComponentsCheckbox != null) {
+      HiddenComponentsCheckbox.setVisible(true);
+    } else {
+      LOG.severe("HiddenComponentsCheckbox is null in showHiddenComponentsCheckbox");
+    }
+  }
+
+  public void hideHiddenComponentsCheckbox() {
+    if (HiddenComponentsCheckbox != null) {
+      HiddenComponentsCheckbox.setVisible(false);
+    } else {
+      LOG.severe("HiddenComponentsCheckbox is null in hideHiddenComponentsCheckbox");
+    }
   }
 
   /**
