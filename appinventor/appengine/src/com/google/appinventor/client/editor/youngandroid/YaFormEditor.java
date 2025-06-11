@@ -14,7 +14,6 @@ import com.google.appinventor.client.editor.ProjectEditor;
 import com.google.appinventor.client.editor.designer.DesignerEditor;
 import com.google.appinventor.client.editor.simple.ComponentNotFoundException;
 import com.google.appinventor.client.editor.simple.SimpleComponentDatabase;
-import com.google.appinventor.client.editor.simple.SimpleNonVisibleComponentsPanel;
 import com.google.appinventor.client.editor.simple.components.MockComponent;
 import com.google.appinventor.client.editor.simple.components.MockContainer;
 import com.google.appinventor.client.editor.simple.components.MockForm;
@@ -22,7 +21,6 @@ import com.google.appinventor.client.editor.simple.palette.DropTargetProvider;
 import com.google.appinventor.client.editor.youngandroid.palette.YoungAndroidPalettePanel;
 import com.google.appinventor.client.properties.json.ClientJsonParser;
 import com.google.appinventor.client.properties.json.ClientJsonString;
-import com.google.appinventor.client.tracking.Tracking;
 import com.google.appinventor.client.widgets.dnd.DropTarget;
 import com.google.appinventor.client.widgets.properties.EditableProperties;
 import com.google.appinventor.client.youngandroid.YoungAndroidFormUpgrader;
@@ -98,7 +96,8 @@ public final class YaFormEditor extends DesignerEditor<YoungAndroidFormNode, Moc
    */
   YaFormEditor(ProjectEditor projectEditor, YoungAndroidFormNode formNode) {
     super(projectEditor, formNode, SimpleComponentDatabase.getInstance(formNode.getProjectId()),
-        new YaVisibleComponentsPanel(projectEditor, new SimpleNonVisibleComponentsPanel<MockForm>()));
+        projectEditor.getUiFactory().createYaVisibleComponentsPanel(projectEditor,
+            new YaNonVisibleComponentsPanel()));
 
     // Create palettePanel, which will be used as the content of the PaletteBox.
     palettePanel = new YoungAndroidPalettePanel(this);

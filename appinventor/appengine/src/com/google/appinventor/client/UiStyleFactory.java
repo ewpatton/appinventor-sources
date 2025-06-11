@@ -53,7 +53,7 @@ public class UiStyleFactory {
     return new NewYoungAndroidProjectWizard();
   }
 
-  public YaVisibleComponentsPanel createSimpleVisibleComponentsPanel
+  public YaVisibleComponentsPanel createYaVisibleComponentsPanel
       (ProjectEditor editor, YaNonVisibleComponentsPanel nonVisPanel) {
     return new YaVisibleComponentsPanel(editor, nonVisPanel);
   }

@@ -37,7 +37,7 @@ public class YaVisibleComponentsPanel extends SimpleVisibleComponentsPanel<MockF
   protected final int[][] drop_lst = { {320, 505}, {480, 675}, {768, 1024} };
   protected final String[] drop_lst_phone_preview = { "Android Material", "Android Holo", "iOS" };
   protected final ProjectEditor projectEditor;
-  @UiField protected CheckBox HiddenComponentsCheckbox;
+  @UiField protected CheckBox hiddenComponentsCheckbox;
   /**
    * Creates new component design panel for visible components.
    *
@@ -124,20 +124,20 @@ public class YaVisibleComponentsPanel extends SimpleVisibleComponentsPanel<MockF
     Boolean state = Ode.getCurrentProjectEditor().getScreenCheckboxState(form.getTitle());
     boolean effectiveState = (state != null) ? state : false;
     LOG.info("Setting checkbox state for " + form.getTitle() + " to " + effectiveState);
-    HiddenComponentsCheckbox.setValue(effectiveState);
+    hiddenComponentsCheckbox.setValue(effectiveState);
   }
 
   public void showHiddenComponentsCheckbox() {
-    if (HiddenComponentsCheckbox != null) {
-      HiddenComponentsCheckbox.setVisible(true);
+    if (hiddenComponentsCheckbox != null) {
+      hiddenComponentsCheckbox.setVisible(true);
     } else {
       LOG.severe("HiddenComponentsCheckbox is null in showHiddenComponentsCheckbox");
     }
   }
 
   public void hideHiddenComponentsCheckbox() {
-    if (HiddenComponentsCheckbox != null) {
-      HiddenComponentsCheckbox.setVisible(false);
+    if (hiddenComponentsCheckbox != null) {
+      hiddenComponentsCheckbox.setVisible(false);
     } else {
       LOG.severe("HiddenComponentsCheckbox is null in hideHiddenComponentsCheckbox");
     }

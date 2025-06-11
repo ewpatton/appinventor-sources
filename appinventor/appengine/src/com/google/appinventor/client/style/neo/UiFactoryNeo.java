@@ -36,7 +36,7 @@ public class UiFactoryNeo extends UiStyleFactory {
   }
 
   @Override
-  public YaVisibleComponentsPanel createSimpleVisibleComponentsPanel
+  public YaVisibleComponentsPanel createYaVisibleComponentsPanel
       (ProjectEditor editor, YaNonVisibleComponentsPanel nonVisPanel) {
     return new YaVisibleComponentsPanelNeo(editor, nonVisPanel);
   }

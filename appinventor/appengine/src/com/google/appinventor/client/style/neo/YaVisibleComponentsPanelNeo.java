@@ -26,7 +26,7 @@ public class YaVisibleComponentsPanelNeo extends YaVisibleComponentsPanel {
   @UiField(provided = true) protected ListBox listboxPhonePreview;
   @UiField Icon os_icon;
   @UiField Icon size_icon;
-  @UiField CheckBox HiddenComponentsCheckbox;
+  @UiField CheckBox hiddenComponentsCheckbox;
 
   public YaVisibleComponentsPanelNeo(final ProjectEditor projectEditor,
       SimpleNonVisibleComponentsPanel<MockForm> nonVisibleComponentsPanel) {
@@ -84,7 +84,6 @@ public class YaVisibleComponentsPanelNeo extends YaVisibleComponentsPanel {
     os_icon.setVisible(enable);
   }
 
-
   @Override
   protected void bindUI() {
     SimpleVisibleComponentsPanelUiBinderNeo uibinder =
@@ -93,5 +92,6 @@ public class YaVisibleComponentsPanelNeo extends YaVisibleComponentsPanel {
     super.listboxPhonePreview = listboxPhonePreview;
     super.listboxPhoneTablet = listboxPhoneTablet;
     super.phoneScreen = phoneScreen;
+    super.hiddenComponentsCheckbox = hiddenComponentsCheckbox;
   }
 }
