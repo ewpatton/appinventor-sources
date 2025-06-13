@@ -3,6 +3,7 @@
 
 package com.google.appinventor.client.editor.youngandroid;
 
+import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.editor.ProjectEditor;
 import com.google.appinventor.client.editor.simple.SimpleNonVisibleComponentsPanel;
 import com.google.appinventor.client.editor.simple.SimpleVisibleComponentsPanel;
@@ -17,12 +18,16 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import java.util.logging.Logger;
+
 /**
  * An implementation of SimpleVisibleComponentsPanel for the MockForm designer.
  *
  * @author ewpatton@mit.edu (Evan W. Patton)
  */
 public class YaVisibleComponentsPanel extends SimpleVisibleComponentsPanel<MockForm> {
+  private static final Logger LOG = Logger.getLogger(YaVisibleComponentsPanel.class.getName());
+
   interface YaVisibleComponentsPanelUiBinder extends UiBinder<VerticalPanel,
        YaVisibleComponentsPanel> {}
   // UI elements
@@ -32,7 +37,7 @@ public class YaVisibleComponentsPanel extends SimpleVisibleComponentsPanel<MockF
   protected final int[][] drop_lst = { {320, 505}, {480, 675}, {768, 1024} };
   protected final String[] drop_lst_phone_preview = { "Android Material", "Android Holo", "iOS" };
   protected final ProjectEditor projectEditor;
-  @UiField protected CheckBox HiddenComponentsCheckbox;
+  @UiField protected CheckBox hiddenComponentsCheckbox;
   /**
    * Creates new component design panel for visible components.
    *
@@ -205,6 +210,32 @@ public class YaVisibleComponentsPanel extends SimpleVisibleComponentsPanel<MockF
       }
     }
     listboxPhonePreview.setEnabled(enable);
+  }
+
+  public void show(MockForm form) {
+    this.root = form;
+    HiddenComponentsManager manager = HiddenComponentsManager.getInstance();
+    manager.setCurrentForm(form);
+    Boolean state = Ode.getCurrentProjectEditor().getScreenCheckboxState(form.getTitle());
+    boolean effectiveState = (state != null) ? state : false;
+    LOG.info("Setting checkbox state for " + form.getTitle() + " to " + effectiveState);
+    hiddenComponentsCheckbox.setValue(effectiveState);
+  }
+
+  public void showHiddenComponentsCheckbox() {
+    if (hiddenComponentsCheckbox != null) {
+      hiddenComponentsCheckbox.setVisible(true);
+    } else {
+      LOG.severe("HiddenComponentsCheckbox is null in showHiddenComponentsCheckbox");
+    }
+  }
+
+  public void hideHiddenComponentsCheckbox() {
+    if (hiddenComponentsCheckbox != null) {
+      hiddenComponentsCheckbox.setVisible(false);
+    } else {
+      LOG.severe("HiddenComponentsCheckbox is null in hideHiddenComponentsCheckbox");
+    }
   }
 
   protected void bindUI() {

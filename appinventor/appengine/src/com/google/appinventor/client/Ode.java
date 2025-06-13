@@ -22,6 +22,7 @@ import com.google.appinventor.client.boxes.ViewerBox;
 import com.google.appinventor.client.editor.EditorManager;
 import com.google.appinventor.client.editor.FileEditor;
 import com.google.appinventor.client.editor.ProjectEditor;
+import com.google.appinventor.client.editor.simple.SimpleVisibleComponentsPanel;
 import com.google.appinventor.client.editor.blocks.BlocklyPanel;
 import com.google.appinventor.client.editor.simple.palette.DropTargetProvider;
 import com.google.appinventor.client.editor.youngandroid.DesignToolbar;
@@ -29,6 +30,7 @@ import com.google.appinventor.client.editor.youngandroid.HiddenComponentsCheckbo
 import com.google.appinventor.client.editor.youngandroid.TutorialPanel;
 import com.google.appinventor.client.editor.youngandroid.YaFormEditor;
 import com.google.appinventor.client.editor.youngandroid.YaProjectEditor;
+import com.google.appinventor.client.editor.youngandroid.YaVisibleComponentsPanel;
 import com.google.appinventor.client.explorer.commands.ChainableCommand;
 import com.google.appinventor.client.explorer.commands.CommandRegistry;
 import com.google.appinventor.client.explorer.commands.SaveAllEditorsCommand;
@@ -460,18 +462,34 @@ public class Ode implements EntryPoint {
     deckPanel.showWidget(userAdminTabIndex);
   }
 
-  public void hideComponentDesigner() {
-    paletteBox.setVisible(false);
-    sourceStructureBox.setVisible(false);
-    propertiesBox.setVisible(false);
-    HiddenComponentsCheckbox.setVisibility(false);
-  }
-
   public void showComponentDesigner() {
     paletteBox.setVisible(true);
     sourceStructureBox.setVisible(true);
     propertiesBox.setVisible(true);
-    HiddenComponentsCheckbox.setVisibility(true);
+    if (currentFileEditor instanceof YaFormEditor) {
+      YaFormEditor formEditor = (YaFormEditor) currentFileEditor;
+      YaVisibleComponentsPanel panel = (YaVisibleComponentsPanel) formEditor.getVisibleComponentsPanel();
+      if (panel != null) {
+        panel.showHiddenComponentsCheckbox();
+      } else {
+        LOG.warning("visibleComponentsPanel is null in showComponentDesigner");
+      }
+    }
+  }
+
+  public void hideComponentDesigner() {
+    paletteBox.setVisible(false);
+    sourceStructureBox.setVisible(false);
+    propertiesBox.setVisible(false);
+    if (currentFileEditor instanceof YaFormEditor) {
+      YaFormEditor formEditor = (YaFormEditor) currentFileEditor;
+      YaVisibleComponentsPanel panel = (YaVisibleComponentsPanel) formEditor.getVisibleComponentsPanel();
+      if (panel != null) {
+        panel.hideHiddenComponentsCheckbox();
+      } else {
+        LOG.warning("visibleComponentsPanel is null in hideComponentDesigner");
+      }
+    }
   }
 
   /**

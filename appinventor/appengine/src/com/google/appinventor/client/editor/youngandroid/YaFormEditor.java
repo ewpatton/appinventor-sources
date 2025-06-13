@@ -1,6 +1,6 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2020 MIT, All rights reserved
+// Copyright 2011-2025 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -97,7 +97,8 @@ public final class YaFormEditor extends DesignerEditor<YoungAndroidFormNode, Moc
    */
   YaFormEditor(ProjectEditor projectEditor, YoungAndroidFormNode formNode) {
     super(projectEditor, formNode, SimpleComponentDatabase.getInstance(formNode.getProjectId()),
-        new YaVisibleComponentsPanel(projectEditor, new SimpleNonVisibleComponentsPanel<MockForm>()));
+        projectEditor.getUiFactory().createSimpleVisibleComponentsPanel(projectEditor,
+            new YaNonVisibleComponentsPanel()));
 
     // Create palettePanel, which will be used as the content of the PaletteBox.
     palettePanel = new YoungAndroidPalettePanel(this);
