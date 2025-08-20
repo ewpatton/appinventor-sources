@@ -709,9 +709,9 @@ public class YaVersion {
 
   // ................................. Target SDK Version Number ..................................
 
-  public static final int TARGET_SDK_VERSION = 34;
+  public static final int TARGET_SDK_VERSION = 35;
 
-  public static final String TARGET_ANDROID_VERSION = "Android 14.0";
+  public static final String TARGET_ANDROID_VERSION = "Android 15.0";
 
   // ................................. Component Version Numbers ..................................
 
@@ -1720,12 +1720,12 @@ public class YaVersion {
 
   public static final String ACCEPTABLE_COMPANION_PACKAGE = "edu.mit.appinventor.aicompanion3";
 
-  public static final String PREFERRED_COMPANION = "2.75";
+  public static final String PREFERRED_COMPANION = "2.76";
   public static final String EMULATOR_UPDATE_URL = ""; // Should be an APK
   public static final String COMPANION_UPDATE_URL = "";
   public static final String COMPANION_UPDATE_URL1 = "";
   public static final String COMPANION_UPDATE_EMULATOR_URL = "";
-  public static final String [] ACCEPTABLE_COMPANIONS = { "2.75", "2.75u" };
+  public static final String [] ACCEPTABLE_COMPANIONS = { "2.76", "2.76u" };
 
   // Splash Screen Values
   public static final int SPLASH_SURVEY = 1;

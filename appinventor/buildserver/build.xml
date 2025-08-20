@@ -148,7 +148,7 @@
       <fileset dir="${lib.dir}" includes="args4j/args4j-2.0.18.jar"/>
       <fileset dir="${lib.dir}" includes="json/json.jar" />
       <fileset dir="${lib.dir}" includes="dd-plist/dd-plist.jar"/>
-      <fileset dir="res" />
+      <fileset dir="res" if:true="${ios.build.run}" />
     </copy>
   </target>
 
@@ -346,6 +346,7 @@
        ===================================================================== -->
   <target name="RunLocalBuildServer"
           depends="BuildServer">
+    <property name="buildserverPassword" value="" />
     <java classname="com.google.appinventor.buildserver.BuildServer" fork="true" failonerror="true" dir="${run.lib.dir}">
       <classpath>
         <fileset dir="${run.lib.dir}" includes="*.jar" />
@@ -355,6 +356,8 @@
       <jvmarg value="-Djava.awt.headless=true" />
       <arg value="--dexCacheDir" />
       <arg value="${public.build.dir}/dexCache" />
+      <arg value="--buildserverPassword" />
+      <arg value="${buildserverPassword}" />
       <arg value="--shutdownToken" />
       <arg value="token" />
       <arg value="--ios" if:true="${ios.build.run}" />

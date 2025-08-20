@@ -220,6 +220,8 @@
 <dl class="events">
   <dt id="ARView3D.ClickOnDetectedPlaneAt">ClickOnDetectedPlaneAt(<em class="component">targetPlane</em>,<em class="any">p</em>,<em class="boolean">isANodeAtPoint</em>)</dt>
   <dd>The user tapped on a DetectedPlane, detectedPlane.  (x,y,z) is the real-world coordinate of the point.  isANoteAtPoint is true if a node is already at that point and false otherwise.  This event will only trigger if PlaneDetection is not None, and the TrackingType is WorldTracking.</dd>
+  <dt id="ARView3D.CollisionDetected">CollisionDetected()</dt>
+  <dd>Collision detected</dd>
   <dt id="ARView3D.DetectedPlaneRemoved">DetectedPlaneRemoved(<em class="component">detectedPlane</em>)</dt>
   <dd>A DetectedPlane was removed from the ARView3D.  This happens when two DetectedPlanes are combined to form one or the detected items were reset.  This event will only trigger if PlaneDetection is not None, and the TrackingType is WorldTracking.</dd>
   <dt id="ARView3D.DetectedPlaneUpdated">DetectedPlaneUpdated(<em class="component">detectedPlane</em>)</dt>
@@ -234,6 +236,10 @@
   <dd>The user tapped on a node in the ARView3D.</dd>
   <dt id="ARView3D.NodeLongClick">NodeLongClick(<em class="component">node</em>)</dt>
   <dd>The user long-pressed a node in the ARView3D.</dd>
+  <dt id="ARView3D.ObjectCollidedWithObject">ObjectCollidedWithObject(<em class="component">node</em>,<em class="component">node2</em>)</dt>
+  <dd>Object collided with Object detected</dd>
+  <dt id="ARView3D.ObjectCollidedWithScene">ObjectCollidedWithScene(<em class="component">node</em>)</dt>
+  <dd>Object collided with Scene detected</dd>
   <dt id="ARView3D.PlaneDetected">PlaneDetected(<em class="component">detectedPlane</em>)</dt>
   <dd>A real-world plane was detected.  The detectedPlane is the component added at the location of the real-world plane.  This event will only trigger if PlaneDetection is not None, and the TrackingType is WorldTracking.  Note that the default FillColor of a DetectedPlane is None, so it is shown visually by default.</dd>
   <dt id="ARView3D.TapAtLocation">TapAtLocation(<em class="number">x</em>,<em class="number">y</em>,<em class="number">z</em>,<em class="number">lat</em>,<em class="number">lng</em>,<em class="number">alt</em>,<em class="boolean">hasGeoCoordinates</em>,<em class="boolean">isANodeAtPoint</em>)</dt>
@@ -364,8 +370,14 @@
 <dl class="properties">
   <dt id="BoxNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="BoxNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
   <dt id="BoxNode.CornerRadius" class="number"><em>CornerRadius</em></dt>
   <dd>This determines how rounded the boxes corners will be.  A value of zero specifies no rounded corners, and a value of half the length, height, or width of the BoxNode (whichever is greater) makes it fully rounded, with no straight edges.  Values less than zero will be set to zero.</dd>
+  <dt id="BoxNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="BoxNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="BoxNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="BoxNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -378,6 +390,8 @@
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
   <dt id="BoxNode.LengthInCentimeters" class="number"><em>LengthInCentimeters</em></dt>
   <dd>How far, in centimeters, the BoxNode extends along the z-axis.  Values less than zero will be treated as their absolute value.  When set to zero, the BoxNode will not appear.</dd>
+  <dt id="BoxNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="BoxNode.Model" class="text"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="BoxNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -394,10 +408,16 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="BoxNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="BoxNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="BoxNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="BoxNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="BoxNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="BoxNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="BoxNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="BoxNode.TextureOpacity" class="number"><em>TextureOpacity</em></dt>
@@ -434,6 +454,8 @@
 <h3 id="BoxNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="BoxNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="BoxNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="BoxNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -462,6 +484,10 @@
   <dd>Changes the node’s position by (x,y,z).</dd>
   <dt id="BoxNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>move a capsule node properties to detectedplane.</dd>
+  <dt id="BoxNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="BoxNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="BoxNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="BoxNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -472,6 +498,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="BoxNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="BoxNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="CapsuleNode">CapsuleNode</h2>
@@ -485,6 +513,12 @@
   <dd>Serialize the arnode to yail</dd>
   <dt id="CapsuleNode.CapRadiusInCentimeters" class="number"><em>CapRadiusInCentimeters</em></dt>
   <dd>The radius, in centimeters, of two hemispheres or caps at the ends of a CapsuleNode.  Values less than zero will be treated as their absolute values.  When set to zero or when set to greater than half of the Height, the CapsuleNode will not appear.</dd>
+  <dt id="CapsuleNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="CapsuleNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="CapsuleNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="CapsuleNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="CapsuleNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -495,6 +529,8 @@
   <dd>How far, in centimeters, the CapsuleNode extends along the y-axis.  Values less than zero will be treated as their absolute value.  When set to zero or when set to less than double the CapRadius, the CapsuleNode will not appear.</dd>
   <dt id="CapsuleNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="CapsuleNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="CapsuleNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="CapsuleNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -513,12 +549,18 @@
   <dd>Get the current pose of the object</dd>
   <dt id="CapsuleNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="CapsuleNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="CapsuleNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="CapsuleNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="CapsuleNode.Scale" class="number"><em>Scale</em></dt>
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="CapsuleNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="CapsuleNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="CapsuleNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="CapsuleNode.TextureOpacity" class="number"><em>TextureOpacity</em></dt>
@@ -553,6 +595,8 @@
 <h3 id="CapsuleNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="CapsuleNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="CapsuleNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="CapsuleNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -583,6 +627,10 @@
   <dd>move a capsule node properties to detectedplane.</dd>
   <dt id="CapsuleNode.MoveToPose" class="method"><i></i> MoveToPose(<em class="text">p</em>)</dt>
   <dd>move a capsule node properties to detectedplane.</dd>
+  <dt id="CapsuleNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="CapsuleNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="CapsuleNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="CapsuleNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -593,6 +641,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="CapsuleNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="CapsuleNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="ConeNode">ConeNode</h2>
@@ -606,6 +656,12 @@
   <dd>Serialize the arnode to yail</dd>
   <dt id="ConeNode.BottomRadiusInCentimeters" class="number"><em>BottomRadiusInCentimeters</em></dt>
   <dd>This defines the radius of the bottom of the ConeNode.  A value of zero causes the cone to meet at a point at the bottom.  Values less than zero will be treated as their absolute value.  If the BottomRadius is set to zero and this is set to zero, the ConeNode will not be shown.</dd>
+  <dt id="ConeNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="ConeNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="ConeNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="ConeNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="ConeNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -616,6 +672,8 @@
   <dd>How far, in centimeters, the ConeNode extends along the y-axis.  Values less than zero will be treated as their absolute value.  When set to zero, the ConeNode will not be shown.</dd>
   <dt id="ConeNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="ConeNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="ConeNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="ConeNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -632,12 +690,18 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="ConeNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="ConeNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="ConeNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="ConeNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="ConeNode.Scale" class="number"><em>Scale</em></dt>
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="ConeNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="ConeNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="ConeNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="ConeNode.TextureOpacity" class="number"><em>TextureOpacity</em></dt>
@@ -674,6 +738,8 @@
 <h3 id="ConeNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="ConeNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="ConeNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="ConeNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -702,6 +768,10 @@
   <dd>Changes the node’s position to (x,y,z).</dd>
   <dt id="ConeNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>Changes the node’s position to (x,y,z).</dd>
+  <dt id="ConeNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="ConeNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="ConeNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="ConeNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -712,6 +782,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="ConeNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="ConeNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="CylinderNode">CylinderNode</h2>
@@ -723,6 +795,12 @@
 <dl class="properties">
   <dt id="CylinderNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="CylinderNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="CylinderNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="CylinderNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="CylinderNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="CylinderNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -733,6 +811,8 @@
   <dd>How far, in centimeters, the CylinderNode extends along the y-axis.  Values less than zero will be treated as their absolute value.  When set to zero, the CylinderNode will not be shown.</dd>
   <dt id="CylinderNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="CylinderNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="CylinderNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="CylinderNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -751,12 +831,18 @@
   <dd>Convert current pose to yail</dd>
   <dt id="CylinderNode.RadiusInCentimeters" class="number"><em>RadiusInCentimeters</em></dt>
   <dd>The radius of the CylinderNode determines the size of the cicular base and top.  Values less than zero will be treated as their absolute value.  When set to zero, the CylinderNode will not be shown.</dd>
+  <dt id="CylinderNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="CylinderNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="CylinderNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="CylinderNode.Scale" class="number"><em>Scale</em></dt>
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="CylinderNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="CylinderNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="CylinderNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="CylinderNode.TextureOpacity" class="number"><em>TextureOpacity</em></dt>
@@ -791,6 +877,8 @@
 <h3 id="CylinderNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="CylinderNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="CylinderNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="CylinderNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -819,6 +907,10 @@
   <dd>Changes the node’s position to (x,y,z).</dd>
   <dt id="CylinderNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>Changes the node’s position to (x,y,z).</dd>
+  <dt id="CylinderNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="CylinderNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="CylinderNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="CylinderNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -829,6 +921,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="CylinderNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="CylinderNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="DirectionalLight">DirectionalLight</h2>
@@ -939,6 +1033,12 @@
   <dd>Serialize the arnode to yail</dd>
   <dt id="ModelNode.BoundingBox" class="list ro bo"><em>BoundingBox</em></dt>
   <dd>The minimum and maximum coordinates of the ModelNode.  The minimum and maximum are lists of the x-, y-, z-coordinates, and this returns a list of <code>[min, max]</code> where mine and max are <code>[x, y, z]</code>.</dd>
+  <dt id="ModelNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="ModelNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="ModelNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="ModelNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="ModelNode.FillColor" class="color do"><em>FillColor</em></dt>
@@ -947,6 +1047,8 @@
   <dd>The opacity of the node’s FillColor.  Values less than zero will be treated as zero, and values greater than 100 will be treated as 100.</dd>
   <dt id="ModelNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="ModelNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="ModelNode.Model" class="text"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="ModelNode.NamesOfNodes" class="list ro bo"><em>NamesOfNodes</em></dt>
@@ -965,6 +1067,10 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="ModelNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="ModelNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="ModelNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="ModelNode.RootNodeName" class="text ro"><em>RootNodeName</em></dt>
   <dd>The name of the root node to add to the scene.  If this is “” or a node with the given name does not exist, then the model’s default root node will be added.</dd>
   <dt id="ModelNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
@@ -973,6 +1079,8 @@
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="ModelNode.ShowShadow" class="boolean do"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="ModelNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="ModelNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="ModelNode.TextureOpacity" class="number do"><em>TextureOpacity</em></dt>
@@ -1009,6 +1117,8 @@
 <h3 id="ModelNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="ModelNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="ModelNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="ModelNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -1037,6 +1147,10 @@
   <dd>Changes the node’s position by (x,y,z).</dd>
   <dt id="ModelNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>move a capsule node properties at the specified (x,y,z) position.</dd>
+  <dt id="ModelNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="ModelNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="ModelNode.PlayAnimationsForAllNodes" class="method"><i></i> PlayAnimationsForAllNodes()</dt>
   <dd>Plays all animations in the model, if it has animations.</dd>
   <dt id="ModelNode.PlayAnimationsForNode" class="method"><i></i> PlayAnimationsForNode(<em class="text">name</em>,<em class="boolean">shouldPlayChildNodes</em>)</dt>
@@ -1079,6 +1193,8 @@
   <dd>Stops animations attached to a node named “name”.  If a node named “name” does not exist, then the <code>NodeNotFound</code> event will be triggered.  <code>shouldStopChildNodes</code> specifies if all nodes below below the named node in the node tree should also have their animations stopped.</dd>
   <dt id="ModelNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="ModelNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="PlaneNode">PlaneNode</h2>
@@ -1090,8 +1206,14 @@
 <dl class="properties">
   <dt id="PlaneNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="PlaneNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
   <dt id="PlaneNode.CornerRadius" class="number"><em>CornerRadius</em></dt>
   <dd>This determines how rounded the boxes corners will be.  A value of zero specifies no rounded corners, and a value of half the height or width of the PlaneNode (whichever is greater) makes it fully rounded, with no straight edges.  Values less than zero will be treated as zero.</dd>
+  <dt id="PlaneNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="PlaneNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="PlaneNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="PlaneNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -1102,6 +1224,8 @@
   <dd>How far, in centimeters, the PlaneNode extends along the y-axis.  Values less than zero will be treated as their absolute value.  When set to zero, the PlaneNode will not be shown.</dd>
   <dt id="PlaneNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="PlaneNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="PlaneNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="PlaneNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -1118,12 +1242,18 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="PlaneNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="PlaneNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="PlaneNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="PlaneNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="PlaneNode.Scale" class="number"><em>Scale</em></dt>
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="PlaneNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="PlaneNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="PlaneNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="PlaneNode.TextureOpacity" class="number"><em>TextureOpacity</em></dt>
@@ -1160,6 +1290,8 @@
 <h3 id="PlaneNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="PlaneNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="PlaneNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="PlaneNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -1188,6 +1320,10 @@
   <dd>Changes the node’s position by (x,y,z).</dd>
   <dt id="PlaneNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>move a sphere node properties at the specified (x,y,z) position.</dd>
+  <dt id="PlaneNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="PlaneNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="PlaneNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="PlaneNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -1198,6 +1334,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="PlaneNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="PlaneNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="PointLight">PointLight</h2>
@@ -1269,6 +1407,12 @@
 <dl class="properties">
   <dt id="PyramidNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="PyramidNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="PyramidNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="PyramidNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="PyramidNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="PyramidNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -1281,6 +1425,8 @@
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
   <dt id="PyramidNode.LengthInCentimeters" class="number"><em>LengthInCentimeters</em></dt>
   <dd>How far, in centimeters, the PyramidNode extends along the z-axis.  Values less than zero will be treated as their absolute values.  When set to zero, the PyramidNode will not be shown.</dd>
+  <dt id="PyramidNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="PyramidNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="PyramidNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -1297,10 +1443,16 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="PyramidNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="PyramidNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="PyramidNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="PyramidNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="PyramidNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="PyramidNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="PyramidNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="PyramidNode.TextureOpacity" class="number"><em>TextureOpacity</em></dt>
@@ -1337,6 +1489,8 @@
 <h3 id="PyramidNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="PyramidNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="PyramidNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="PyramidNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -1365,6 +1519,10 @@
   <dd>move a capsule node properties at the specified (x,y,z) position.</dd>
   <dt id="PyramidNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>move a capsule node properties to detectedplane.</dd>
+  <dt id="PyramidNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="PyramidNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="PyramidNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="PyramidNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -1375,6 +1533,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="PyramidNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="PyramidNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="SphereNode">SphereNode</h2>
@@ -1386,6 +1546,14 @@
 <dl class="properties">
   <dt id="SphereNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="SphereNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="SphereNode.DefaultBehavior" class="text wo"><em>DefaultBehavior</em></dt>
+  <dd>Default behavior of object: heavy, light, bouncy, wet, sticky, slippery, floating. Use these settings to set Mass, StaticFriction, DynamicFriction, Restitution, and DragSensitivity appropriate to description OR tweak them below</dd>
+  <dt id="SphereNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="SphereNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="SphereNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="SphereNode.FillColor" class="color do"><em>FillColor</em></dt>
@@ -1394,6 +1562,8 @@
   <dd>The opacity of the node’s FillColor.  Values less than zero will be treated as zero, and values greater than 100 will be treated as 100.</dd>
   <dt id="SphereNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="SphereNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="SphereNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="SphereNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -1412,12 +1582,18 @@
   <dd>Convert current pose to yail</dd>
   <dt id="SphereNode.RadiusInCentimeters" class="number"><em>RadiusInCentimeters</em></dt>
   <dd>The radius of the sphere in centimeters.</dd>
+  <dt id="SphereNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="SphereNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="SphereNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="SphereNode.Scale" class="number"><em>Scale</em></dt>
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="SphereNode.ShowShadow" class="boolean do"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="SphereNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="SphereNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="SphereNode.TextureOpacity" class="number do"><em>TextureOpacity</em></dt>
@@ -1454,6 +1630,8 @@
 <h3 id="SphereNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="SphereNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="SphereNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="SphereNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -1482,6 +1660,10 @@
   <dd>Changes the node’s position by (x,y,z).</dd>
   <dt id="SphereNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>move a sphere node properties at the specified (x,y,z) position.</dd>
+  <dt id="SphereNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="SphereNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="SphereNode.PlayAnimationsForAllNodes" class="method"><i></i> PlayAnimationsForAllNodes()</dt>
   <dd>Plays all animations in the model, if it has animations.</dd>
   <dt id="SphereNode.PlayAnimationsForNode" class="method"><i></i> PlayAnimationsForNode(<em class="text">name</em>,<em class="boolean">shouldPlayChildNodes</em>)</dt>
@@ -1524,6 +1706,8 @@
   <dd>Stops animations attached to a node named “name”.  If a node named “name” does not exist, then the <code>NodeNotFound</code> event will be triggered.  <code>shouldStopChildNodes</code> specifies if all nodes below below the named node in the node tree should also have their animations stopped.</dd>
   <dt id="SphereNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="SphereNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="Spotlight">Spotlight</h2>
@@ -1631,8 +1815,14 @@
 <dl class="properties">
   <dt id="TextNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="TextNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
   <dt id="TextNode.DepthInCentimeters" class="number"><em>DepthInCentimeters</em></dt>
   <dd>How far, in centimeters, the TextNode extends along the z-axis.  Values less than zero will be treated as zero.</dd>
+  <dt id="TextNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="TextNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="TextNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="TextNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -1643,6 +1833,8 @@
   <dd>The font size in centimeters.  Values less than zero will be treated as their absolute value.  When set to zero, the TextNode will not be shown.</dd>
   <dt id="TextNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="TextNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="TextNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="TextNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -1659,12 +1851,18 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="TextNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="TextNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="TextNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="TextNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="TextNode.Scale" class="number do"><em>Scale</em></dt>
   <dd>Functions from ARNodeBase that should not be user facing.</dd>
   <dt id="TextNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="TextNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="TextNode.Text" class="text"><em>Text</em></dt>
   <dd>Text to display by the TextNode.  If this is set to “”, the TextNode will not be shown.</dd>
   <dt id="TextNode.Texture" class="text"><em>Texture</em></dt>
@@ -1701,6 +1899,8 @@
 <h3 id="TextNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="TextNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TextNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="TextNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -1729,6 +1929,10 @@
   <dd>Changes the node’s position to (x,y,z).</dd>
   <dt id="TextNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>Changes the node’s position to (x,y,z).</dd>
+  <dt id="TextNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="TextNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TextNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TextNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -1739,6 +1943,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="TextNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="TextNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="TorusNode">TorusNode</h2>
@@ -1750,6 +1956,12 @@
 <dl class="properties">
   <dt id="TorusNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="TorusNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="TorusNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="TorusNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="TorusNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="TorusNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -1758,6 +1970,8 @@
   <dd>The opacity of the node’s FillColor.  Values less than zero will be treated as zero, and values greater than 100 will be treated as 100.</dd>
   <dt id="TorusNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="TorusNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="TorusNode.Model" class="text"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="TorusNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -1776,14 +1990,20 @@
   <dd>Set the current pose of the object from property</dd>
   <dt id="TorusNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="TorusNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
   <dt id="TorusNode.RingRadiusInCentimeters" class="number"><em>RingRadiusInCentimeters</em></dt>
   <dd>The ring radius defines the size of the overall torus (or major radius) in centimeters.  Values less than zero will be treated as their absolute value.  When set to zero, the TorusNode will not be shown.</dd>
+  <dt id="TorusNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="TorusNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="TorusNode.Scale" class="number"><em>Scale</em></dt>
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="TorusNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="TorusNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="TorusNode.TextureOpacity" class="number"><em>TextureOpacity</em></dt>
   <dd>The opacity of the node’s Texture.  Values less than zero will be treated as zero, and values greater than 100 will be treated as 100.</dd>
   <dt id="TorusNode.Visible" class="boolean"><em>Visible</em></dt>
@@ -1816,6 +2036,8 @@
 <h3 id="TorusNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="TorusNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TorusNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="TorusNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -1844,6 +2066,10 @@
   <dd>Changes the node’s position to (x,y,z).</dd>
   <dt id="TorusNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>Changes the node’s position to (x,y,z).</dd>
+  <dt id="TorusNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="TorusNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TorusNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TorusNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -1854,6 +2080,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="TorusNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="TorusNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="TubeNode">TubeNode</h2>
@@ -1865,6 +2093,12 @@
 <dl class="properties">
   <dt id="TubeNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="TubeNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="TubeNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="TubeNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="TubeNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="TubeNode.FillColor" class="color"><em>FillColor</em></dt>
@@ -1877,6 +2111,8 @@
   <dd>The inner radius of the TubeNode determines the size of the cicular cutout from the middle of the TubeNode.  Values less than zero will be treated as ther absolute value.  When set to zero or when set to equal to or greater than the OuterRadius, the TubeNode will not be shown.</dd>
   <dt id="TubeNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="TubeNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="TubeNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="TubeNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -1895,12 +2131,18 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="TubeNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="TubeNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="TubeNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="TubeNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="TubeNode.Scale" class="number"><em>Scale</em></dt>
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="TubeNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="TubeNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="TubeNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="TubeNode.TextureOpacity" class="number"><em>TextureOpacity</em></dt>
@@ -1935,6 +2177,8 @@
 <h3 id="TubeNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="TubeNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TubeNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="TubeNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -1963,6 +2207,10 @@
   <dd>Changes the node’s position to (x,y,z).</dd>
   <dt id="TubeNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>Changes the node’s position to (x,y,z).</dd>
+  <dt id="TubeNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="TubeNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TubeNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
   <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="TubeNode.RotateYBy" class="method"><i></i> RotateYBy(<em class="number">degrees</em>)</dt>
@@ -1973,6 +2221,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="TubeNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="TubeNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="VideoNode">VideoNode</h2>
@@ -1984,6 +2234,12 @@
 <dl class="properties">
   <dt id="VideoNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="VideoNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="VideoNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="VideoNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="VideoNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="VideoNode.FillColor" class="color do"><em>FillColor</em></dt>
@@ -1996,6 +2252,8 @@
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
   <dt id="VideoNode.IsPlaying" class="boolean ro bo"><em>IsPlaying</em></dt>
   <dd>Returns true if the video is currently playing false otherwise.</dd>
+  <dt id="VideoNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="VideoNode.Model" class="text"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="VideoNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -2012,6 +2270,10 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="VideoNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="VideoNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="VideoNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="VideoNode.RotateWithGesture" class="boolean"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="VideoNode.Scale" class="number"><em>Scale</em></dt>
@@ -2020,6 +2282,8 @@
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
   <dt id="VideoNode.Source" class="text wo"><em>Source</em></dt>
   <dd>The “path” to the video.  Usually, this will be the name of the video file, which should be added in the Designer.</dd>
+  <dt id="VideoNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="VideoNode.Texture" class="text do"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="VideoNode.TextureOpacity" class="number do"><em>TextureOpacity</em></dt>
@@ -2060,6 +2324,8 @@
 <h3 id="VideoNode-Methods">Methods</h3>
 
 <dl class="methods">
+  <dt id="VideoNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="VideoNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="VideoNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -2090,6 +2356,10 @@
   <dd>Changes the node’s position by (x,y,z).</dd>
   <dt id="VideoNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>move a sphere node properties at the specified (x,y,z) position.</dd>
+  <dt id="VideoNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="VideoNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="VideoNode.Pause" class="method"><i></i> Pause()</dt>
   <dd>Pauses playback of the video.</dd>
   <dt id="VideoNode.Play" class="method"><i></i> Play()</dt>
@@ -2106,6 +2376,8 @@
   <dd>Seeks to the requested time (specified in milliseconds) in the video. If the video is paused, the frame shown will not be updated by the seek. The player can jump only to key frames in the video, so seeking to times that differ by short intervals may not actually move to different frames.</dd>
   <dt id="VideoNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="VideoNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 <h2 id="WebViewNode">WebViewNode</h2>
@@ -2117,6 +2389,12 @@
 <dl class="properties">
   <dt id="WebViewNode.ARNodeToYail" class="dictionary ro bo"><em>ARNodeToYail</em></dt>
   <dd>Serialize the arnode to yail</dd>
+  <dt id="WebViewNode.CollisionShape" class="text ro"><em>CollisionShape</em></dt>
+  <dd>Property for CollisionShape</dd>
+  <dt id="WebViewNode.DragSensitivity" class="number wo"><em>DragSensitivity</em></dt>
+  <dd>Property for DragSensitivity</dd>
+  <dt id="WebViewNode.DynamicFriction" class="number wo"><em>DynamicFriction</em></dt>
+  <dd>Property for DynamicFriction</dd>
   <dt id="WebViewNode.EnablePhysics" class="boolean"><em>EnablePhysics</em></dt>
   <dd>If the property is set to true, physics apply</dd>
   <dt id="WebViewNode.FillColor" class="color do"><em>FillColor</em></dt>
@@ -2129,6 +2407,8 @@
   <dd>URL of the page the WebViewNode should initially open to.  Setting this will load the page.</dd>
   <dt id="WebViewNode.IsFollowingImageMarker" class="boolean ro bo"><em>IsFollowingImageMarker</em></dt>
   <dd>Specifies whether a node is following an ImageMarker.  Returns true if it is and false otherwise.</dd>
+  <dt id="WebViewNode.Mass" class="number wo"><em>Mass</em></dt>
+  <dd>Property for Mass</dd>
   <dt id="WebViewNode.Model" class="text bo"><em>Model</em></dt>
   <dd>The 3D model file to be loaded.</dd>
   <dt id="WebViewNode.NodeType" class="text ro bo"><em>NodeType</em></dt>
@@ -2145,12 +2425,18 @@
   <dd>Set the current pose of the object from property. Format is a comma-separated list of 3 coordinates: x, y, z such that 0, 0, 1 places the object at x of 0, y of 0 and z of 1</dd>
   <dt id="WebViewNode.PoseToYailDictionary" class="dictionary ro bo"><em>PoseToYailDictionary</em></dt>
   <dd>Convert current pose to yail</dd>
+  <dt id="WebViewNode.Restitution" class="number wo"><em>Restitution</em></dt>
+  <dd>Property for Restitution</dd>
+  <dt id="WebViewNode.RollingForce" class="number wo"><em>RollingForce</em></dt>
+  <dd>Property for RollingForce</dd>
   <dt id="WebViewNode.RotateWithGesture" class="boolean do"><em>RotateWithGesture</em></dt>
   <dd>If the property is set to true, the the node can be rotated around its y-axis using a two finger rotation gesture.  Clockwise increases the angle, and counter clockwise decreases the angle.  Otherwise, the node’s rotation cannot be changed with a rotation gesutre.</dd>
   <dt id="WebViewNode.Scale" class="number"><em>Scale</em></dt>
   <dd>The scale of the node.  This is used to multiply its sizing properties.  Values less than zero will be treated as their absolute value.</dd>
   <dt id="WebViewNode.ShowShadow" class="boolean"><em>ShowShadow</em></dt>
   <dd>Specifies whether the node should show a shadow when it is lit by Lights.</dd>
+  <dt id="WebViewNode.StaticFriction" class="number wo"><em>StaticFriction</em></dt>
+  <dd>Property for StaticFriction</dd>
   <dt id="WebViewNode.Texture" class="text"><em>Texture</em></dt>
   <dd>The 3D texture loaded.</dd>
   <dt id="WebViewNode.TextureOpacity" class="number do"><em>TextureOpacity</em></dt>
@@ -2187,6 +2473,8 @@
   <dd>Returns true if the WebViewNode can go backward in the history list.</dd>
   <dt id="WebViewNode.CanGoForward" class="method returns boolean"><i></i> CanGoForward()</dt>
   <dd>Returns true if the WebViewNode can go forward in the history list.</dd>
+  <dt id="WebViewNode.CollisionDetection" class="method"><i></i> CollisionDetection()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="WebViewNode.DistanceToDetectedPlane" class="method returns number"><i></i> DistanceToDetectedPlane(<em class="component">detectedPlane</em>)</dt>
   <dd>Caluates the distance, in centimeters, between a node and a DetectedPlane.</dd>
   <dt id="WebViewNode.DistanceToNode" class="method returns number"><i></i> DistanceToNode(<em class="component">node</em>)</dt>
@@ -2223,6 +2511,10 @@
   <dd>Changes the node’s position by (x,y,z).</dd>
   <dt id="WebViewNode.MoveToDetectedPlane" class="method"><i></i> MoveToDetectedPlane(<em class="component">targetPlane</em>,<em class="any">p</em>)</dt>
   <dd>move a webview node properties at the specified (x,y,z) position.</dd>
+  <dt id="WebViewNode.ObjectCollidedWithObject" class="method"><i></i> ObjectCollidedWithObject()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
+  <dt id="WebViewNode.ObjectCollidedWithScene" class="method"><i></i> ObjectCollidedWithScene()</dt>
+  <dd>Changes the node’s x rotation by the given degrees.</dd>
   <dt id="WebViewNode.Reload" class="method"><i></i> Reload()</dt>
   <dd>Reloads the current webpage.</dd>
   <dt id="WebViewNode.RotateXBy" class="method"><i></i> RotateXBy(<em class="number">degrees</em>)</dt>
@@ -2235,6 +2527,8 @@
   <dd>Changes the node’s scale by the given scalar.</dd>
   <dt id="WebViewNode.StopFollowingImageMarker" class="method"><i></i> StopFollowingImageMarker()</dt>
   <dd>Makes the node stop following the ImageMarker and sets its position to its current position when this block is called.</dd>
+  <dt id="WebViewNode.endDrag" class="method"><i></i> endDrag(<em class="text">dragVelocity</em>,<em class="text">worldDirection</em>)</dt>
+  <dd>Allow user to additionally add behavoir to the end of the drag/pan movement</dd>
 </dl>
 
 </article>
