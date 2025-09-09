@@ -23,6 +23,7 @@ import com.google.appinventor.components.runtime.Sound;
 import com.google.appinventor.components.runtime.SpeechRecognizer;
 import com.google.appinventor.components.runtime.TextToSpeech;
 import com.google.appinventor.components.runtime.TextBox;
+import com.google.appinventor.components.runtime.LinearProgress;
 import java.util.HashMap;
 import java.util.Map;
 import jsinterop.annotations.JsType;
@@ -52,7 +53,8 @@ public class ComponentFactory {
     LOOKUP.put("SpeechRecognizer", SpeechRecognizer::new);
     LOOKUP.put("TextToSpeech", TextToSpeech::new);
     LOOKUP.put("TextBox", TextBox::new);
-  }  
+    LOOKUP.put("LinearProgress", LinearProgress::new);
+  }
 
   public static Component create(ComponentContainer parent, String type) {
     if (type.startsWith("com.google.appinventor.components.runtime.")) {
